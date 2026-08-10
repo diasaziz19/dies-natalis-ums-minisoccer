@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dies Natalis UMS 2026 - Minisoccer Tournament Management</title>
-  <meta name="description" content="Sistem Manajemen Turnamen Minisoccer Dies Natalis UMS 2026 Berstandar UEFA Champions League. Klasemen real-time, Live Score, Akumulasi Kartu, dan Bagan Knockout.">
+  <meta name="description" content="Sistem Manajemen Turnamen Minisoccer Dies Natalis UMS 2026. Live Score real-time, Bagan Knockout 16 Tim, dan Statistik Pemain.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="./styles.css">
   <link rel="icon" href="https://api.dicebear.com/7.x/identicon/svg?seed=UMS2026">
 </head>
 <body>
 
-  <!-- Top Access Role Selector Bar -->
+  <!-- Top Navigation Bar -->
   <div class="role-bar flex justify-between items-center px-6 py-3">
     <div class="flex items-center gap-3">
       <img src="https://api.dicebear.com/7.x/identicon/svg?seed=UMSLogo&backgroundColor=003366" alt="UMS Logo" style="height: 32px; width: 32px;" class="rounded-full border border-cyan-400">
@@ -21,21 +21,20 @@
       </div>
     </div>
 
-    <!-- Active View Selector -->
+    <!-- Menu Selector -->
     <div class="flex items-center gap-2" id="roleSelectorContainer">
-      <span class="role-badge active" data-role="VISITOR" onclick="switchRole('VISITOR')">🌐 Public Visitor</span>
-      <span class="role-badge" data-role="TEAM_MANAGER" onclick="switchRole('TEAM_MANAGER')">📋 Manager Tim</span>
-      <span class="role-badge" data-role="REFEREE" onclick="switchRole('REFEREE')">⏱️ Match Center (Wasit)</span>
-      <span class="role-badge" data-role="ADMIN" onclick="switchRole('ADMIN')">⚙️ Super Admin</span>
+      <span class="role-badge active" data-role="VISITOR" onclick="switchRole('VISITOR')">🏠 Beranda</span>
+      <span class="role-badge" data-role="TEAM_MANAGER" onclick="switchRole('TEAM_MANAGER')">⚽ Manajemen Tim</span>
+      <span class="role-badge" data-role="ADMIN" onclick="switchRole('ADMIN')">🔒 Super Admin</span>
     </div>
   </div>
 
   <!-- Main Layout Container -->
   <div style="max-width: 1280px; margin: 0 auto; padding: 24px 16px;">
     
-    <!-- 1. PUBLIC VISITOR PORTAL -->
+    <!-- 1. BERANDA (PUBLIC) -->
     <div id="view-VISITOR" class="app-view">
-      <!-- Hero Banner UCL -->
+      <!-- Hero Banner -->
       <div class="hero-ucl p-8 mb-8">
         <div class="hero-starball"></div>
         <div class="flex justify-between items-start flex-wrap gap-4 relative z-10">
@@ -43,61 +42,56 @@
             <span class="badge-gold mb-3 inline-block">OFFICIAL COMPETITION 7v7 (16 TIM KNOCKOUT)</span>
             <h1 style="font-size: 2.2rem; line-height: 1.2; margin-bottom: 8px;">TURNAMEN MINISOCCER DIES NATALIS UMS 2026</h1>
             <p style="color: var(--text-secondary); max-width: 650px; font-size: 0.95rem; line-height: 1.5;">
-              Kompetisi Minisoccer resmi 16 Tim Fakultas & Unit di Universitas Muhammadiyah Surakarta dengan **Sistem Gugur (Knockout Tournament System)**. Babak 16 Besar $\rightarrow$ Perempat Final $\rightarrow$ Semi Final $\rightarrow$ Grand Final!
+              Kompetisi Minisoccer resmi 16 Tim Fakultas &amp; Unit di Universitas Muhammadiyah Surakarta dengan Sistem Gugur (Knockout). Babak 16 Besar → Perempat Final → Semi Final → Grand Final!
             </p>
           </div>
           <div class="glass-panel p-4 text-center" style="min-width: 200px;">
             <span class="text-xs uppercase text-cyan-400 font-bold tracking-widest block mb-1">TOTAL HADIAH</span>
             <span style="font-size: 1.5rem; font-weight: 800; color: var(--ucl-gold)">Rp 15.000.000</span>
-            <span class="text-xs text-slate-400 block mt-1">+ Trophy & Medali UMS</span>
+            <span class="text-xs text-slate-400 block mt-1">+ Trophy &amp; Medali UMS</span>
           </div>
         </div>
 
         <div class="flex gap-6 mt-6 pt-6 border-t border-slate-700/50 flex-wrap">
           <div><span class="text-xs text-slate-400 block">Format Turnamen</span><span class="badge-live">SYSTEM KNOCKOUT (16 TIM)</span></div>
           <div><span class="text-xs text-slate-400 block">Total Peserta</span><span class="font-bold text-white text-sm" id="statTotalTeams">16 Tim Approved</span></div>
-          <div><span class="text-xs text-slate-400 block">Lokasi Lapangan</span><span class="font-bold text-cyan-400 text-sm">UMS Stadium Field A & B</span></div>
+          <div><span class="text-xs text-slate-400 block">Lokasi Lapangan</span><span class="font-bold text-cyan-400 text-sm">UMS Stadium Field A &amp; B</span></div>
         </div>
       </div>
 
-      <!-- Navigation Tabs for Visitor View -->
-      <div class="flex border-b border-slate-800 mb-6 gap-2">
-        <div class="tab-btn active" onclick="switchVisitorTab('bracket')">🌳 Bagan Knockout (16 Besar - Final)</div>
-        <div class="tab-btn" onclick="switchVisitorTab('matches')">📅 Jadwal & Hasil Match</div>
-        <div class="tab-btn" onclick="switchVisitorTab('stats')">⭐ Top Scorer & Statistik</div>
-        <div class="tab-btn" onclick="switchVisitorTab('teams')">🛡️ Daftar 16 Tim Peserta</div>
+      <!-- Tabs Beranda -->
+      <div class="flex border-b border-slate-800 mb-6 gap-2 flex-wrap">
+        <div class="tab-btn active" onclick="switchVisitorTab('bracket')">🌳 Bagan Knockout</div>
+        <div class="tab-btn" onclick="switchVisitorTab('livescore')">📊 Live Score</div>
+        <div class="tab-btn" onclick="switchVisitorTab('matches')">📅 Jadwal &amp; Hasil</div>
+        <div class="tab-btn" onclick="switchVisitorTab('stats')">⭐ Top Scorer</div>
+        <div class="tab-btn" onclick="switchVisitorTab('teams')">🛡️ Tim Peserta</div>
       </div>
 
-      <!-- Tab Content: Standings -->
-      <div id="vtab-standings" class="vtab-content">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold flex items-center gap-2">
-            <span>🏆</span> Klasemen Fase Grup (UEFA Tie-Breaker Rule)
-          </h2>
-          <span class="text-xs text-slate-400">Poin | Head-to-Head | Selisih Gol | Fair Play</span>
-        </div>
-        <div id="standingsTablesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Standings Tables render dynamically -->
-        </div>
-      </div>
-
-      <!-- Tab Content: Knockout Bracket -->
-      <div id="vtab-bracket" class="vtab-content hidden">
+      <!-- Tab: Knockout Bracket -->
+      <div id="vtab-bracket" class="vtab-content">
         <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-          <span>🌳</span> Visual Bagan Knockout Stage (Champions League Tree)
+          <span>🌳</span> Bagan Knockout (16 Besar → Final)
         </h2>
         <div class="glass-panel p-6">
-          <div class="bracket-container" id="knockoutBracketContainer">
-            <!-- Rendered dynamically -->
-          </div>
+          <div class="bracket-container" id="knockoutBracketContainer"></div>
         </div>
       </div>
 
-      <!-- Tab Content: Matches -->
+      <!-- Tab: Live Score (READ-ONLY) -->
+      <div id="vtab-livescore" class="vtab-content hidden">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <span>📊</span> Live Score Pertandingan
+        </h2>
+        <p class="text-sm text-slate-400 mb-4">Skor pertandingan terupdate secara real-time. Hanya Super Admin yang bisa mengubah skor.</p>
+        <div id="liveScoreContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Tab: Matches -->
       <div id="vtab-matches" class="vtab-content hidden">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
           <h2 class="text-xl font-bold flex items-center gap-2">
-            <span>📅</span> Schedule & Live Match Center
+            <span>📅</span> Jadwal &amp; Hasil Pertandingan
           </h2>
           <div class="flex gap-2">
             <select class="form-input" id="matchFilterStatus" onchange="renderVisitorMatches()" style="width: auto; padding: 6px 12px;">
@@ -108,116 +102,148 @@
             </select>
           </div>
         </div>
-        <div id="matchesListContainer" class="grid grid-cols-1 gap-4">
-          <!-- Matches render dynamically -->
-        </div>
+        <div id="matchesListContainer" class="grid grid-cols-1 gap-4"></div>
       </div>
 
-      <!-- Tab Content: Stats -->
+      <!-- Tab: Stats -->
       <div id="vtab-stats" class="vtab-content hidden">
-        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-          <span>⭐</span> Individual Player Leaderboards
-        </h2>
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>⭐</span> Statistik Pemain</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- Top Scorer Card -->
           <div class="glass-panel p-5">
             <h3 class="text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">⚽ Top Scorer (Golden Boot)</h3>
             <div id="topScorersList" class="space-y-3"></div>
           </div>
-          <!-- Top Assist Card -->
           <div class="glass-panel p-5">
             <h3 class="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2">🎯 Top Assist (Playmaker)</h3>
             <div id="topAssistsList" class="space-y-3"></div>
           </div>
-          <!-- Discipline / Cards Card -->
           <div class="glass-panel p-5">
-            <h3 class="text-lg font-bold text-rose-400 mb-3 flex items-center gap-2">🟨 Kedisiplinan & Kartu</h3>
+            <h3 class="text-lg font-bold text-rose-400 mb-3 flex items-center gap-2">🟨 Kedisiplinan &amp; Kartu</h3>
             <div id="disciplineList" class="space-y-3"></div>
           </div>
         </div>
       </div>
 
-      <!-- Tab Content: Teams -->
+      <!-- Tab: Teams -->
       <div id="vtab-teams" class="vtab-content hidden">
-        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-          <span>🛡️</span> Peserta Tim Dies Natalis UMS 2026
-        </h2>
-        <div id="publicTeamsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Rendered dynamically -->
-        </div>
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🛡️</span> Peserta Tim Dies Natalis UMS 2026</h2>
+        <div id="publicTeamsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
       </div>
     </div>
 
-    <!-- 2. TEAM MANAGER PORTAL -->
+    <!-- 2. MANAJEMEN TIM (LOGIN REQUIRED) -->
     <div id="view-TEAM_MANAGER" class="app-view hidden">
-      <div class="glass-panel p-6 mb-6">
-        <div class="flex justify-between items-center flex-wrap gap-4 mb-4">
+      <!-- Login gate (shown when not logged in) -->
+      <div id="managerLoginGate" class="glass-panel p-8 text-center" style="max-width: 460px; margin: 40px auto;">
+        <div style="font-size: 48px; margin-bottom: 16px;">⚽</div>
+        <h2 class="text-2xl font-bold text-white mb-2">Login Manajemen Tim</h2>
+        <p class="text-sm text-slate-400 mb-6">Masukkan username dan password manajer tim Anda untuk mengelola skuad.</p>
+        <form onsubmit="handleManagerLogin(event)" class="space-y-4 text-left">
           <div>
-            <h2 class="text-2xl font-bold text-white mb-1">📋 Portal Pendaftaran & Kelola Skuad Tim</h2>
-            <p class="text-sm text-slate-400">Pendaftaran mandiri Manager Tim Dies Natalis UMS 2026. Batasan: Maks 14 Pemain, 1 Coach, 1 Official.</p>
+            <label class="form-label">Username</label>
+            <input type="text" id="mgrLoginUsername" class="form-input" placeholder="contoh: mgr-team-1" required>
           </div>
-          <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
-        </div>
+          <div>
+            <label class="form-label">Password</label>
+            <input type="password" id="mgrLoginPassword" class="form-input" placeholder="Password" required>
+          </div>
+          <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">🔑 Masuk</button>
+        </form>
+        <p id="mgrLoginError" class="text-sm text-rose-400 mt-3 hidden">Username atau password salah.</p>
       </div>
 
-      <div id="managerTeamsContainer" class="space-y-6">
-        <!-- Render Manager's Registered Team & Squad Roster -->
+      <!-- Manager portal (shown when logged in) -->
+      <div id="managerPortalContent" class="hidden">
+        <div class="glass-panel p-6 mb-6">
+          <div class="flex justify-between items-center flex-wrap gap-4 mb-4">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-1">⚽ Manajemen Tim</h2>
+              <p class="text-sm text-slate-400">Kelola info tim, daftar pemain, dan official. Maks 14 Pemain, 1 Coach, 1 Official.</p>
+              <p class="text-xs text-cyan-400 mt-1" id="managerLoggedInAs"></p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
+              <button onclick="logoutManager()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
+            </div>
+          </div>
+        </div>
+        <div id="managerTeamsContainer" class="space-y-6"></div>
       </div>
     </div>
 
-    <!-- 3. REFEREE / MATCH CENTER PORTAL -->
-    <div id="view-REFEREE" class="app-view hidden">
-      <div class="glass-panel p-6 mb-6">
-        <div class="flex justify-between items-center flex-wrap gap-4">
-          <div>
-            <h2 class="text-2xl font-bold text-cyan-400 mb-1">⏱️ Match Center (Panitia & Wasit)</h2>
-            <p class="text-sm text-slate-400">Input Live Score, Pencetak Gol, Kartu Kuning/Merah, & Akumulasi Suspensi Otomatis.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="glass-panel p-5">
-          <h3 class="font-bold text-lg mb-3">Pilih Pertandingan Aktiv</h3>
-          <div id="refereeMatchSelector" class="space-y-2 max-h-96 overflow-y-auto"></div>
-        </div>
-        <div class="lg:col-span-2 glass-panel p-6" id="matchCenterActivePanel">
-          <p class="text-slate-400 text-center py-12">Pilih salah satu pertandingan di sebelah kiri untuk mulai mengelola Live Score & Event.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. SUPER ADMIN PORTAL -->
+    <!-- 3. SUPER ADMIN (LOGIN REQUIRED) — includes Match Center -->
     <div id="view-ADMIN" class="app-view hidden">
-      <div class="glass-panel p-6 mb-6">
-        <div class="flex justify-between items-center flex-wrap gap-4">
+      <!-- Login gate -->
+      <div id="adminLoginGate" class="glass-panel p-8 text-center" style="max-width: 460px; margin: 40px auto;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+        <h2 class="text-2xl font-bold text-white mb-2">Login Super Admin</h2>
+        <p class="text-sm text-slate-400 mb-6">Hanya Super Admin yang bisa mengakses Match Center dan pengaturan turnamen.</p>
+        <form onsubmit="handleAdminLogin(event)" class="space-y-4 text-left">
           <div>
-            <h2 class="text-2xl font-bold text-white mb-1">⚙️ Super Admin Dashboard</h2>
-            <p class="text-sm text-slate-400">Kelola pertandingan, approval tim, dan undi bagan 16-Team Knockout.</p>
+            <label class="form-label">Username</label>
+            <input type="text" id="adminLoginUsername" class="form-input" placeholder="Username admin" required>
           </div>
-          <div class="flex gap-2 flex-wrap">
-            <button class="btn-ucl-primary" onclick="trigger16TeamDrawingUI()">🎲 Jalankan Undian 16 Tim</button>
-            <button class="btn-ucl-secondary" onclick="resetTournamentData()">🔄 Reset Pertandingan</button>
-            <button onclick="hardResetAndReload()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">🗑️ Hard Reset &amp; Reload</button>
+          <div>
+            <label class="form-label">Password</label>
+            <input type="password" id="adminLoginPassword" class="form-input" placeholder="Password" required>
           </div>
-        </div>
+          <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">🔑 Masuk sebagai Admin</button>
+        </form>
+        <p id="adminLoginError" class="text-sm text-rose-400 mt-3 hidden">Username atau password salah.</p>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Team Approvals Panel -->
-        <div class="glass-panel p-6">
-          <h3 class="font-bold text-lg mb-4 text-white flex items-center justify-between">
-            <span>Daftar Tim Mendaftar</span>
-            <span class="badge-cyan" id="adminPendingBadge">0 Pending</span>
-          </h3>
-          <div id="adminTeamsApprovalList" class="space-y-4"></div>
+      <!-- Admin portal (shown when logged in) -->
+      <div id="adminPortalContent" class="hidden">
+        <div class="glass-panel p-6 mb-6">
+          <div class="flex justify-between items-center flex-wrap gap-4">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-1">🔒 Super Admin Dashboard</h2>
+              <p class="text-sm text-slate-400">Match Center, kelola pertandingan, approval tim, dan undi bagan Knockout.</p>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button class="btn-ucl-primary" onclick="trigger16TeamDrawingUI()">🎲 Undian 16 Tim</button>
+              <button class="btn-ucl-secondary" onclick="resetTournamentData()">🔄 Reset</button>
+              <button onclick="hardResetAndReload()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🗑️ Hard Reset</button>
+              <button onclick="logoutAdmin()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Pot & Drawing Visualizer Panel -->
-        <div class="glass-panel p-6">
-          <h3 class="font-bold text-lg mb-4 text-cyan-400">Champions League Pot & Group Allocation</h3>
-          <div id="adminDrawingVisualizer">
-            <p class="text-slate-400 text-sm">Klik tombol "Jalankan Drawing Pot UCL" untuk mengacak tim ke Pot 1-4 dan membaginya ke Group A-D secara otomatis.</p>
+        <!-- Admin Internal Tabs -->
+        <div class="flex border-b border-slate-800 mb-6 gap-2">
+          <div class="tab-btn active" id="adminTab-matchcenter" onclick="switchAdminTab('matchcenter')">⏱️ Match Center</div>
+          <div class="tab-btn" id="adminTab-manage" onclick="switchAdminTab('manage')">⚙️ Kelola Tim &amp; Turnamen</div>
+        </div>
+
+        <!-- Admin Tab: Match Center -->
+        <div id="adminContent-matchcenter">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="glass-panel p-5">
+              <h3 class="font-bold text-lg mb-3">Pilih Pertandingan</h3>
+              <div id="refereeMatchSelector" class="space-y-2 max-h-96 overflow-y-auto"></div>
+            </div>
+            <div class="lg:col-span-2 glass-panel p-6" id="matchCenterActivePanel">
+              <p class="text-slate-400 text-center py-12">Pilih salah satu pertandingan di sebelah kiri untuk mengelola skor &amp; event.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Tab: Manage Teams & Tournament -->
+        <div id="adminContent-manage" class="hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel p-6">
+              <h3 class="font-bold text-lg mb-4 text-white flex items-center justify-between">
+                <span>Daftar Tim Mendaftar</span>
+                <span class="badge-cyan" id="adminPendingBadge">0 Pending</span>
+              </h3>
+              <div id="adminTeamsApprovalList" class="space-y-4"></div>
+            </div>
+            <div class="glass-panel p-6">
+              <h3 class="font-bold text-lg mb-4 text-cyan-400">Undian &amp; Drawing 16 Tim</h3>
+              <div id="adminDrawingVisualizer">
+                <p class="text-slate-400 text-sm">Klik tombol "🎲 Undian 16 Tim" untuk mengacak bagan knockout.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
