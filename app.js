@@ -1,30 +1,27 @@
 /**
  * Main Application Logic
- * Dies Natalis UMS 2026 Minisoccer Tournament System
+ * Dies Natalis UMS 2026 Minisoccer Tournament System (16-Team Knockout System)
  */
 
-import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES, MOCK_KNOCKOUT_BRACKET } from './src/lib/mockData.js';
-import { calculateGroupStandings } from './src/lib/standingsCalculator.js';
-import { executeUCLDraw } from './src/lib/drawingEngine.js';
+import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES } from './src/lib/mockData.js';
+import { execute16TeamKnockoutDraw } from './src/lib/drawingEngine.js';
 import { evaluatePlayerSuspensions } from './src/lib/cardAccumulation.js';
 
 // State Management
 let currentRole = 'VISITOR';
-let currentVisitorTab = 'standings';
+let currentVisitorTab = 'bracket';
 let activeRefereeMatchId = null;
 
 let teams = JSON.parse(localStorage.getItem('ums_teams')) || INITIAL_TEAMS;
 let players = JSON.parse(localStorage.getItem('ums_players')) || INITIAL_PLAYERS;
 let officials = JSON.parse(localStorage.getItem('ums_officials')) || INITIAL_OFFICIALS;
 let matches = JSON.parse(localStorage.getItem('ums_matches')) || INITIAL_MATCHES;
-let knockoutBracket = JSON.parse(localStorage.getItem('ums_bracket')) || MOCK_KNOCKOUT_BRACKET;
 
 function saveState() {
   localStorage.setItem('ums_teams', JSON.stringify(teams));
   localStorage.setItem('ums_players', JSON.stringify(players));
   localStorage.setItem('ums_officials', JSON.stringify(officials));
   localStorage.setItem('ums_matches', JSON.stringify(matches));
-  localStorage.setItem('ums_bracket', JSON.stringify(knockoutBracket));
 }
 
 // Global window bindings for HTML onclick handlers
@@ -37,7 +34,7 @@ window.deletePlayer = deletePlayer;
 window.deleteOfficial = deleteOfficial;
 window.approveTeam = approveTeam;
 window.rejectTeam = rejectTeam;
-window.triggerUCLDrawingUI = triggerUCLDrawingUI;
+window.trigger16TeamDrawingUI = trigger16TeamDrawingUI;
 window.resetTournamentData = resetTournamentData;
 window.selectRefereeMatch = selectRefereeMatch;
 window.addMatchEvent = addMatchEvent;
@@ -84,7 +81,6 @@ function switchVisitorTab(tabName) {
 }
 
 function renderApp() {
-  // Update evaluate suspensions
   players = evaluatePlayerSuspensions(players, matches);
   saveState();
 
@@ -103,15 +99,12 @@ function renderApp() {
 // 1. VISITOR PORTAL RENDERING
 // ----------------------------------------------------
 function renderVisitorTabContent() {
-  // Update Hero Stat Badge
   const approvedCount = teams.filter(t => t.status === 'APPROVED').length;
   const statEl = document.getElementById('statTotalTeams');
   if (statEl) statEl.textContent = `${approvedCount} Tim Approved`;
 
-  if (currentVisitorTab === 'standings') {
-    renderStandingsTables();
-  } else if (currentVisitorTab === 'bracket') {
-    renderKnockoutBracket();
+  if (currentVisitorTab === 'bracket') {
+    render16TeamKnockoutBracket();
   } else if (currentVisitorTab === 'matches') {
     renderVisitorMatches();
   } else if (currentVisitorTab === 'stats') {
@@ -121,146 +114,102 @@ function renderVisitorTabContent() {
   }
 }
 
-function renderStandingsTables() {
-  const container = document.getElementById('standingsTablesContainer');
-  if (!container) return;
-
-  // Group teams by groupName
-  const groups = {};
-  teams.filter(t => t.status === 'APPROVED' && t.groupName).forEach(t => {
-    if (!groups[t.groupName]) groups[t.groupName] = [];
-    groups[t.groupName].push(t);
-  });
-
-  if (Object.keys(groups).length === 0) {
-    container.innerHTML = `
-      <div class="col-span-2 glass-panel p-8 text-center text-slate-400">
-        Belum ada grup yang dibentuk. Silakan jalankan <strong>Drawing Pot UCL</strong> di Dashboard Admin.
-      </div>
-    `;
-    return;
-  }
-
-  let html = '';
-  Object.keys(groups).sort().forEach(gName => {
-    const groupTeams = groups[gName];
-    const groupMatches = matches.filter(m => m.groupName === gName);
-    const standings = calculateGroupStandings(groupTeams, groupMatches);
-
-    html += `
-      <div class="glass-panel p-5">
-        <h3 class="text-lg font-bold text-cyan-400 mb-3 flex items-center justify-between">
-          <span>🛡️ ${gName}</span>
-          <span class="text-xs text-slate-400 font-normal">${groupTeams.length} Tim</span>
-        </h3>
-        <div style="overflow-x: auto;">
-          <table class="table-ucl">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Tim</th>
-                <th>P</th>
-                <th>W</th>
-                <th>D</th>
-                <th>L</th>
-                <th>GF</th>
-                <th>GA</th>
-                <th>GD</th>
-                <th>PTS</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${standings.map((s, idx) => `
-                <tr class="${idx < 2 ? 'qualify-knockout' : ''}">
-                  <td><strong style="color: ${idx < 2 ? 'var(--ucl-cyan)' : 'var(--text-muted)'}">${s.rank}</strong></td>
-                  <td class="flex items-center gap-2 cursor-pointer" onclick="openTeamDetailModal('${s.teamId}')">
-                    <img src="${s.logoUrl}" style="width: 22px; height: 22px; border-radius: 50%; background: #000;">
-                    <span class="font-semibold text-white hover:text-cyan-400">${s.teamName}</span>
-                  </td>
-                  <td>${s.played}</td>
-                  <td>${s.won}</td>
-                  <td>${s.drawn}</td>
-                  <td>${s.lost}</td>
-                  <td>${s.goalsFor}</td>
-                  <td>${s.goalsAgainst}</td>
-                  <td>${s.goalDifference > 0 ? '+' + s.goalDifference : s.goalDifference}</td>
-                  <td><strong style="color: var(--ucl-gold); font-size: 15px;">${s.points}</strong></td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
-}
-
-function renderKnockoutBracket() {
+function render16TeamKnockoutBracket() {
   const container = document.getElementById('knockoutBracketContainer');
   if (!container) return;
 
+  const roundOf16 = matches.filter(m => m.stage === 'ROUND_OF_16');
+  const quarterFinals = matches.filter(m => m.stage === 'QUARTER_FINAL');
+  const semiFinals = matches.filter(m => m.stage === 'SEMI_FINAL');
+  const thirdPlace = matches.find(m => m.stage === 'THIRD_PLACE');
+  const grandFinal = matches.find(m => m.stage === 'FINAL');
+
   container.innerHTML = `
-    <!-- Perempat Final -->
-    <div class="bracket-column">
-      <h4 class="text-xs uppercase text-slate-400 font-bold mb-3 text-center">Quarter Finals (8 Besar)</h4>
-      ${knockoutBracket.quarterFinals.map(m => `
-        <div class="bracket-match mb-4">
-          <div class="bracket-team ${m.scoreHome > m.scoreAway ? 'winner' : ''}">
-            <span>${m.home}</span>
-            <span class="bracket-score">${m.scoreHome}</span>
+    <!-- Round of 16 -->
+    <div class="bracket-column" style="min-width: 220px;">
+      <h4 class="text-xs uppercase text-cyan-400 font-bold mb-3 text-center">Babak 16 Besar (Octofinals)</h4>
+      ${roundOf16.map(m => `
+        <div class="bracket-match mb-3 cursor-pointer" onclick="openMatchSheetModal('${m.id}')">
+          <div class="text-xs text-slate-400 font-bold mb-1">Match #${m.matchNumber} (${m.status})</div>
+          <div class="bracket-team ${m.homeScore > m.awayScore && m.status === 'FINISHED' ? 'winner' : ''}">
+            <span class="truncate">${m.homeTeamName}</span>
+            <span class="bracket-score">${m.homeScore}</span>
           </div>
-          <div class="bracket-team ${m.scoreAway > m.scoreHome ? 'winner' : ''}">
-            <span>${m.away}</span>
-            <span class="bracket-score">${m.scoreAway}</span>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-
-    <!-- Semi Final -->
-    <div class="bracket-column">
-      <h4 class="text-xs uppercase text-cyan-400 font-bold mb-3 text-center">Semi Finals</h4>
-      ${knockoutBracket.semiFinals.map(m => `
-        <div class="bracket-match mb-6">
-          <div class="bracket-team ${m.scoreHome > m.scoreAway ? 'winner' : ''}">
-            <span>${m.home}</span>
-            <span class="bracket-score">${m.scoreHome}</span>
-          </div>
-          <div class="bracket-team ${m.scoreAway > m.scoreHome ? 'winner' : ''}">
-            <span>${m.away}</span>
-            <span class="bracket-score">${m.scoreAway}</span>
+          <div class="bracket-team ${m.awayScore > m.homeScore && m.status === 'FINISHED' ? 'winner' : ''}">
+            <span class="truncate">${m.awayTeamName}</span>
+            <span class="bracket-score">${m.awayScore}</span>
           </div>
         </div>
       `).join('')}
     </div>
 
-    <!-- Final & 3rd Place -->
-    <div class="bracket-column">
-      <h4 class="text-xs uppercase text-amber-400 font-bold mb-3 text-center">🏆 GRAND FINAL</h4>
-      <div class="bracket-match mb-6" style="border-color: var(--ucl-gold); background: rgba(255, 215, 0, 0.05);">
-        <div class="bracket-team">
-          <span>${knockoutBracket.final.home}</span>
-          <span class="bracket-score">${knockoutBracket.final.scoreHome}</span>
+    <!-- Quarter Finals -->
+    <div class="bracket-column" style="min-width: 220px;">
+      <h4 class="text-xs uppercase text-amber-400 font-bold mb-3 text-center">Perempat Final (8 Besar)</h4>
+      ${quarterFinals.map(m => `
+        <div class="bracket-match mb-8 cursor-pointer" onclick="openMatchSheetModal('${m.id}')">
+          <div class="text-xs text-slate-400 font-bold mb-1">Match #${m.matchNumber} (${m.status})</div>
+          <div class="bracket-team ${m.homeScore > m.awayScore && m.status === 'FINISHED' ? 'winner' : ''}">
+            <span class="truncate">${m.homeTeamName}</span>
+            <span class="bracket-score">${m.homeScore}</span>
+          </div>
+          <div class="bracket-team ${m.awayScore > m.homeScore && m.status === 'FINISHED' ? 'winner' : ''}">
+            <span class="truncate">${m.awayTeamName}</span>
+            <span class="bracket-score">${m.awayScore}</span>
+          </div>
         </div>
-        <div class="bracket-team">
-          <span>${knockoutBracket.final.away}</span>
-          <span class="bracket-score">${knockoutBracket.final.scoreAway}</span>
-        </div>
-      </div>
+      `).join('')}
+    </div>
 
-      <h4 class="text-xs uppercase text-slate-400 font-bold mb-3 text-center">3rd Place Playoff</h4>
-      <div class="bracket-match">
-        <div class="bracket-team">
-          <span>${knockoutBracket.thirdPlace.home}</span>
-          <span class="bracket-score">${knockoutBracket.thirdPlace.scoreHome}</span>
+    <!-- Semi Finals -->
+    <div class="bracket-column" style="min-width: 220px;">
+      <h4 class="text-xs uppercase text-purple-400 font-bold mb-3 text-center">Semi Finals</h4>
+      ${semiFinals.map(m => `
+        <div class="bracket-match mb-16 cursor-pointer" onclick="openMatchSheetModal('${m.id}')">
+          <div class="text-xs text-slate-400 font-bold mb-1">Match #${m.matchNumber} (${m.status})</div>
+          <div class="bracket-team ${m.homeScore > m.awayScore && m.status === 'FINISHED' ? 'winner' : ''}">
+            <span class="truncate">${m.homeTeamName}</span>
+            <span class="bracket-score">${m.homeScore}</span>
+          </div>
+          <div class="bracket-team ${m.awayScore > m.homeScore && m.status === 'FINISHED' ? 'winner' : ''}">
+            <span class="truncate">${m.awayTeamName}</span>
+            <span class="bracket-score">${m.awayScore}</span>
+          </div>
         </div>
-        <div class="bracket-team">
-          <span>${knockoutBracket.thirdPlace.away}</span>
-          <span class="bracket-score">${knockoutBracket.thirdPlace.scoreAway}</span>
+      `).join('')}
+    </div>
+
+    <!-- Grand Final & 3rd Place -->
+    <div class="bracket-column" style="min-width: 240px;">
+      <h4 class="text-xs uppercase text-yellow-400 font-bold mb-3 text-center">🏆 GRAND FINAL</h4>
+      ${grandFinal ? `
+        <div class="bracket-match mb-8" style="border-color: var(--ucl-gold); background: rgba(255, 215, 0, 0.08);">
+          <div class="text-xs text-amber-400 font-bold mb-1">Match #${grandFinal.matchNumber} (${grandFinal.status})</div>
+          <div class="bracket-team">
+            <span>${grandFinal.homeTeamName}</span>
+            <span class="bracket-score">${grandFinal.homeScore}</span>
+          </div>
+          <div class="bracket-team">
+            <span>${grandFinal.awayTeamName}</span>
+            <span class="bracket-score">${grandFinal.awayScore}</span>
+          </div>
         </div>
-      </div>
+      ` : ''}
+
+      <h4 class="text-xs uppercase text-slate-400 font-bold mb-3 text-center">Perebutan Juara 3</h4>
+      ${thirdPlace ? `
+        <div class="bracket-match">
+          <div class="text-xs text-slate-400 font-bold mb-1">Match #${thirdPlace.matchNumber} (${thirdPlace.status})</div>
+          <div class="bracket-team">
+            <span>${thirdPlace.homeTeamName}</span>
+            <span class="bracket-score">${thirdPlace.homeScore}</span>
+          </div>
+          <div class="bracket-team">
+            <span>${thirdPlace.awayTeamName}</span>
+            <span class="bracket-score">${thirdPlace.awayScore}</span>
+          </div>
+        </div>
+      ` : ''}
     </div>
   `;
 }
@@ -276,19 +225,19 @@ function renderVisitorMatches() {
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div class="glass-panel p-6 text-center text-slate-400">Tidak ada pertandingan dengan filter status ini.</div>`;
+    container.innerHTML = `<div class="glass-panel p-6 text-center text-slate-400">Tidak ada pertandingan dengan status ini.</div>`;
     return;
   }
 
   container.innerHTML = filtered.map(m => `
     <div class="glass-panel p-5 flex justify-between items-center flex-wrap gap-4 glass-panel-hover">
       <div class="flex items-center gap-3">
-        <span class="badge-cyan text-xs">${m.groupName || m.stage}</span>
+        <span class="badge-cyan text-xs">Match #${m.matchNumber} | ${m.stage}</span>
         <span class="text-xs text-slate-400">📍 ${m.pitchLocation}</span>
       </div>
 
       <div class="flex items-center gap-6 my-2">
-        <div class="flex items-center gap-3 text-right" style="min-width: 160px; justify-content: flex-end;">
+        <div class="flex items-center gap-3 text-right" style="min-width: 170px; justify-content: flex-end;">
           <span class="font-bold text-white text-sm">${m.homeTeamName}</span>
           <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + m.homeTeamName}" style="width: 32px; height: 32px; border-radius: 50%; background: #000;">
         </div>
@@ -298,7 +247,7 @@ function renderVisitorMatches() {
           <span class="block text-xs font-bold ${m.status === 'LIVE' ? 'text-red-400' : 'text-slate-400'}">${m.status}</span>
         </div>
 
-        <div class="flex items-center gap-3 text-left" style="min-width: 160px;">
+        <div class="flex items-center gap-3 text-left" style="min-width: 170px;">
           <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + m.awayTeamName}" style="width: 32px; height: 32px; border-radius: 50%; background: #000;">
           <span class="font-bold text-white text-sm">${m.awayTeamName}</span>
         </div>
@@ -310,7 +259,6 @@ function renderVisitorMatches() {
 }
 
 function renderPlayerLeaderboards() {
-  // 1. Top Scorers
   const scorerMap = {};
   matches.forEach(m => {
     (m.events || []).forEach(e => {
@@ -346,7 +294,6 @@ function renderPlayerLeaderboards() {
       }).join('');
   }
 
-  // 2. Top Assist
   const assistMap = {};
   matches.forEach(m => {
     (m.events || []).forEach(e => {
@@ -382,7 +329,6 @@ function renderPlayerLeaderboards() {
       }).join('');
   }
 
-  // 3. Discipline (Yellow / Red Cards)
   const disciplineList = players.filter(p => p.yellowCardsCount > 0 || p.redCardsCount > 0 || p.isSuspended);
   const disciplineEl = document.getElementById('disciplineList');
   if (disciplineEl) {
@@ -450,7 +396,6 @@ function renderTeamManagerPortal() {
     const teamOfficials = officials.filter(o => o.teamId === team.id);
     const headCoach = teamOfficials.find(o => o.role === 'HEAD_COACH');
     const teamOfficial = teamOfficials.find(o => o.role === 'OFFICIAL');
-
     const isPlayerFull = teamPlayers.length >= 14;
 
     return `
@@ -468,7 +413,6 @@ function renderTeamManagerPortal() {
           </div>
         </div>
 
-        <!-- Squad Roster Section -->
         <div class="mb-6">
           <div class="flex justify-between items-center mb-3">
             <h4 class="font-bold text-white text-base flex items-center gap-2">
@@ -484,7 +428,7 @@ function renderTeamManagerPortal() {
             ${teamPlayers.map(p => `
               <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                  <span class="font-black text-cyan-400 text-base style='width:24px;'>#${p.jerseyNumber}</span>
+                  <span class="font-black text-cyan-400 text-base">#${p.jerseyNumber}</span>
                   <img src="${p.photoProfileUrl}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
                   <div>
                     <span class="font-bold text-white text-sm block">${p.fullName}</span>
@@ -498,7 +442,6 @@ function renderTeamManagerPortal() {
           </div>
         </div>
 
-        <!-- Officials Section -->
         <div>
           <div class="flex justify-between items-center mb-3">
             <h4 class="font-bold text-white text-base">👨‍💼 Tim Official & Pelatih</h4>
@@ -523,7 +466,7 @@ function renderTeamManagerPortal() {
 }
 
 // ----------------------------------------------------
-// 3. REFEREE / MATCH CENTER PORTAL
+// 3. REFEREE / MATCH CENTER PORTAL (WITH AUTOMATIC KNOCKOUT PROGRESSION)
 // ----------------------------------------------------
 function renderRefereePortal() {
   const selectorEl = document.getElementById('refereeMatchSelector');
@@ -532,7 +475,7 @@ function renderRefereePortal() {
   selectorEl.innerHTML = matches.map(m => `
     <div class="p-3 rounded-lg bg-slate-900/80 border ${activeRefereeMatchId === m.id ? 'border-cyan-400 bg-slate-800' : 'border-slate-800'} cursor-pointer hover:border-cyan-500" onclick="selectRefereeMatch('${m.id}')">
       <div class="flex justify-between items-center text-xs mb-1">
-        <span class="text-cyan-400 font-bold">${m.groupName || m.stage}</span>
+        <span class="text-cyan-400 font-bold">Match #${m.matchNumber} (${m.stage})</span>
         <span class="badge-${m.status === 'LIVE' ? 'live' : 'cyan'}">${m.status}</span>
       </div>
       <div class="font-bold text-white text-sm">
@@ -560,33 +503,33 @@ function renderActiveRefereeMatchPanel() {
   const match = matches.find(m => m.id === activeRefereeMatchId);
   if (!match) return;
 
-  const homePlayers = players.filter(p => p.teamId === match.homeTeamId);
-  const awayPlayers = players.filter(p => p.teamId === match.awayTeamId);
+  const homePlayers = match.homeTeamId ? players.filter(p => p.teamId === match.homeTeamId) : [];
+  const awayPlayers = match.awayTeamId ? players.filter(p => p.teamId === match.awayTeamId) : [];
 
   panel.innerHTML = `
     <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-6 flex-wrap gap-2">
       <div>
-        <span class="badge-cyan text-xs">${match.groupName || match.stage} | ${match.pitchLocation}</span>
+        <span class="badge-cyan text-xs">Match #${match.matchNumber} | ${match.stage} | ${match.pitchLocation}</span>
         <h3 class="text-2xl font-bold text-white mt-1">${match.homeTeamName} vs ${match.awayTeamName}</h3>
       </div>
       <div class="flex gap-2">
-        <button class="btn-ucl-primary" style="padding: 6px 14px; font-size: 13px;" onclick="finishMatch('${match.id}')">Peluit Akhir (Finish Match)</button>
-        <button class="btn-ucl-secondary" style="padding: 6px 14px; font-size: 13px;" onclick="openMatchSheetModal('${match.id}')">📄 Generate Match Sheet</button>
+        <button class="btn-ucl-primary" style="padding: 6px 14px; font-size: 13px;" onclick="finishMatch('${match.id}')">Peluit Akhir (Advance Winner)</button>
+        <button class="btn-ucl-secondary" style="padding: 6px 14px; font-size: 13px;" onclick="openMatchSheetModal('${match.id}')">📄 Match Sheet</button>
       </div>
     </div>
 
     <!-- Score Board -->
     <div class="flex justify-center items-center gap-8 my-6 py-6 bg-slate-900/60 rounded-xl border border-slate-800">
-      <div class="text-center">
-        <img src="${match.homeTeamLogo}" style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 6px; background: #000;">
+      <div class="text-center" style="min-width: 140px;">
+        <img src="${match.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + match.homeTeamName}" style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 6px; background: #000;">
         <span class="font-bold text-white block text-sm">${match.homeTeamName}</span>
       </div>
       <div class="text-center px-6 py-2 bg-black/50 border border-cyan-400/40 rounded-xl">
         <span class="font-black text-4xl text-cyan-400 font-mono">${match.homeScore} - ${match.awayScore}</span>
         <span class="block text-xs text-slate-400 mt-1 font-bold">${match.status}</span>
       </div>
-      <div class="text-center">
-        <img src="${match.awayTeamLogo}" style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 6px; background: #000;">
+      <div class="text-center" style="min-width: 140px;">
+        <img src="${match.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + match.awayTeamName}" style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 6px; background: #000;">
         <span class="font-bold text-white block text-sm">${match.awayTeamName}</span>
       </div>
     </div>
@@ -613,7 +556,7 @@ function renderActiveRefereeMatchPanel() {
           </div>
           <div>
             <label class="form-label">Tim</label>
-            <select id="eventTeamSelect" class="form-input" required onchange="updatePlayerOptionsForMatch('${match.homeTeamId}', '${match.awayTeamId}')">
+            <select id="eventTeamSelect" class="form-input" required>
               <option value="${match.homeTeamId}">${match.homeTeamName}</option>
               <option value="${match.awayTeamId}">${match.awayTeamName}</option>
             </select>
@@ -621,7 +564,7 @@ function renderActiveRefereeMatchPanel() {
           <div>
             <label class="form-label">Pemain Bersangkutan</label>
             <select id="eventPlayerSelect" class="form-input" required>
-              ${homePlayers.map(p => `<option value="${p.id}">${p.fullName} (#${p.jerseyNumber}) ${p.isSuspended ? '[SUSPENDED]' : ''}</option>`).join('')}
+              ${homePlayers.concat(awayPlayers).map(p => `<option value="${p.id}">${p.fullName} (#${p.jerseyNumber}) ${p.isSuspended ? '[SUSPENDED]' : ''}</option>`).join('')}
             </select>
           </div>
           <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">Simpan Event Match</button>
@@ -659,7 +602,6 @@ function addMatchEvent(e, matchId) {
   const playerObj = players.find(p => p.id === playerId);
   const playerFullName = playerObj ? playerObj.fullName : 'Player';
 
-  // Create match event
   const newEvent = {
     id: 'ev-' + Date.now(),
     minute,
@@ -672,7 +614,6 @@ function addMatchEvent(e, matchId) {
   if (!match.events) match.events = [];
   match.events.push(newEvent);
 
-  // Update Score or Cards
   if (eventType === 'GOAL' || eventType === 'PENALTY_GOAL') {
     if (teamId === match.homeTeamId) match.homeScore += 1;
     else match.awayScore += 1;
@@ -700,10 +641,67 @@ function addMatchEvent(e, matchId) {
 function finishMatch(matchId) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
+
   match.status = 'FINISHED';
+
+  // AUTOMATIC KNOCKOUT WINNER ADVANCEMENT LOGIC
+  const winningTeamId = match.homeScore > match.awayScore ? match.homeTeamId : match.awayTeamId;
+  const losingTeamId = match.homeScore > match.awayScore ? match.awayTeamId : match.homeTeamId;
+
+  const winningTeam = teams.find(t => t.id === winningTeamId);
+  const losingTeam = teams.find(t => t.id === losingTeamId);
+
+  // Advance winner from Round of 16 (Match 1 - 8) -> Quarter Finals (Match 9 - 12)
+  if (match.matchNumber >= 1 && match.matchNumber <= 8) {
+    const qfMatchNumber = 8 + Math.ceil(match.matchNumber / 2);
+    const qfMatch = matches.find(m => m.matchNumber === qfMatchNumber);
+    if (qfMatch) {
+      if (match.matchNumber % 2 === 1) {
+        qfMatch.homeTeamId = winningTeamId;
+        qfMatch.homeTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+        qfMatch.homeTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+      } else {
+        qfMatch.awayTeamId = winningTeamId;
+        qfMatch.awayTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+        qfMatch.awayTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+      }
+    }
+  }
+
+  // Advance winner from Quarter Finals (Match 9 - 12) -> Semi Finals (Match 13 - 14)
+  if (match.matchNumber >= 9 && match.matchNumber <= 12) {
+    const sfMatchNumber = 12 + Math.ceil((match.matchNumber - 8) / 2);
+    const sfMatch = matches.find(m => m.matchNumber === sfMatchNumber);
+    if (sfMatch) {
+      if ((match.matchNumber - 8) % 2 === 1) {
+        sfMatch.homeTeamId = winningTeamId;
+        sfMatch.homeTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+        sfMatch.homeTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+      } else {
+        sfMatch.awayTeamId = winningTeamId;
+        sfMatch.awayTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+        sfMatch.awayTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+      }
+    }
+  }
+
+  // Advance winner from Semi Finals (Match 13 & 14) -> Grand Final (Match 16) & 3rd Place (Match 15)
+  if (match.matchNumber === 13 || match.matchNumber === 14) {
+    const finalMatch = matches.find(m => m.matchNumber === 16);
+    const thirdMatch = matches.find(m => m.matchNumber === 15);
+
+    if (match.matchNumber === 13) {
+      if (finalMatch) { finalMatch.homeTeamId = winningTeamId; finalMatch.homeTeamName = winningTeam?.name; finalMatch.homeTeamLogo = winningTeam?.logoUrl; }
+      if (thirdMatch) { thirdMatch.homeTeamId = losingTeamId; thirdMatch.homeTeamName = losingTeam?.name; thirdMatch.homeTeamLogo = losingTeam?.logoUrl; }
+    } else {
+      if (finalMatch) { finalMatch.awayTeamId = winningTeamId; finalMatch.awayTeamName = winningTeam?.name; finalMatch.awayTeamLogo = winningTeam?.logoUrl; }
+      if (thirdMatch) { thirdMatch.awayTeamId = losingTeamId; thirdMatch.awayTeamName = losingTeam?.name; thirdMatch.awayTeamLogo = losingTeam?.logoUrl; }
+    }
+  }
+
   saveState();
   renderApp();
-  alert(`Pertandingan #${match.matchNumber} (${match.homeTeamName} vs ${match.awayTeamName}) resmi selesai! Klasemen grup otomatis diperbarui.`);
+  alert(`Match #${match.matchNumber} (${match.homeTeamName} vs ${match.awayTeamName}) selesai! ${winningTeam ? winningTeam.name : 'Pemenang'} melaju ke babak berikutnya di bagan Knockout.`);
 }
 
 // ----------------------------------------------------
@@ -755,17 +753,12 @@ function rejectTeam(teamId) {
   }
 }
 
-function triggerUCLDrawingUI() {
-  const res = executeUCLDraw(teams, 2); // 2 Groups (A & B)
+function trigger16TeamDrawingUI() {
+  const res = execute16TeamKnockoutDraw(teams);
   if (!res.success) {
     alert(res.message);
     return;
   }
-
-  teams = teams.map(t => {
-    const updated = Object.values(res.groups).flat().find(gTeam => gTeam.id === t.id);
-    return updated ? updated : t;
-  });
 
   matches = res.matches;
   saveState();
@@ -776,36 +769,26 @@ function triggerUCLDrawingUI() {
     visualizer.innerHTML = `
       <div class="p-4 rounded-xl bg-slate-900 border border-cyan-400/40">
         <span class="text-xs font-bold text-emerald-400 block mb-2">🎉 ${res.message}</span>
-        <div class="grid grid-cols-2 gap-4">
-          ${Object.keys(res.groups).map(gName => `
-            <div class="p-3 bg-slate-950 rounded border border-slate-800">
-              <strong class="text-cyan-400 text-xs block mb-2">${gName}</strong>
-              <ul class="text-xs text-white space-y-1">
-                ${res.groups[gName].map(t => `<li>🛡️ ${t.name} (Pot ${t.potNumber})</li>`).join('')}
-              </ul>
-            </div>
-          `).join('')}
-        </div>
+        <p class="text-xs text-slate-300">16 Tim telah acak diundi ke dalam 8 Pertandingan Babak 16 Besar (Octofinals). Silakan periksa bagan Knockout di Visitor View.</p>
       </div>
     `;
   }
 }
 
 function resetTournamentData() {
-  if (confirm('Apakah Anda yakin ingin mengembalikan dataset ke awal (Initial Seed)?')) {
+  if (confirm('Apakah Anda yakin ingin mengembalikan dataset ke awal (Initial 16-Team Knockout Seed)?')) {
     localStorage.clear();
     teams = INITIAL_TEAMS;
     players = INITIAL_PLAYERS;
     officials = INITIAL_OFFICIALS;
     matches = INITIAL_MATCHES;
-    knockoutBracket = MOCK_KNOCKOUT_BRACKET;
     saveState();
     renderApp();
   }
 }
 
 // ----------------------------------------------------
-// MODALS (REGISTRATION, MATCH SHEET, PLAYER PROFILE)
+// MODALS
 // ----------------------------------------------------
 function closeModal() {
   const modal = document.getElementById('modalContainer');
@@ -861,16 +844,14 @@ window.handleRegisterTeamSubmit = function(e) {
     managerId: 'mgr-' + Date.now(),
     managerName,
     managerPhone,
-    status: 'APPROVED', // Default approval for testing convenience
-    groupName: 'Group A',
-    potNumber: 3
+    status: 'APPROVED'
   };
 
   teams.push(newTeam);
   saveState();
   closeModal();
   renderApp();
-  alert(`Tim ${name} berhasil terdaftar! Silakan tambahkan squad pemain & official.`);
+  alert(`Tim ${name} berhasil terdaftar!`);
 };
 
 function openAddPlayerModal(teamId) {
@@ -916,14 +897,13 @@ window.handleAddPlayerSubmit = function(e, teamId) {
   const position = document.getElementById('pPosition').value;
   const jerseyNumber = parseInt(document.getElementById('pJerseyNumber').value);
 
-  // Validation: Duplicate Jersey Number within team
   const duplicateJersey = players.some(p => p.teamId === teamId && p.jerseyNumber === jerseyNumber);
   if (duplicateJersey) {
-    alert(`Nomor punggung #${jerseyNumber} sudah dipakai oleh pemain lain di tim ini! Gunakan nomor punggung lain.`);
+    alert(`Nomor punggung #${jerseyNumber} sudah dipakai oleh pemain lain di tim ini!`);
     return;
   }
 
-  const newPlayer = {
+  players.push({
     id: 'p-' + Date.now(),
     teamId,
     fullName,
@@ -931,16 +911,15 @@ window.handleAddPlayerSubmit = function(e, teamId) {
     position,
     jerseyNumber,
     photoProfileUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(fullName)}`
-  };
+  });
 
-  players.push(newPlayer);
   saveState();
   closeModal();
   renderApp();
 };
 
 function deletePlayer(playerId) {
-  if (confirm('Hapus pemain dari skuad?')) {
+  if (confirm('Hapus pemain ini dari skuad?')) {
     players = players.filter(p => p.id !== playerId);
     saveState();
     renderApp();
@@ -979,7 +958,7 @@ window.handleAddOfficialSubmit = function(e, teamId) {
 
   const existing = officials.find(o => o.teamId === teamId && o.role === role);
   if (existing) {
-    alert(`Tim ini sudah memiliki ${role === 'HEAD_COACH' ? 'Head Coach' : 'Official Tim'}. Batas maksimal adalah 1.`);
+    alert(`Tim ini sudah memiliki ${role === 'HEAD_COACH' ? 'Head Coach' : 'Official Tim'}.`);
     return;
   }
 
@@ -1008,15 +987,15 @@ function openMatchSheetModal(matchId) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
 
-  const homeTeamPlayers = players.filter(p => p.teamId === match.homeTeamId);
-  const awayTeamPlayers = players.filter(p => p.teamId === match.awayTeamId);
+  const homeTeamPlayers = match.homeTeamId ? players.filter(p => p.teamId === match.homeTeamId) : [];
+  const awayTeamPlayers = match.awayTeamId ? players.filter(p => p.teamId === match.awayTeamId) : [];
 
   openModal(`
     <div class="p-4" style="background: white; color: black; border-radius: 12px;">
       <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px;">
         <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase;">LAPORAN RESMI PERTANDINGAN (MATCH SHEET)</h2>
-        <h3 style="font-size: 14px; font-weight: 700; color: #003366;">DIES NATALIS UMS 2026 MINISOCCER TOURNAMENT</h3>
-        <p style="font-size: 11px;">Stadion UMS | ${match.groupName || match.stage} | Pitch: ${match.pitchLocation}</p>
+        <h3 style="font-size: 14px; font-weight: 700; color: #003366;">DIES NATALIS UMS 2026 MINISOCCER (SISTEM KNOCKOUT 16 TIM)</h3>
+        <p style="font-size: 11px;">Stadion UMS | Match #${match.matchNumber} (${match.stage}) | Pitch: ${match.pitchLocation}</p>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 16px;">

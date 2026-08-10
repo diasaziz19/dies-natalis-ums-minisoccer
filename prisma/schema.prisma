@@ -1,5 +1,5 @@
 // prisma/schema.prisma
-// Database Schema - Dies Natalis UMS 2026 Minisoccer Tournament
+// Database Schema - Dies Natalis UMS 2026 Minisoccer Tournament (16-Team Knockout System)
 
 datasource db {
   provider = "postgresql"
@@ -35,7 +35,7 @@ enum OfficialRole {
 }
 
 enum MatchStage {
-  GROUP_STAGE
+  ROUND_OF_16
   QUARTER_FINAL
   SEMI_FINAL
   THIRD_PLACE
@@ -81,8 +81,7 @@ model Team {
   managerPhone  String
   status        TeamStatus  @default(PENDING)
   rejectionNote String?
-  groupName     String?     // "Group A", "Group B", dst.
-  potNumber     Int?        // Pot 1, Pot 2, Pot 3, Pot 4
+  bracketSeed   Int?        // Seed 1 - 16 saat drawing Knockout
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -90,7 +89,6 @@ model Team {
   officials     Official[]
   homeMatches   Match[]     @relation("HomeTeam")
   awayMatches   Match[]     @relation("AwayTeam")
-  standing      Standing?
 }
 
 model Player {
@@ -129,15 +127,17 @@ model Official {
 
 model Match {
   id            String      @id @default(uuid())
-  stage         MatchStage  @default(GROUP_STAGE)
-  groupName     String?     // "Group A", "Group B", dst.
-  matchNumber   Int
-  homeTeamId    String
-  homeTeam      Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  awayTeamId    String
-  awayTeam      Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  stage         MatchStage  @default(ROUND_OF_16)
+  matchNumber   Int         // 1 - 16
+  nextMatchId   String?     // Match ID pemenang melaju ke mana
+  homeTeamId    String?
+  homeTeam      Team?       @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeamId    String?
+  awayTeam      Team?       @relation("AwayTeam", fields: [awayTeamId], references: [id])
   homeScore     Int         @default(0)
   awayScore     Int         @default(0)
+  penaltyHome   Int?        @default(0) // Adus Penalti jika seri di waktu normal Knockout
+  penaltyAway   Int?        @default(0)
   pitchLocation String      // e.g. "Lapangan A UMS Stadium"
   kickoffTime   DateTime
   status        MatchStatus @default(SCHEDULED)
@@ -175,24 +175,4 @@ model Card {
   isRedCard      Boolean   @default(false)
   isSecondYellow Boolean   @default(false)
   createdAt      DateTime  @default(now())
-}
-
-model Standing {
-  id             String    @id @default(uuid())
-  groupName      String    // "Group A", "Group B", dst.
-  teamId         String    @unique
-  team           Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  played         Int       @default(0)
-  won            Int       @default(0)
-  drawn          Int       @default(0)
-  lost           Int       @default(0)
-  goalsFor       Int       @default(0)
-  goalsAgainst   Int       @default(0)
-  goalDifference Int       @default(0)
-  points         Int       @default(0)
-  yellowCards    Int       @default(0)
-  redCards       Int       @default(0)
-  fairPlayPoints Int       @default(0)
-  rank           Int       @default(0)
-  updatedAt      DateTime  @updatedAt
 }
