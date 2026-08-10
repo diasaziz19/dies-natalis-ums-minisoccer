@@ -39,6 +39,8 @@ window.resetTournamentData = resetTournamentData;
 window.selectRefereeMatch = selectRefereeMatch;
 window.addMatchEvent = addMatchEvent;
 window.finishMatch = finishMatch;
+window.startMatch = startMatch;
+window.openEditScoreModal = openEditScoreModal;
 window.openMatchSheetModal = openMatchSheetModal;
 window.openTeamDetailModal = openTeamDetailModal;
 window.renderVisitorMatches = renderVisitorMatches;
@@ -505,48 +507,73 @@ function renderActiveRefereeMatchPanel() {
 
   const homePlayers = match.homeTeamId ? players.filter(p => p.teamId === match.homeTeamId) : [];
   const awayPlayers = match.awayTeamId ? players.filter(p => p.teamId === match.awayTeamId) : [];
+  const allPlayersForMatch = homePlayers.concat(awayPlayers);
+
+  const isScheduled = match.status === 'SCHEDULED';
+  const isLive = match.status === 'LIVE';
+  const isFinished = match.status === 'FINISHED';
+
+  // Status badge color
+  const statusColor = isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#64748b';
+  const statusLabel = isLive ? '🔴 LIVE' : isFinished ? '✅ SELESAI' : '⏳ BELUM MULAI';
 
   panel.innerHTML = `
-    <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-6 flex-wrap gap-2">
+    <!-- Header -->
+    <div class="flex justify-between items-start pb-4 border-b border-slate-800 mb-6 flex-wrap gap-3">
       <div>
-        <span class="badge-cyan text-xs">Match #${match.matchNumber} | ${match.stage} | ${match.pitchLocation}</span>
-        <h3 class="text-2xl font-bold text-white mt-1">${match.homeTeamName} vs ${match.awayTeamName}</h3>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="badge-cyan text-xs">Match #${match.matchNumber} | ${match.stage}</span>
+          <span style="font-size:11px; font-weight:700; color:${statusColor}; background: ${statusColor}22; padding: 2px 8px; border-radius:999px; border: 1px solid ${statusColor}55;">${statusLabel}</span>
+        </div>
+        <h3 class="text-xl font-bold text-white">${match.homeTeamName} vs ${match.awayTeamName}</h3>
+        <p class="text-xs text-slate-400 mt-1">📍 ${match.pitchLocation} | 🕐 ${match.kickoffTime}</p>
       </div>
-      <div class="flex gap-2">
-        <button class="btn-ucl-primary" style="padding: 6px 14px; font-size: 13px;" onclick="finishMatch('${match.id}')">Peluit Akhir (Advance Winner)</button>
-        <button class="btn-ucl-secondary" style="padding: 6px 14px; font-size: 13px;" onclick="openMatchSheetModal('${match.id}')">📄 Match Sheet</button>
+      <div class="flex gap-2 flex-wrap">
+        ${isScheduled ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px; background: linear-gradient(135deg,#16a34a,#15803d);" onclick="startMatch('${match.id}')">▶ Mulai Pertandingan</button>` : ''}
+        ${isLive ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px;" onclick="finishMatch('${match.id}')">🏁 Peluit Akhir & Majukan Pemenang</button>` : ''}
+        <button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openEditScoreModal('${match.id}')">✏️ Edit Skor Manual</button>
+        ${!isScheduled ? `<button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openMatchSheetModal('${match.id}')">📄 Match Sheet</button>` : ''}
       </div>
     </div>
 
     <!-- Score Board -->
-    <div class="flex justify-center items-center gap-8 my-6 py-6 bg-slate-900/60 rounded-xl border border-slate-800">
-      <div class="text-center" style="min-width: 140px;">
-        <img src="${match.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + match.homeTeamName}" style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 6px; background: #000;">
+    <div class="flex justify-center items-center gap-6 my-5 py-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(15,23,42,0.9)); border: 1px solid rgba(100,116,139,0.3);">
+      <div class="text-center" style="min-width: 130px;">
+        <img src="${match.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(match.homeTeamName)}" style="width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 8px; background: #111; border: 2px solid #334155;">
         <span class="font-bold text-white block text-sm">${match.homeTeamName}</span>
+        <span class="text-xs text-slate-500">Tim Kandang</span>
       </div>
-      <div class="text-center px-6 py-2 bg-black/50 border border-cyan-400/40 rounded-xl">
-        <span class="font-black text-4xl text-cyan-400 font-mono">${match.homeScore} - ${match.awayScore}</span>
-        <span class="block text-xs text-slate-400 mt-1 font-bold">${match.status}</span>
+      <div class="text-center px-8 py-4 rounded-2xl" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(34,211,238,0.3);">
+        <span class="font-black text-5xl font-mono" style="color: #22d3ee; text-shadow: 0 0 20px rgba(34,211,238,0.4);">${match.homeScore} - ${match.awayScore}</span>
+        <div class="mt-2 text-xs font-bold" style="color: ${statusColor};">${statusLabel}</div>
       </div>
-      <div class="text-center" style="min-width: 140px;">
-        <img src="${match.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + match.awayTeamName}" style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 6px; background: #000;">
+      <div class="text-center" style="min-width: 130px;">
+        <img src="${match.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(match.awayTeamName)}" style="width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 8px; background: #111; border: 2px solid #334155;">
         <span class="font-bold text-white block text-sm">${match.awayTeamName}</span>
+        <span class="text-xs text-slate-500">Tim Tandang</span>
       </div>
     </div>
 
+    ${isScheduled ? `
+    <!-- Match Belum Dimulai Info -->
+    <div class="p-4 rounded-xl text-center" style="background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.3); margin-bottom: 16px;">
+      <p class="text-slate-400 text-sm">⏳ Pertandingan belum dimulai. Klik <strong class="text-white">"▶ Mulai Pertandingan"</strong> untuk mengubah status ke LIVE, atau <strong class="text-white">"✏️ Edit Skor Manual"</strong> untuk langsung input skor akhir.</p>
+    </div>` : ''}
+
+    ${isLive || isFinished ? `
     <!-- Event Logger Form -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
-        <h4 class="font-bold text-cyan-400 text-sm mb-3">+ Input Event Pertandingan</h4>
+        <h4 class="font-bold text-cyan-400 text-sm mb-3">⚽ + Input Event Pertandingan</h4>
         <form onsubmit="addMatchEvent(event, '${match.id}')" class="space-y-3">
           <div>
             <label class="form-label">Menit Kejadian</label>
-            <input type="number" id="eventMinute" class="form-input" min="1" max="60" value="15" required>
+            <input type="number" id="eventMinute" class="form-input" min="1" max="60" value="1" required>
           </div>
           <div>
             <label class="form-label">Tipe Event</label>
             <select id="eventTypeSelect" class="form-input" required>
-              <option value="GOAL">⚽ Gol biasa</option>
+              <option value="GOAL">⚽ Gol Biasa</option>
               <option value="PENALTY_GOAL">⚽ Gol Penalti</option>
               <option value="OWN_GOAL">⚽ Gol Bunuh Diri</option>
               <option value="YELLOW_CARD">🟨 Kartu Kuning</option>
@@ -555,39 +582,158 @@ function renderActiveRefereeMatchPanel() {
             </select>
           </div>
           <div>
-            <label class="form-label">Tim</label>
+            <label class="form-label">Tim yang Mendapat Event</label>
             <select id="eventTeamSelect" class="form-input" required>
               <option value="${match.homeTeamId}">${match.homeTeamName}</option>
               <option value="${match.awayTeamId}">${match.awayTeamName}</option>
             </select>
           </div>
           <div>
-            <label class="form-label">Pemain Bersangkutan</label>
-            <select id="eventPlayerSelect" class="form-input" required>
-              ${homePlayers.concat(awayPlayers).map(p => `<option value="${p.id}">${p.fullName} (#${p.jerseyNumber}) ${p.isSuspended ? '[SUSPENDED]' : ''}</option>`).join('')}
+            <label class="form-label">Pemain (Opsional)</label>
+            <select id="eventPlayerSelect" class="form-input">
+              <option value="">-- Tidak Ada / Skip --</option>
+              ${allPlayersForMatch.map(p => `<option value="${p.id}">${p.fullName} (#${p.jerseyNumber})${p.isSuspended ? ' [SUSPENDED]' : ''}</option>`).join('')}
             </select>
+            ${allPlayersForMatch.length === 0 ? '<p class="text-xs text-amber-400 mt-1">⚠ Belum ada pemain terdaftar — pilih "Tidak Ada" dan tetap bisa simpan event.</p>' : ''}
           </div>
-          <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">Simpan Event Match</button>
+          <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">💾 Simpan Event</button>
         </form>
       </div>
 
       <!-- Live Match Timeline -->
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
-        <h4 class="font-bold text-white text-sm mb-3">Live Timeline Log</h4>
-        <div class="space-y-2 max-h-64 overflow-y-auto">
-          ${(match.events || []).length === 0 ? '<p class="text-xs text-slate-400 py-4">Belum ada kejadian tercatat.</p>' :
-            (match.events || []).map(e => `
-              <div class="p-2 rounded bg-slate-950 border border-slate-800 flex justify-between items-center text-xs">
-                <span class="font-mono text-cyan-400 font-bold">'${e.minute}</span>
-                <span class="font-bold text-white">${e.eventType} - ${e.playerFullName || 'Pemain'}</span>
-                <span class="text-slate-400">${e.teamId === match.homeTeamId ? match.homeTeamName : match.awayTeamName}</span>
+        <h4 class="font-bold text-white text-sm mb-3">📋 Timeline Pertandingan</h4>
+        <div class="space-y-2 max-h-72 overflow-y-auto">
+          ${(match.events || []).length === 0
+            ? '<p class="text-xs text-slate-400 py-6 text-center">Belum ada kejadian tercatat.</p>'
+            : (match.events || []).slice().sort((a,b) => (a.minute||0)-(b.minute||0)).map(e => `
+              <div class="p-2 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(51,65,85,0.5);">
+                <span class="font-mono font-bold" style="color:#22d3ee; min-width:30px;">${e.minute}'</span>
+                <span class="font-bold text-white flex-1 mx-2">${e.eventType === 'GOAL' ? '⚽' : e.eventType === 'PENALTY_GOAL' ? '⚽P' : e.eventType === 'OWN_GOAL' ? '⚽OG' : e.eventType === 'YELLOW_CARD' ? '🟨' : e.eventType === 'RED_CARD' ? '🟥' : '🟨🟥'} ${e.playerFullName || '-'}</span>
+                <span class="text-slate-400 text-right" style="max-width:100px; overflow:hidden;">${e.teamId === match.homeTeamId ? match.homeTeamName.split(' ')[0] : match.awayTeamName.split(' ')[0]}</span>
               </div>
-            `).join('')}
+            `).join('')
+          }
         </div>
       </div>
-    </div>
+    </div>` : ''}
   `;
 }
+
+function startMatch(matchId) {
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+  if (match.status !== 'SCHEDULED') { alert('Match ini sudah dimulai atau selesai.'); return; }
+  match.status = 'LIVE';
+  saveState();
+  renderApp();
+}
+
+function openEditScoreModal(matchId) {
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Skor Manual</h3>
+    <p class="text-sm text-slate-400 mb-5">Match #${match.matchNumber}: <strong class="text-cyan-300">${match.homeTeamName}</strong> vs <strong class="text-cyan-300">${match.awayTeamName}</strong></p>
+    <form onsubmit="handleEditScoreSubmit(event, '${matchId}')" class="space-y-5">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">Skor ${match.homeTeamName}</label>
+          <input type="number" id="editHomeScore" class="form-input" min="0" max="99" value="${match.homeScore}" required>
+        </div>
+        <div>
+          <label class="form-label">Skor ${match.awayTeamName}</label>
+          <input type="number" id="editAwayScore" class="form-input" min="0" max="99" value="${match.awayScore}" required>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Status Pertandingan</label>
+        <select id="editMatchStatus" class="form-input">
+          <option value="SCHEDULED" ${match.status === 'SCHEDULED' ? 'selected' : ''}>⏳ BELUM MULAI (SCHEDULED)</option>
+          <option value="LIVE" ${match.status === 'LIVE' ? 'selected' : ''}>🔴 SEDANG BERLANGSUNG (LIVE)</option>
+          <option value="FINISHED" ${match.status === 'FINISHED' ? 'selected' : ''}>✅ SELESAI (FINISHED)</option>
+        </select>
+      </div>
+      <div class="p-3 rounded-lg" style="background: rgba(34,211,238,0.05); border: 1px solid rgba(34,211,238,0.2);">
+        <p class="text-xs text-slate-300">💡 Jika pilih status <strong>SELESAI</strong>, pemenang akan otomatis dimajukan ke babak berikutnya di bracket.</p>
+      </div>
+      <div class="flex gap-3">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Perubahan</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+window.handleEditScoreSubmit = function(e, matchId) {
+  e.preventDefault();
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+
+  const newHomeScore = parseInt(document.getElementById('editHomeScore').value);
+  const newAwayScore = parseInt(document.getElementById('editAwayScore').value);
+  const newStatus = document.getElementById('editMatchStatus').value;
+
+  match.homeScore = isNaN(newHomeScore) ? 0 : newHomeScore;
+  match.awayScore = isNaN(newAwayScore) ? 0 : newAwayScore;
+
+  const wasFinished = match.status === 'FINISHED';
+  match.status = newStatus;
+
+  // If status changed to FINISHED, automatically advance winner in bracket
+  if (newStatus === 'FINISHED' && !wasFinished) {
+    const winningTeamId = match.homeScore > match.awayScore ? match.homeTeamId : match.awayTeamId;
+    const losingTeamId = match.homeScore > match.awayScore ? match.awayTeamId : match.homeTeamId;
+    const winningTeam = teams.find(t => t.id === winningTeamId);
+    const losingTeam = teams.find(t => t.id === losingTeamId);
+
+    if (match.matchNumber >= 1 && match.matchNumber <= 8) {
+      const qfMatchNumber = 8 + Math.ceil(match.matchNumber / 2);
+      const qfMatch = matches.find(m => m.matchNumber === qfMatchNumber);
+      if (qfMatch) {
+        if (match.matchNumber % 2 === 1) {
+          qfMatch.homeTeamId = winningTeamId;
+          qfMatch.homeTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+          qfMatch.homeTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+        } else {
+          qfMatch.awayTeamId = winningTeamId;
+          qfMatch.awayTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+          qfMatch.awayTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+        }
+      }
+    } else if (match.matchNumber >= 9 && match.matchNumber <= 12) {
+      const sfMatchNumber = 12 + Math.ceil((match.matchNumber - 8) / 2);
+      const sfMatch = matches.find(m => m.matchNumber === sfMatchNumber);
+      if (sfMatch) {
+        if ((match.matchNumber - 8) % 2 === 1) {
+          sfMatch.homeTeamId = winningTeamId;
+          sfMatch.homeTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+          sfMatch.homeTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+        } else {
+          sfMatch.awayTeamId = winningTeamId;
+          sfMatch.awayTeamName = winningTeam ? winningTeam.name : 'Pemenang';
+          sfMatch.awayTeamLogo = winningTeam ? winningTeam.logoUrl : '';
+        }
+      }
+    } else if (match.matchNumber === 13 || match.matchNumber === 14) {
+      const finalMatch = matches.find(m => m.matchNumber === 16);
+      const thirdMatch = matches.find(m => m.matchNumber === 15);
+      if (match.matchNumber === 13) {
+        if (finalMatch) { finalMatch.homeTeamId = winningTeamId; finalMatch.homeTeamName = winningTeam?.name; finalMatch.homeTeamLogo = winningTeam?.logoUrl; }
+        if (thirdMatch) { thirdMatch.homeTeamId = losingTeamId; thirdMatch.homeTeamName = losingTeam?.name; thirdMatch.homeTeamLogo = losingTeam?.logoUrl; }
+      } else {
+        if (finalMatch) { finalMatch.awayTeamId = winningTeamId; finalMatch.awayTeamName = winningTeam?.name; finalMatch.awayTeamLogo = winningTeam?.logoUrl; }
+        if (thirdMatch) { thirdMatch.awayTeamId = losingTeamId; thirdMatch.awayTeamName = losingTeam?.name; thirdMatch.awayTeamLogo = losingTeam?.logoUrl; }
+      }
+    }
+  }
+
+  closeModal();
+  saveState();
+  renderApp();
+  alert(`✅ Skor berhasil diperbarui: ${match.homeTeamName} ${match.homeScore} - ${match.awayScore} ${match.awayTeamName} [${match.status}]`);
+};
 
 function addMatchEvent(e, matchId) {
   e.preventDefault();
@@ -597,10 +743,10 @@ function addMatchEvent(e, matchId) {
   const minute = parseInt(document.getElementById('eventMinute').value);
   const eventType = document.getElementById('eventTypeSelect').value;
   const teamId = document.getElementById('eventTeamSelect').value;
-  const playerId = document.getElementById('eventPlayerSelect').value;
+  const playerId = document.getElementById('eventPlayerSelect').value || null;
 
-  const playerObj = players.find(p => p.id === playerId);
-  const playerFullName = playerObj ? playerObj.fullName : 'Player';
+  const playerObj = playerId ? players.find(p => p.id === playerId) : null;
+  const playerFullName = playerObj ? playerObj.fullName : 'Pemain tidak terdaftar';
 
   const newEvent = {
     id: 'ev-' + Date.now(),
@@ -633,7 +779,7 @@ function addMatchEvent(e, matchId) {
     });
   }
 
-  match.status = 'LIVE';
+  if (match.status === 'SCHEDULED') match.status = 'LIVE';
   saveState();
   renderApp();
 }

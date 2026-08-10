@@ -1,6 +1,6 @@
 /**
- * 16-Team Knockout System Drawing Engine
- * Dies Natalis UMS 2026 Minisoccer Tournament
+ * 16-Team Knockout System Drawing Engine with Schedule Generator
+ * Dies Natalis UMS 2026 Minisoccer Tournament (FKIP UMS & Unit Rektorat)
  */
 
 export function execute16TeamKnockoutDraw(teams) {
@@ -12,12 +12,19 @@ export function execute16TeamKnockoutDraw(teams) {
     };
   }
 
-  // Shuffle 16 teams
+  // Shuffle 16 teams randomly
   const shuffled = [...approvedTeams].sort(() => 0.5 - Math.random());
 
   const matches = [];
 
-  // 1. Round of 16 (Match 1 - 8)
+  const round16Times = [
+    'Hari 1 (08:00 WIB)', 'Hari 1 (08:00 WIB)',
+    'Hari 1 (09:15 WIB)', 'Hari 1 (09:15 WIB)',
+    'Hari 1 (14:00 WIB)', 'Hari 1 (14:00 WIB)',
+    'Hari 1 (15:30 WIB)', 'Hari 1 (15:30 WIB)'
+  ];
+
+  // 1. Round of 16 (Match 1 - 8) - Hari 1
   for (let i = 0; i < 8; i++) {
     const home = shuffled[i * 2];
     const away = shuffled[i * 2 + 1];
@@ -37,14 +44,19 @@ export function execute16TeamKnockoutDraw(teams) {
       penaltyHome: 0,
       penaltyAway: 0,
       pitchLocation: (i % 2 === 0) ? 'Lapangan A UMS Stadium' : 'Lapangan B UMS Stadium',
-      kickoffTime: new Date(Date.now() + (i + 1) * 3600000 * 2).toISOString(),
+      kickoffTime: round16Times[i],
       status: 'SCHEDULED',
       events: [],
       cards: []
     });
   }
 
-  // 2. Quarter Finals (Match 9 - 12)
+  const qfTimes = [
+    'Hari 2 (08:30 WIB)', 'Hari 2 (08:30 WIB)',
+    'Hari 2 (10:00 WIB)', 'Hari 2 (10:00 WIB)'
+  ];
+
+  // 2. Quarter Finals (Match 9 - 12) - Hari 2
   for (let i = 0; i < 4; i++) {
     matches.push({
       id: `m-${i + 9}`,
@@ -61,38 +73,53 @@ export function execute16TeamKnockoutDraw(teams) {
       penaltyHome: 0,
       penaltyAway: 0,
       pitchLocation: (i % 2 === 0) ? 'Lapangan A UMS Stadium' : 'Lapangan B UMS Stadium',
-      kickoffTime: new Date(Date.now() + 86400000 + (i + 1) * 3600000 * 2).toISOString(),
+      kickoffTime: qfTimes[i],
       status: 'SCHEDULED',
       events: [],
       cards: []
     });
   }
 
-  // 3. Semi Finals (Match 13 - 14)
-  for (let i = 0; i < 2; i++) {
-    matches.push({
-      id: `m-${i + 13}`,
-      matchNumber: i + 13,
-      stage: 'SEMI_FINAL',
-      homeTeamId: null,
-      homeTeamName: `Pemenang QF Match #${i * 2 + 9}`,
-      homeTeamLogo: '',
-      awayTeamId: null,
-      awayTeamName: `Pemenang QF Match #${i * 2 + 10}`,
-      awayTeamLogo: '',
-      homeScore: 0,
-      awayScore: 0,
-      penaltyHome: 0,
-      penaltyAway: 0,
-      pitchLocation: (i % 2 === 0) ? 'Lapangan A UMS Stadium' : 'Lapangan B UMS Stadium',
-      kickoffTime: new Date(Date.now() + 172800000 + (i + 1) * 3600000 * 2).toISOString(),
-      status: 'SCHEDULED',
-      events: [],
-      cards: []
-    });
-  }
+  // 3. Semi Finals (Match 13 - 14) - Hari 3
+  matches.push({
+    id: 'm-13',
+    matchNumber: 13,
+    stage: 'SEMI_FINAL',
+    homeTeamId: null,
+    homeTeamName: 'Pemenang Match #9',
+    homeTeamLogo: '',
+    awayTeamId: null,
+    awayTeamName: 'Pemenang Match #10',
+    awayTeamLogo: '',
+    homeScore: 0,
+    awayScore: 0,
+    pitchLocation: 'Lapangan A UMS Stadium',
+    kickoffTime: 'Hari 3 (08:30 WIB)',
+    status: 'SCHEDULED',
+    events: [],
+    cards: []
+  });
 
-  // 4. 3rd Place Playoff (Match 15)
+  matches.push({
+    id: 'm-14',
+    matchNumber: 14,
+    stage: 'SEMI_FINAL',
+    homeTeamId: null,
+    homeTeamName: 'Pemenang Match #11',
+    homeTeamLogo: '',
+    awayTeamId: null,
+    awayTeamName: 'Pemenang Match #12',
+    awayTeamLogo: '',
+    homeScore: 0,
+    awayScore: 0,
+    pitchLocation: 'Lapangan B UMS Stadium',
+    kickoffTime: 'Hari 3 (09:45 WIB)',
+    status: 'SCHEDULED',
+    events: [],
+    cards: []
+  });
+
+  // 4. 3rd Place Playoff (Match 15) - Hari 3 Sore
   matches.push({
     id: 'm-15',
     matchNumber: 15,
@@ -106,13 +133,13 @@ export function execute16TeamKnockoutDraw(teams) {
     homeScore: 0,
     awayScore: 0,
     pitchLocation: 'Lapangan B UMS Stadium',
-    kickoffTime: new Date(Date.now() + 259200000).toISOString(),
+    kickoffTime: 'Hari 3 (14:30 WIB)',
     status: 'SCHEDULED',
     events: [],
     cards: []
   });
 
-  // 5. Grand Final (Match 16)
+  // 5. Grand Final (Match 16) - Hari 3 Sore
   matches.push({
     id: 'm-16',
     matchNumber: 16,
@@ -126,7 +153,7 @@ export function execute16TeamKnockoutDraw(teams) {
     homeScore: 0,
     awayScore: 0,
     pitchLocation: 'Lapangan A UMS Stadium',
-    kickoffTime: new Date(Date.now() + 259200000 + 7200000).toISOString(),
+    kickoffTime: 'Hari 3 (16:00 WIB)',
     status: 'SCHEDULED',
     events: [],
     cards: []
@@ -135,6 +162,6 @@ export function execute16TeamKnockoutDraw(teams) {
   return {
     success: true,
     matches,
-    message: 'Pengundian 16 Besar Knockout berhasil! 16 Tim dialokasikan ke bagan pertandingan babak gugur.'
+    message: 'Pengundian acak 16 Besar Knockout berhasil! Jadwal pertandingan Hari 1, 2, dan 3 telah disusun.'
   };
 }
