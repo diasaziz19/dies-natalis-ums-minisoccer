@@ -36,6 +36,7 @@ window.approveTeam = approveTeam;
 window.rejectTeam = rejectTeam;
 window.trigger16TeamDrawingUI = trigger16TeamDrawingUI;
 window.resetTournamentData = resetTournamentData;
+window.hardResetAndReload = hardResetAndReload;
 window.selectRefereeMatch = selectRefereeMatch;
 window.addMatchEvent = addMatchEvent;
 window.finishMatch = finishMatch;
@@ -922,14 +923,18 @@ function trigger16TeamDrawingUI() {
 }
 
 function resetTournamentData() {
-  if (confirm('Apakah Anda yakin ingin mengembalikan dataset ke awal (Initial 16-Team Knockout Seed)?')) {
+  if (confirm('Reset data ke awal?\n\nSemua skor, event, dan perubahan akan dihapus.\nSemua pertandingan kembali ke status SCHEDULED (0-0).\nBagan QF/SF/Final kembali ke "Pemenang Match #X".')) {
     localStorage.clear();
-    teams = INITIAL_TEAMS;
-    players = INITIAL_PLAYERS;
-    officials = INITIAL_OFFICIALS;
-    matches = INITIAL_MATCHES;
-    saveState();
-    renderApp();
+    // Reload halaman agar JS module di-import ulang dari server (bersih dari cache)
+    location.reload(true);
+  }
+}
+
+function hardResetAndReload() {
+  if (confirm('🗑️ Hard Reset Total?\n\nIni akan menghapus SEMUA data localStorage dan reload halaman.\nBagan akan kembali ke kondisi awal: semua 0-0, SCHEDULED.')) {
+    localStorage.clear();
+    sessionStorage.clear();
+    location.reload(true);
   }
 }
 

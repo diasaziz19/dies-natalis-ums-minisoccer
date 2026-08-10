@@ -193,11 +193,12 @@
         <div class="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h2 class="text-2xl font-bold text-white mb-1">⚙️ Super Admin Dashboard</h2>
-            <p class="text-sm text-slate-400">Verifikasi & Approval Berkas Pendaftaran Tim + Champions League Group Drawing Engine.</p>
+            <p class="text-sm text-slate-400">Kelola pertandingan, approval tim, dan undi bagan 16-Team Knockout.</p>
           </div>
-          <div class="flex gap-2">
-            <button class="btn-ucl-primary" onclick="triggerUCLDrawingUI()">⚽ Jalankan Drawing Pot UCL</button>
-            <button class="btn-ucl-secondary" onclick="resetTournamentData()">🔄 Reset Dataset</button>
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn-ucl-primary" onclick="trigger16TeamDrawingUI()">🎲 Jalankan Undian 16 Tim</button>
+            <button class="btn-ucl-secondary" onclick="resetTournamentData()">🔄 Reset Pertandingan</button>
+            <button onclick="hardResetAndReload()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">🗑️ Hard Reset &amp; Reload</button>
           </div>
         </div>
       </div>
