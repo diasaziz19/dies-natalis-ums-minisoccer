@@ -28,6 +28,7 @@ function saveState() {
 window.switchRole = switchRole;
 window.switchVisitorTab = switchVisitorTab;
 window.openRegisterTeamModal = openRegisterTeamModal;
+window.openEditTeamModal = openEditTeamModal;
 window.openAddPlayerModal = openAddPlayerModal;
 window.openAddOfficialModal = openAddOfficialModal;
 window.deletePlayer = deletePlayer;
@@ -405,15 +406,16 @@ function renderTeamManagerPortal() {
       <div class="glass-panel p-6">
         <div class="flex justify-between items-start flex-wrap gap-4 mb-6 pb-4 border-b border-slate-800">
           <div class="flex items-center gap-4">
-            <img src="${team.logoUrl}" style="width: 54px; height: 54px; border-radius: 50%; background: #000;">
+            <img src="${team.logoUrl}" style="width: 54px; height: 54px; border-radius: 50%; background: #000; border: 2px solid rgba(34,211,238,0.3);">
             <div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="text-xl font-bold text-white">${team.name}</h3>
                 <span class="badge-${team.status === 'APPROVED' ? 'gold' : team.status === 'REJECTED' ? 'danger' : 'cyan'}">${team.status}</span>
               </div>
-              <span class="text-xs text-cyan-400 block">${team.facultyUnit} | Manager: ${team.managerName} (${team.managerPhone})</span>
+              <span class="text-xs text-cyan-400 block mt-1">${team.facultyUnit} | Manager: ${team.managerName} (${team.managerPhone})</span>
             </div>
           </div>
+          <button onclick="openEditTeamModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.08); color: #22d3ee; cursor: pointer; display:flex; align-items:center; gap:6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(34,211,238,0.18)'" onmouseout="this.style.background='rgba(34,211,238,0.08)'">✏️ Edit Info Tim</button>
         </div>
 
         <div class="mb-6">
@@ -937,6 +939,94 @@ function hardResetAndReload() {
     location.reload(true);
   }
 }
+
+function openEditTeamModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Info Tim</h3>
+    <p class="text-sm text-slate-400 mb-5">Perbarui informasi tim <strong class="text-cyan-300">${team.name}</strong></p>
+    <form onsubmit="handleEditTeamSubmit(event, '${teamId}')" class="space-y-4">
+      <div>
+        <label class="form-label">Nama Tim <span class="text-rose-400">*</span></label>
+        <input type="text" id="editTeamName" class="form-input" value="${team.name}" placeholder="Contoh: POR FC FKIP UMS" required>
+      </div>
+      <div>
+        <label class="form-label">Fakultas / Unit UMS <span class="text-rose-400">*</span></label>
+        <input type="text" id="editTeamFaculty" class="form-input" value="${team.facultyUnit}" placeholder="Contoh: FKIP UMS" required>
+      </div>
+      <div>
+        <label class="form-label">Nama Manager Tim <span class="text-rose-400">*</span></label>
+        <input type="text" id="editTeamManager" class="form-input" value="${team.managerName}" placeholder="Nama Lengkap" required>
+      </div>
+      <div>
+        <label class="form-label">No WhatsApp Manager</label>
+        <input type="text" id="editTeamPhone" class="form-input" value="${team.managerPhone || ''}" placeholder="0812xxxxxxxx">
+      </div>
+      <div>
+        <label class="form-label">Logo Tim (Seed Identicon)</label>
+        <div class="flex gap-3 items-center">
+          <img id="editLogoPreview" src="${team.logoUrl}" style="width:48px;height:48px;border-radius:50%;border:2px solid rgba(34,211,238,0.4);background:#111;">
+          <div class="flex-1">
+            <input type="text" id="editTeamLogoSeed" class="form-input" value="${(team.logoUrl.match(/seed=([^&]+)/) || ['',''])[1]}" placeholder="Kata unik logo, misal: PORFKIP2026" oninput="document.getElementById('editLogoPreview').src='https://api.dicebear.com/7.x/identicon/svg?seed='+this.value">
+            <p class="text-xs text-slate-500 mt-1">Ganti kata unik ini untuk mengubah logo identicon tim.</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 rounded-lg" style="background: rgba(34,211,238,0.05); border: 1px solid rgba(34,211,238,0.2);">
+        <p class="text-xs text-slate-300">💡 Perubahan nama tim akan langsung terlihat di bagan turnamen dan Match Center.</p>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Perubahan</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+window.handleEditTeamSubmit = function(e, teamId) {
+  e.preventDefault();
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  const newName = document.getElementById('editTeamName').value.trim();
+  const newFaculty = document.getElementById('editTeamFaculty').value.trim();
+  const newManager = document.getElementById('editTeamManager').value.trim();
+  const newPhone = document.getElementById('editTeamPhone').value.trim();
+  const newLogoSeed = document.getElementById('editTeamLogoSeed').value.trim();
+
+  if (!newName || !newFaculty || !newManager) {
+    alert('Nama tim, fakultas/unit, dan nama manager wajib diisi.');
+    return;
+  }
+
+  const oldName = team.name;
+  team.name = newName;
+  team.facultyUnit = newFaculty;
+  team.managerName = newManager;
+  team.managerPhone = newPhone || team.managerPhone;
+  if (newLogoSeed) {
+    team.logoUrl = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(newLogoSeed)}`;
+  }
+
+  // Sync nama tim di semua data matches (homeTeamName / awayTeamName)
+  matches.forEach(m => {
+    if (m.homeTeamId === teamId) {
+      m.homeTeamName = newName;
+      m.homeTeamLogo = team.logoUrl;
+    }
+    if (m.awayTeamId === teamId) {
+      m.awayTeamName = newName;
+      m.awayTeamLogo = team.logoUrl;
+    }
+  });
+
+  closeModal();
+  saveState();
+  renderApp();
+  alert(`✅ Info tim berhasil diperbarui!\n"${oldName}" → "${newName}"`);
+};
 
 // ----------------------------------------------------
 // MODALS
