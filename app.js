@@ -323,6 +323,13 @@ function handleLogout() {
 
 // ========== NAVIGATION ==========
 function switchRole(role) {
+  // If already logged in and trying to go to LOGIN, redirect to dashboard
+  if (role === 'LOGIN' && authState.isLoggedIn) {
+    if (authState.role === 'ADMIN') switchRole('ADMIN');
+    else switchRole('TEAM_MANAGER');
+    return;
+  }
+
   // Security guard for ADMIN roles
   if ((role === 'ADMIN' || role === 'MATCH_CENTER' || role === 'DRAWING') && authState.role !== 'ADMIN') {
     switchRole('LOGIN');
@@ -342,12 +349,14 @@ function switchRole(role) {
   if (matchNavBtn) matchNavBtn.classList.toggle('hidden', authState.role !== 'ADMIN');
   if (drawNavBtn) drawNavBtn.classList.toggle('hidden', authState.role !== 'ADMIN');
 
-  // Update Login Nav Badge Text
+  // Update Login Nav Badge Text & Click Handler
   const loginNavBtn = document.getElementById('navLoginBtn');
   if (loginNavBtn) {
     if (authState.isLoggedIn) {
-      loginNavBtn.innerHTML = `👤 ${authState.displayName} (${authState.role === 'ADMIN' ? 'Admin' : 'Manager'}) <button onclick="event.stopPropagation(); handleLogout();" class="text-rose-400 font-bold ml-1 hover:underline">Logout</button>`;
+      loginNavBtn.setAttribute('onclick', authState.role === 'ADMIN' ? "switchRole('ADMIN')" : "switchRole('TEAM_MANAGER')");
+      loginNavBtn.innerHTML = `👤 ${authState.displayName} (${authState.role === 'ADMIN' ? 'Admin' : 'Manager'}) <button onclick="event.stopPropagation(); handleLogout();" class="text-rose-400 font-bold ml-2.5 hover:underline">🚪 Logout</button>`;
     } else {
+      loginNavBtn.setAttribute('onclick', "switchRole('LOGIN')");
       loginNavBtn.innerHTML = `🔑 Login / Akun`;
     }
   }
