@@ -258,19 +258,18 @@
               <canvas id="wheelCanvas" width="320" height="320"></canvas>
             </div>
 
-            <!-- Current Target Slot Banner -->
-            <div class="p-3 rounded-xl mb-4 bg-slate-900 border border-cyan-400/30">
-              <span class="text-xs text-slate-400 block">Target Slot Berikutnya:</span>
-              <strong class="text-lg font-bold text-cyan-300 block mt-1" id="nextTargetSlotText">Match #1 (Home)</strong>
+            <!-- Current Target Slot Dropdown Selector -->
+            <div class="p-3 rounded-xl mb-4 bg-slate-900 border border-cyan-400/30 text-left">
+              <label class="form-label text-xs text-slate-400 mb-1 block">🎯 Pilih Target Slot Undian Berikutnya:</label>
+              <select id="targetSlotSelect" class="form-input" onchange="handleTargetSlotChange()" style="padding: 8px 12px; font-weight: 700; color: #22d3ee; background: rgba(15,23,42,0.9); border-color: rgba(34,211,238,0.4);">
+                <!-- Dynamically filled with available empty slots -->
+              </select>
             </div>
           </div>
 
           <div class="space-y-2">
             <button class="btn-ucl-primary w-full" id="spinWheelBtn" onclick="spinDrawingWheel()" style="justify-content: center; padding: 12px; font-size: 15px;">
               🎡 SPIN WHEEL (PUTAR UNDIAN)
-            </button>
-            <button class="btn-ucl-secondary w-full" onclick="quickAutoDrawAll()" style="font-size: 12px;">
-              ⚡ Auto-Draw Acak Semua Tim Sekaligus
             </button>
           </div>
         </div>

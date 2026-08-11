@@ -17,6 +17,7 @@ let draggedPoolTeamId = null;
 
 // Drawing Engine State
 let drawnSlots = JSON.parse(localStorage.getItem('ums_drawn_slots')) || []; // [{ matchNumber, teamType: 'home'|'away', teamId }]
+let selectedTargetSlot = null; // { matchNumber, teamType }
 let isSpinning = false;
 let currentWheelAngle = 0;
 
@@ -85,7 +86,7 @@ window.handleSlotDrop = handleSlotDrop;
 
 // Drawing Wheel Window Bindings
 window.spinDrawingWheel = spinDrawingWheel;
-window.quickAutoDrawAll = quickAutoDrawAll;
+window.handleTargetSlotChange = handleTargetSlotChange;
 window.resetDrawingState = resetDrawingState;
 window.removeDrawnTeam = removeDrawnTeam;
 window.applyDrawingToBracket = applyDrawingToBracket;
@@ -769,24 +770,56 @@ function renderTeamManagerPortal() {
 }
 
 // ========== 3. INTERACTIVE DRAWING ENGINE PORTAL (SUPER ADMIN ONLY) ==========
+function getAvailableSlotsList() {
+  const available = [];
+  for (let i = 0; i < 16; i++) {
+    const matchNum = Math.floor(i / 2) + 1;
+    const teamType = i % 2 === 0 ? 'home' : 'away';
+    const isFilled = drawnSlots.some(s => s.matchNumber === matchNum && s.teamType === teamType);
+    if (!isFilled) {
+      available.push({ matchNum, teamType, label: `Match #${matchNum} (${teamType === 'home' ? 'Home' : 'Away'})` });
+    }
+  }
+  return available;
+}
+
 function renderDrawingEnginePortal() {
   renderDrawingWheelCanvas();
   renderDrawingPoolAndSlots();
 }
 
-function getNextSlotInfo() {
-  const drawnCount = drawnSlots.length;
-  if (drawnCount >= 16) return null;
-  const matchNum = Math.floor(drawnCount / 2) + 1;
-  const teamType = drawnCount % 2 === 0 ? 'Home' : 'Away';
-  return { matchNum, teamType, label: `Match #${matchNum} (${teamType})` };
+function handleTargetSlotChange() {
+  const selectEl = document.getElementById('targetSlotSelect');
+  if (!selectEl) return;
+  const val = selectEl.value; // e.g. "1-home" or "3-away"
+  if (val) {
+    const parts = val.split('-');
+    selectedTargetSlot = { matchNumber: parseInt(parts[0]), teamType: parts[1] };
+  } else {
+    selectedTargetSlot = null;
+  }
 }
 
 function renderDrawingPoolAndSlots() {
-  const nextSlot = getNextSlotInfo();
-  const targetText = document.getElementById('nextTargetSlotText');
-  if (targetText) {
-    targetText.textContent = nextSlot ? nextSlot.label : '🎉 UNDIAN 16 TIM LENGKAP!';
+  const availableSlots = getAvailableSlotsList();
+  const selectEl = document.getElementById('targetSlotSelect');
+
+  if (selectEl) {
+    if (availableSlots.length === 0) {
+      selectEl.innerHTML = '<option value="">🎉 ALL 16 SLOTS FILLED!</option>';
+      selectedTargetSlot = null;
+    } else {
+      selectEl.innerHTML = availableSlots.map(s => {
+        const val = `${s.matchNum}-${s.teamType}`;
+        const isSel = selectedTargetSlot && selectedTargetSlot.matchNumber === s.matchNum && selectedTargetSlot.teamType === s.teamType;
+        return `<option value="${val}" ${isSel ? 'selected' : ''}>🎯 ${s.label}</option>`;
+      }).join('');
+
+      // If current selection is no longer valid, default to first available
+      if (!selectedTargetSlot || !availableSlots.some(s => s.matchNum === selectedTargetSlot.matchNumber && s.teamType === selectedTargetSlot.teamType)) {
+        selectedTargetSlot = { matchNumber: availableSlots[0].matchNum, teamType: availableSlots[0].teamType };
+      }
+    }
   }
 
   // 1. Remaining Teams Pool (Filter out already drawn teams!)
@@ -920,6 +953,18 @@ function spinDrawingWheel() {
     return;
   }
 
+  const availableSlots = getAvailableSlotsList();
+  if (availableSlots.length === 0) {
+    alert('🎉 Seluruh slot 16 Besar sudah terisi!');
+    return;
+  }
+
+  // Determine target slot to fill
+  let targetSlot = selectedTargetSlot;
+  if (!targetSlot || !availableSlots.some(s => s.matchNum === targetSlot.matchNumber && s.teamType === targetSlot.teamType)) {
+    targetSlot = { matchNumber: availableSlots[0].matchNum, teamType: availableSlots[0].teamType };
+  }
+
   isSpinning = true;
   const spinBtn = document.getElementById('spinWheelBtn');
   if (spinBtn) { spinBtn.disabled = true; spinBtn.textContent = '🔄 MEMUTAR RODA...'; }
@@ -957,64 +1002,40 @@ function spinDrawingWheel() {
       if (spinBtn) { spinBtn.disabled = false; spinBtn.textContent = '🎡 SPIN WHEEL (PUTAR UNDIAN)'; }
 
       // Record slot
-      const nextSlot = getNextSlotInfo();
-      if (nextSlot) {
-        drawnSlots.push({
-          matchNumber: nextSlot.matchNum,
-          teamType: nextSlot.teamType.toLowerCase(),
-          teamId: winningTeam.id
-        });
-        saveState();
-        renderApp();
+      drawnSlots.push({
+        matchNumber: targetSlot.matchNumber,
+        teamType: targetSlot.teamType,
+        teamId: winningTeam.id
+      });
 
-        openModal(`
-          <div class="text-center p-4">
-            <div style="font-size: 48px; margin-bottom: 8px;">🎉</div>
-            <h3 class="text-xs uppercase tracking-widest text-cyan-400 font-bold mb-1">HASIL UNDIAN ${nextSlot.label}</h3>
-            <img src="${winningTeam.logoUrl}" style="width:70px;height:70px;border-radius:50%;margin:12px auto;background:#000;border:3px solid var(--ucl-gold);">
-            <h2 class="text-2xl font-bold text-white mb-2">${winningTeam.name}</h2>
-            <p class="text-sm text-slate-300 mb-6">${winningTeam.facultyUnit}</p>
-            <button onclick="closeModal()" class="btn-ucl-primary" style="justify-content: center; width:100%;">Lanjutkan Undian $\rightarrow$</button>
-          </div>
-        `);
-      }
+      // Clear selected target slot so it automatically picks the next empty slot
+      selectedTargetSlot = null;
+
+      saveState();
+      renderApp();
+
+      const slotLabel = `Match #${targetSlot.matchNumber} (${targetSlot.teamType.toUpperCase()})`;
+
+      openModal(`
+        <div class="text-center p-4">
+          <div style="font-size: 48px; margin-bottom: 8px;">🎉</div>
+          <h3 class="text-xs uppercase tracking-widest text-cyan-400 font-bold mb-1">HASIL UNDIAN ${slotLabel}</h3>
+          <img src="${winningTeam.logoUrl}" style="width:70px;height:70px;border-radius:50%;margin:12px auto;background:#000;border:3px solid var(--ucl-gold);">
+          <h2 class="text-2xl font-bold text-white mb-2">${winningTeam.name}</h2>
+          <p class="text-sm text-slate-300 mb-6">${winningTeam.facultyUnit}</p>
+          <button onclick="closeModal()" class="btn-ucl-primary" style="justify-content: center; width:100%;">Lanjutkan Undian ➡️</button>
+        </div>
+      `);
     }
   }
 
   requestAnimationFrame(animateSpin);
 }
 
-function quickAutoDrawAll() {
-  if (confirm('🎲 Acak otomatis seluruh sisa tim ke dalam slot 16 Besar secara instant?')) {
-    const drawnTeamIds = drawnSlots.map(s => s.teamId);
-    let remaining = teams.filter(t => !drawnTeamIds.includes(t.id));
-    
-    // Shuffle array
-    for (let i = remaining.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
-    }
-
-    remaining.forEach(t => {
-      const nextSlot = getNextSlotInfo();
-      if (nextSlot) {
-        drawnSlots.push({
-          matchNumber: nextSlot.matchNum,
-          teamType: nextSlot.teamType.toLowerCase(),
-          teamId: t.id
-        });
-      }
-    });
-
-    saveState();
-    renderApp();
-    alert('🎉 Seluruh 16 Tim berhasil diacak!');
-  }
-}
-
 function resetDrawingState() {
   if (confirm('🔄 Kosongkan hasil undian roda & reset seluruh slot 16 Besar?')) {
     drawnSlots = [];
+    selectedTargetSlot = null;
     saveState();
     renderApp();
   }
