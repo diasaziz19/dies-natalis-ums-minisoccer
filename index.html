@@ -14,18 +14,21 @@
   <!-- Top Navigation Bar -->
   <div class="role-bar flex justify-between items-center px-6 py-3 flex-wrap gap-3">
     <div class="flex items-center gap-3">
-      <img src="https://api.dicebear.com/7.x/identicon/svg?seed=UMSLogo&backgroundColor=003366" alt="UMS Logo" style="height: 32px; width: 32px;" class="rounded-full border border-cyan-400">
+      <img id="navLogoImg" src="https://api.dicebear.com/7.x/identicon/svg?seed=UMSLogo&backgroundColor=003366" alt="UMS Logo" style="height: 32px; width: 32px;" class="rounded-full border border-cyan-400">
       <div>
-        <span class="font-bold text-white tracking-wide text-sm block">DIES NATALIS UMS 2026</span>
-        <span class="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Minisoccer Champions League</span>
+        <span id="navTitleText" class="font-bold text-white tracking-wide text-sm block">DIES NATALIS UMS 2026</span>
+        <span id="navSubtitleText" class="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Minisoccer Champions League</span>
       </div>
+      <button id="navEditHeaderBtn" onclick="openEditNavbarModal()" class="hidden text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-1 rounded hover:bg-amber-500/20 ml-2" title="👑 Super Admin: Edit Top Navbar &amp; Header">
+        ⚙️ Edit Header
+      </button>
     </div>
 
     <!-- Menu Selector -->
     <div class="flex items-center gap-2" id="roleSelectorContainer">
-      <span class="role-badge active" data-role="VISITOR" onclick="switchRole('VISITOR')">🏠 Beranda</span>
-      <span class="role-badge" data-role="RULES" onclick="switchRole('RULES')">📜 Peraturan</span>
-      <span class="role-badge" data-role="TEAM_MANAGER" onclick="switchRole('TEAM_MANAGER')">⚽ Manajemen Tim</span>
+      <span class="role-badge active" id="navHomeTab" data-role="VISITOR" onclick="switchRole('VISITOR')">🏠 Beranda</span>
+      <span class="role-badge" id="navRulesTab" data-role="RULES" onclick="switchRole('RULES')">📜 Peraturan</span>
+      <span class="role-badge" id="navManagerTab" data-role="TEAM_MANAGER" onclick="switchRole('TEAM_MANAGER')">⚽ Manajemen Tim</span>
       <span class="role-badge hidden" id="navMatchCenterBtn" data-role="MATCH_CENTER" onclick="switchRole('MATCH_CENTER')">⏱️ Match Center</span>
       <span class="role-badge hidden" id="navDrawingBtn" data-role="DRAWING" onclick="switchRole('DRAWING')">🎲 Undian 16 Tim</span>
       <span class="role-badge" data-role="LOGIN" id="navLoginBtn" onclick="switchRole('LOGIN')">🔑 Login / Akun</span>

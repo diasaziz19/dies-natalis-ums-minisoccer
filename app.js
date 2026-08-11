@@ -3,7 +3,7 @@
  * Dies Natalis UMS 2026 Minisoccer Tournament System (16-Team Knockout)
  */
 
-import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES, INITIAL_HOMEPAGE, INITIAL_RULES, ADMIN_CREDENTIALS, MANAGER_CREDENTIALS } from './src/lib/mockData.js';
+import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES, INITIAL_HOMEPAGE, INITIAL_RULES, INITIAL_NAVBAR, ADMIN_CREDENTIALS, MANAGER_CREDENTIALS } from './src/lib/mockData.js';
 import { execute16TeamKnockoutDraw } from './src/lib/drawingEngine.js';
 import { evaluatePlayerSuspensions } from './src/lib/cardAccumulation.js';
 
@@ -16,9 +16,10 @@ let draggedTeamInfo = null;
 let draggedPoolTeamId = null;
 let liveTimerInterval = null;
 
-// Dynamic Homepage & Rules State
+// Dynamic Homepage, Rules & Navbar State
 let homepageContent = JSON.parse(localStorage.getItem('ums_homepage')) || INITIAL_HOMEPAGE;
 let tournamentRules = JSON.parse(localStorage.getItem('ums_rules')) || INITIAL_RULES;
+let navbarConfig = JSON.parse(localStorage.getItem('ums_navbar')) || INITIAL_NAVBAR;
 
 // Drawing Engine State
 let drawnSlots = JSON.parse(localStorage.getItem('ums_drawn_slots')) || []; // [{ matchNumber, teamType: 'home'|'away', teamId }]
@@ -49,6 +50,7 @@ function saveState() {
   localStorage.setItem('ums_auth', JSON.stringify(authState));
   localStorage.setItem('ums_homepage', JSON.stringify(homepageContent));
   localStorage.setItem('ums_rules', JSON.stringify(tournamentRules));
+  localStorage.setItem('ums_navbar', JSON.stringify(navbarConfig));
 }
 
 // ========== WINDOW BINDINGS ==========
@@ -89,6 +91,7 @@ window.openAddRuleModal = openAddRuleModal;
 window.openEditRuleModal = openEditRuleModal;
 window.deleteRule = deleteRule;
 window.resetRulesToDefault = resetRulesToDefault;
+window.openEditNavbarModal = openEditNavbarModal;
 
 // Super Admin Team & File Deletion Bindings
 window.deleteTeam = deleteTeam;
@@ -416,6 +419,7 @@ function switchAdminTab(tabName) {
 function renderApp() {
   players = evaluatePlayerSuspensions(players, matches);
   saveState();
+  renderNavbarDOM();
 
   if (currentRole === 'VISITOR') {
     renderVisitorTabContent();
@@ -431,6 +435,105 @@ function renderApp() {
     renderDrawingEnginePortal();
   }
 }
+
+// ========== DYNAMIC NAVBAR HEADER & SUPER ADMIN EDITOR ==========
+function renderNavbarDOM() {
+  const titleEl = document.getElementById('navTitleText');
+  const subtitleEl = document.getElementById('navSubtitleText');
+  const logoEl = document.getElementById('navLogoImg');
+  const editBtn = document.getElementById('navEditHeaderBtn');
+
+  const homeTab = document.getElementById('navHomeTab');
+  const rulesTab = document.getElementById('navRulesTab');
+  const managerTab = document.getElementById('navManagerTab');
+  const matchCenterBtn = document.getElementById('navMatchCenterBtn');
+  const drawingBtn = document.getElementById('navDrawingBtn');
+
+  if (titleEl) titleEl.textContent = navbarConfig.title || 'DIES NATALIS UMS 2026';
+  if (subtitleEl) subtitleEl.textContent = navbarConfig.subtitle || 'Minisoccer Champions League';
+  if (logoEl && navbarConfig.logoUrl) logoEl.src = navbarConfig.logoUrl;
+
+  if (editBtn) editBtn.classList.toggle('hidden', authState.role !== 'ADMIN');
+
+  if (homeTab) homeTab.textContent = navbarConfig.homeLabel || '🏠 Beranda';
+  if (rulesTab) rulesTab.textContent = navbarConfig.rulesLabel || '📜 Peraturan';
+  if (managerTab) managerTab.textContent = navbarConfig.managerLabel || '⚽ Manajemen Tim';
+  if (matchCenterBtn) matchCenterBtn.textContent = navbarConfig.matchCenterLabel || '⏱️ Match Center';
+  if (drawingBtn) drawingBtn.textContent = navbarConfig.drawingLabel || '🎲 Undian 16 Tim';
+}
+
+function openEditNavbarModal() {
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">⚙️ Edit Navigation Bar &amp; Header Top</h3>
+    <p class="text-sm text-slate-400 mb-5">Perbarui teks judul header, subtitle, logo icon, dan label tombol menu di atas.</p>
+
+    <form onsubmit="handleNavbarEditSubmit(event)" class="space-y-4">
+      <div>
+        <label class="form-label">Judul Utama Header Navbar <span class="text-rose-400">*</span></label>
+        <input type="text" id="navEditTitle" class="form-input" value="${navbarConfig.title || ''}" required>
+      </div>
+
+      <div>
+        <label class="form-label">Subtitle Header Navbar <span class="text-rose-400">*</span></label>
+        <input type="text" id="navEditSubtitle" class="form-input" value="${navbarConfig.subtitle || ''}" required>
+      </div>
+
+      <div>
+        <label class="form-label">URL Icon Logo (Gambar / Identicon)</label>
+        <input type="text" id="navEditLogo" class="form-input" value="${navbarConfig.logoUrl || ''}" placeholder="https://..." required>
+      </div>
+
+      <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-3">
+        <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider block">Kustomisasi Label Tombol Menu Navigasi:</span>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Label Menu Beranda</label>
+            <input type="text" id="navLabelHome" class="form-input" value="${navbarConfig.homeLabel || '🏠 Beranda'}" required>
+          </div>
+          <div>
+            <label class="form-label">Label Menu Peraturan</label>
+            <input type="text" id="navLabelRules" class="form-input" value="${navbarConfig.rulesLabel || '📜 Peraturan'}" required>
+          </div>
+          <div>
+            <label class="form-label">Label Menu Manajemen Tim</label>
+            <input type="text" id="navLabelManager" class="form-input" value="${navbarConfig.managerLabel || '⚽ Manajemen Tim'}" required>
+          </div>
+          <div>
+            <label class="form-label">Label Menu Match Center</label>
+            <input type="text" id="navLabelMatchCenter" class="form-input" value="${navbarConfig.matchCenterLabel || '⏱️ Match Center'}" required>
+          </div>
+          <div class="col-span-2">
+            <label class="form-label">Label Menu Undian 16 Tim</label>
+            <input type="text" id="navLabelDrawing" class="form-input" value="${navbarConfig.drawingLabel || '🎲 Undian 16 Tim'}" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Navbar Header</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+window.handleNavbarEditSubmit = function(e) {
+  e.preventDefault();
+  navbarConfig = {
+    title: document.getElementById('navEditTitle').value.trim(),
+    subtitle: document.getElementById('navEditSubtitle').value.trim(),
+    logoUrl: document.getElementById('navEditLogo').value.trim(),
+    homeLabel: document.getElementById('navLabelHome').value.trim(),
+    rulesLabel: document.getElementById('navLabelRules').value.trim(),
+    managerLabel: document.getElementById('navLabelManager').value.trim(),
+    matchCenterLabel: document.getElementById('navLabelMatchCenter').value.trim(),
+    drawingLabel: document.getElementById('navLabelDrawing').value.trim()
+  };
+  saveState();
+  closeModal();
+  renderApp();
+  alert('✅ Top Navbar & Header berhasil diperbarui!');
+};
 
 // ========== DYNAMIC HOMEPAGE HERO BANNER ==========
 function renderHomepageHero() {

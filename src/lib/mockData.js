@@ -1,3 +1,14 @@
+export const INITIAL_NAVBAR = {
+  title: 'DIES NATALIS UMS 2026',
+  subtitle: 'Minisoccer Champions League',
+  logoUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=UMSLogo&backgroundColor=003366',
+  homeLabel: '🏠 Beranda',
+  rulesLabel: '📜 Peraturan',
+  managerLabel: '⚽ Manajemen Tim',
+  matchCenterLabel: '⏱️ Match Center',
+  drawingLabel: '🎲 Undian 16 Tim'
+};
+
 export const INITIAL_HOMEPAGE = {
   heroBadge: 'OFFICIAL COMPETITION 7v7 (16 TIM KNOCKOUT)',
   heroTitle: 'TURNAMEN MINISOCCER DIES NATALIS UMS 2026',
