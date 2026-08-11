@@ -14,6 +14,7 @@ let currentAdminTab = 'matchcenter';
 let activeRefereeMatchId = null;
 let draggedTeamInfo = null;
 let draggedPoolTeamId = null;
+let liveTimerInterval = null;
 
 // Drawing Engine State
 let drawnSlots = JSON.parse(localStorage.getItem('ums_drawn_slots')) || []; // [{ matchNumber, teamType: 'home'|'away', teamId }]
@@ -98,7 +99,44 @@ window.applyDrawingToBracket = applyDrawingToBracket;
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
   renderApp();
+  startGlobalTimerLoop();
 });
+
+// Global Timer Loop to tick active stopwatch timers
+function startGlobalTimerLoop() {
+  if (liveTimerInterval) clearInterval(liveTimerInterval);
+  liveTimerInterval = setInterval(() => {
+    const hasLiveMatch = matches.some(m => m.status === 'LIVE');
+    if (hasLiveMatch) {
+      updateLiveTimersInDOM();
+    }
+  }, 1000);
+}
+
+function updateLiveTimersInDOM() {
+  matches.filter(m => m.status === 'LIVE').forEach(m => {
+    if (!m.startedAt) return;
+    const elapsedSec = Math.floor((Date.now() - m.startedAt) / 1000);
+    const mins = Math.floor(elapsedSec / 60);
+    const secs = elapsedSec % 60;
+    const timeFormatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const currentMinute = Math.max(1, Math.min(25, mins + 1));
+
+    // Update Live Score Card Stopwatch
+    const timerDisplay = document.getElementById(`liveTimerDisplay-${m.id}`);
+    if (timerDisplay) {
+      timerDisplay.textContent = `⏱️ ${timeFormatted} (Menit ke-${currentMinute}')`;
+    }
+
+    // Update Match Center Active Form Minute Input if active
+    if (activeRefereeMatchId === m.id) {
+      const minuteInput = document.getElementById('eventMinute');
+      if (minuteInput && !minuteInput.dataset.userEdited) {
+        minuteInput.value = currentMinute;
+      }
+    }
+  });
+}
 
 // ========== DRAG & DROP FOR ROUND OF 16 BRACKET TREE ==========
 function handleTeamDragStart(e, matchId, teamType) {
@@ -470,33 +508,53 @@ function renderLiveScore() {
   if (!container) return;
 
   container.innerHTML = matches.map(m => {
-    const statusColor = m.status === 'LIVE' ? '#22c55e' : m.status === 'FINISHED' ? '#f59e0b' : '#64748b';
-    const statusLabel = m.status === 'LIVE' ? '🔴 LIVE' : m.status === 'FINISHED' ? '✅ Selesai' : '⏳ Belum Mulai';
-    const scoreStyle = m.status === 'LIVE' ? 'color:#22c55e; text-shadow: 0 0 12px rgba(34,197,94,0.5);' : 'color:#22d3ee;';
+    const isLive = m.status === 'LIVE';
+    const isFinished = m.status === 'FINISHED';
+    const statusColor = isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#64748b';
+    const statusLabel = isLive ? '🔴 LIVE' : isFinished ? '✅ Selesai' : '⏳ Belum Mulai';
+    const scoreStyle = isLive ? 'color:#22c55e; text-shadow: 0 0 12px rgba(34,197,94,0.5);' : 'color:#22d3ee;';
 
     const homeGoalsSummary = getMatchGoalEventsSummary(m, m.homeTeamId);
     const awayGoalsSummary = getMatchGoalEventsSummary(m, m.awayTeamId);
 
+    // Calculate real-time timer
+    let timerText = m.kickoffTime;
+    if (isLive && m.startedAt) {
+      const elapsedSec = Math.floor((Date.now() - m.startedAt) / 1000);
+      const mins = Math.floor(elapsedSec / 60);
+      const secs = elapsedSec % 60;
+      const timeFormatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      const currentMinute = Math.max(1, Math.min(25, mins + 1));
+      timerText = `⏱️ ${timeFormatted} (Menit ${currentMinute}')`;
+    }
+
     return `
-      <div class="glass-panel p-5" style="${m.status === 'LIVE' ? 'border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 0 20px rgba(34,197,94,0.1);' : ''}">
-        <div class="flex justify-between items-center mb-3">
+      <div class="glass-panel p-5" style="${isLive ? 'border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 0 20px rgba(34,197,94,0.1);' : ''}">
+        <div class="flex justify-between items-center mb-2 flex-wrap gap-1">
           <span class="text-xs font-bold text-cyan-400">Match #${m.matchNumber} | ${m.stage.replace(/_/g, ' ')}</span>
           <span style="font-size:11px; font-weight:700; color:${statusColor}; background:${statusColor}22; padding:2px 8px; border-radius:999px; border:1px solid ${statusColor}55;">${statusLabel}</span>
         </div>
+
+        <!-- Full Synchronized Date & Pitch Schedule Banner -->
+        <div class="text-[11px] text-slate-300 font-semibold mb-4 pb-2 border-b border-slate-800/80 flex justify-between items-center flex-wrap gap-1">
+          <span>📅 ${m.matchDate || 'Sabtu, 14 Maret 2026'} (${m.kickoffTime})</span>
+          <span class="text-cyan-300">📍 ${m.pitchLocation}</span>
+        </div>
+
         <div class="flex justify-between items-start">
           <div class="text-center flex-1">
-            <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:40px;height:40px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
+            <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:44px;height:44px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
             <span class="font-bold text-white text-xs block mb-1">${m.homeTeamName}</span>
             <div class="text-[11px] text-cyan-300 space-y-0.5">${homeGoalsSummary}</div>
           </div>
 
           <div class="text-center px-4 pt-1">
             <span class="font-black text-3xl font-mono block" style="${scoreStyle}">${m.homeScore} - ${m.awayScore}</span>
-            <span class="block text-xs text-slate-500 mt-1">${m.kickoffTime}</span>
+            <span class="block text-xs font-bold mt-1 text-emerald-400 font-mono" id="liveTimerDisplay-${m.id}">${timerText}</span>
           </div>
 
           <div class="text-center flex-1">
-            <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:40px;height:40px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
+            <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:44px;height:44px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
             <span class="font-bold text-white text-xs block mb-1">${m.awayTeamName}</span>
             <div class="text-[11px] text-cyan-300 space-y-0.5">${awayGoalsSummary}</div>
           </div>
@@ -1086,6 +1144,7 @@ function resetDrawingState() {
         m.homeScore = 0;
         m.awayScore = 0;
         m.status = 'SCHEDULED';
+        m.startedAt = null;
         m.events = [];
         m.cards = [];
       }
@@ -1208,6 +1267,18 @@ function renderActiveRefereeMatchPanel() {
   const statusColor = isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#64748b';
   const statusLabel = isLive ? '🔴 LIVE' : isFinished ? '✅ SELESAI' : '⏳ BELUM MULAI';
 
+  // Real-time minute calculation for form default
+  let currentMinuteDefault = 1;
+  let timerText = match.kickoffTime;
+  if (isLive && match.startedAt) {
+    const elapsedSec = Math.floor((Date.now() - match.startedAt) / 1000);
+    const mins = Math.floor(elapsedSec / 60);
+    const secs = elapsedSec % 60;
+    const timeFormatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    currentMinuteDefault = Math.max(1, Math.min(25, mins + 1));
+    timerText = `⏱️ ${timeFormatted} (Menit ke-${currentMinuteDefault}')`;
+  }
+
   panel.innerHTML = `
     <div class="flex justify-between items-start pb-4 border-b border-slate-800 mb-6 flex-wrap gap-3">
       <div>
@@ -1219,7 +1290,7 @@ function renderActiveRefereeMatchPanel() {
         <p class="text-xs text-slate-400 mt-1">📅 ${match.matchDate || 'Hari 1 (14 Maret 2026)'} | 🕐 ${match.kickoffTime} | 📍 ${match.pitchLocation}</p>
       </div>
       <div class="flex gap-2 flex-wrap">
-        ${isScheduled ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px; background: linear-gradient(135deg,#16a34a,#15803d);" onclick="startMatch('${match.id}')">▶ Mulai Pertandingan</button>` : ''}
+        ${isScheduled ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px; background: linear-gradient(135deg,#16a34a,#15803d);" onclick="startMatch('${match.id}')">▶ Mulai Pertandingan (Start Timer)</button>` : ''}
         ${isLive ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px;" onclick="finishMatch('${match.id}')">🏁 Peluit Akhir & Majukan Pemenang</button>` : ''}
         <button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openEditScheduleModal('${match.id}')">📅 Edit Jadwal</button>
         <button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openEditScoreModal('${match.id}')">✏️ Edit Skor Manual</button>
@@ -1235,7 +1306,7 @@ function renderActiveRefereeMatchPanel() {
       </div>
       <div class="text-center px-8 py-4 rounded-2xl" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(34,211,238,0.3);">
         <span class="font-black text-5xl font-mono" style="color: #22d3ee; text-shadow: 0 0 20px rgba(34,211,238,0.4);">${match.homeScore} - ${match.awayScore}</span>
-        <div class="mt-2 text-xs font-bold" style="color: ${statusColor};">${statusLabel}</div>
+        <div class="mt-2 text-xs font-bold text-emerald-400 font-mono" id="liveTimerDisplay-${match.id}">${timerText}</div>
       </div>
       <div class="text-center" style="min-width: 130px;">
         <img src="${match.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(match.awayTeamName)}" style="width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 8px; background: #111; border: 2px solid #334155;">
@@ -1243,13 +1314,24 @@ function renderActiveRefereeMatchPanel() {
       </div>
     </div>
 
-    ${isScheduled ? `<div class="p-4 rounded-xl text-center" style="background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.3); margin-bottom: 16px;"><p class="text-slate-400 text-sm">⏳ Pertandingan belum dimulai. Klik <strong class="text-white">"▶ Mulai Pertandingan"</strong> atau <strong class="text-white">"✏️ Edit Skor Manual"</strong>.</p></div>` : ''}
+    ${isScheduled ? `<div class="p-4 rounded-xl text-center" style="background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.3); margin-bottom: 16px;"><p class="text-slate-400 text-sm">⏳ Pertandingan belum dimulai. Klik <strong class="text-white">"▶ Mulai Pertandingan"</strong> untuk memulai Stopwatch &amp; Timer Otomatis.</p></div>` : ''}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
-        <h4 class="font-bold text-cyan-400 text-sm mb-3">⚽ + Input Event &amp; Assist Pertandingan</h4>
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="font-bold text-cyan-400 text-sm">⚽ + Input Event &amp; Assist Pertandingan</h4>
+          <span class="text-xs text-amber-300">⏱️ Menit Real-Time Otomatis</span>
+        </div>
+
         <form onsubmit="addMatchEvent(event, '${match.id}')" class="space-y-3">
-          <div><label class="form-label">Menit</label><input type="number" id="eventMinute" class="form-input" min="1" max="60" value="1" required></div>
+          <div>
+            <label class="form-label flex justify-between">
+              <span>Menit Kejadian</span>
+              <span class="text-xs text-cyan-400 font-normal">Otomatis / Edit Manual</span>
+            </label>
+            <input type="number" id="eventMinute" class="form-input" min="1" max="60" value="${currentMinuteDefault}" oninput="this.dataset.userEdited = 'true'" required>
+          </div>
+
           <div><label class="form-label">Tipe Event</label>
             <select id="eventTypeSelect" class="form-input" required>
               <option value="GOAL">⚽ Gol Biasa</option>
@@ -1261,24 +1343,28 @@ function renderActiveRefereeMatchPanel() {
               <option value="SECOND_YELLOW_RED">🟨🟥 Kartu Kuning Kedua</option>
             </select>
           </div>
+
           <div><label class="form-label">Tim</label>
-            <select id="eventTeamSelect" class="form-input" onchange="updateEventPlayerDropdowns('${match.id}')" required>
+            <select id="eventTeamSelect" class="form-input" required>
               <option value="${match.homeTeamId}">${match.homeTeamName}</option>
               <option value="${match.awayTeamId}">${match.awayTeamName}</option>
             </select>
           </div>
+
           <div><label class="form-label">Pencetak Gol / Pemain Utama</label>
             <select id="eventPlayerSelect" class="form-input">
               <option value="">-- Pilih Pemain --</option>
               ${allPlayersForMatch.map(p => `<option value="${p.id}">${p.fullName} (${p.position})${p.isSuspended ? ' [SUSPENDED]' : ''}</option>`).join('')}
             </select>
           </div>
+
           <div><label class="form-label">Pemberi Assist (Opsional)</label>
             <select id="eventAssistPlayerSelect" class="form-input">
               <option value="">-- Tidak Ada / Tanpa Assist --</option>
               ${allPlayersForMatch.map(p => `<option value="${p.id}">${p.fullName} (${p.position})</option>`).join('')}
             </select>
           </div>
+
           <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">💾 Simpan Event</button>
         </form>
       </div>
@@ -1314,6 +1400,7 @@ function startMatch(matchId) {
   if (!match) return;
   if (match.status !== 'SCHEDULED') { alert('Match ini sudah dimulai atau selesai.'); return; }
   match.status = 'LIVE';
+  match.startedAt = Date.now(); // Record start timestamp for automatic real-time timer
   saveState();
   renderApp();
 }
@@ -1326,6 +1413,7 @@ function resetSingleMatch(matchId) {
     match.homeScore = 0;
     match.awayScore = 0;
     match.status = 'SCHEDULED';
+    match.startedAt = null;
     match.events = [];
     match.cards = [];
     saveState();
