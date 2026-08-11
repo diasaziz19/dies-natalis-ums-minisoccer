@@ -69,6 +69,8 @@ window.resetSingleMatch = resetSingleMatch;
 window.finishMatch = finishMatch;
 window.startMatch = startMatch;
 window.openEditScoreModal = openEditScoreModal;
+window.openEditScheduleModal = openEditScheduleModal;
+window.handleEditScheduleSubmit = handleEditScheduleSubmit;
 window.openMatchSheetModal = openMatchSheetModal;
 window.openTeamDetailModal = openTeamDetailModal;
 window.renderVisitorMatches = renderVisitorMatches;
@@ -510,6 +512,7 @@ function renderVisitorMatches() {
   const filterEl = document.getElementById('matchFilterStatus');
   const filter = filterEl ? filterEl.value : 'ALL';
   const filtered = filter === 'ALL' ? matches : matches.filter(m => m.status === filter);
+  const isAdmin = authState.role === 'ADMIN';
 
   container.innerHTML = filtered.map(m => {
     const statusColor = m.status === 'LIVE' ? '#22c55e' : m.status === 'FINISHED' ? '#f59e0b' : '#64748b';
@@ -518,9 +521,14 @@ function renderVisitorMatches() {
 
     return `
       <div class="glass-panel p-5">
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
           <span class="badge-cyan text-xs">Match #${m.matchNumber} | ${m.stage.replace(/_/g, ' ')}</span>
-          <span style="font-size:11px; font-weight:700; color:${statusColor};">${m.status}</span>
+          <div class="flex items-center gap-2">
+            <span style="font-size:11px; font-weight:700; color:${statusColor};">${m.status}</span>
+            ${isAdmin ? `
+              <button onclick="openEditScheduleModal('${m.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius: 6px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.1); color: #ffd700; cursor: pointer;">📅 Edit Jadwal</button>
+            ` : ''}
+          </div>
         </div>
         <div class="flex justify-between items-start">
           <div class="flex-1">
@@ -533,7 +541,10 @@ function renderVisitorMatches() {
             <div class="text-[11px] text-cyan-300 mt-1">${awayGoalsSummary}</div>
           </div>
         </div>
-        <div class="text-xs text-slate-500 mt-3 pt-2 border-t border-slate-800">📍 ${m.pitchLocation} | 🕐 ${m.kickoffTime}</div>
+        <div class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-800 flex justify-between items-center flex-wrap gap-2">
+          <span>📅 ${m.matchDate || 'Hari 1 (14 Maret 2026)'} | 🕐 ${m.kickoffTime}</span>
+          <span>📍 ${m.pitchLocation}</span>
+        </div>
       </div>
     `;
   }).join('');
@@ -1056,9 +1067,30 @@ function spinDrawingWheel() {
 }
 
 function resetDrawingState() {
-  if (confirm('🔄 Kosongkan hasil undian roda & reset seluruh slot 16 Besar?')) {
+  if (confirm('🔄 Kosongkan hasil undian roda & reset seluruh slot 16 Besar ke "Tim 1", "Tim 2" ... "Tim 16"?')) {
     drawnSlots = [];
     selectedTargetSlot = null;
+
+    // Reset Round of 16 match team names to default placeholders Tim 1..Tim 16
+    for (let i = 1; i <= 8; i++) {
+      const m = matches.find(match => match.matchNumber === i && match.stage === 'ROUND_OF_16');
+      if (m) {
+        const homeNum = (i * 2) - 1;
+        const awayNum = i * 2;
+        m.homeTeamId = `t${homeNum}`;
+        m.homeTeamName = `Tim ${homeNum}`;
+        m.homeTeamLogo = `https://api.dicebear.com/7.x/identicon/svg?seed=Tim${homeNum}`;
+        m.awayTeamId = `t${awayNum}`;
+        m.awayTeamName = `Tim ${awayNum}`;
+        m.awayTeamLogo = `https://api.dicebear.com/7.x/identicon/svg?seed=Tim${awayNum}`;
+        m.homeScore = 0;
+        m.awayScore = 0;
+        m.status = 'SCHEDULED';
+        m.events = [];
+        m.cards = [];
+      }
+    }
+
     saveState();
     renderApp();
   }
@@ -1145,6 +1177,7 @@ function renderRefereePortal() {
       <div class="font-bold text-white text-sm">
         ${m.homeTeamName} <span class="text-cyan-400 font-mono">${m.homeScore} - ${m.awayScore}</span> ${m.awayTeamName}
       </div>
+      <div class="text-[11px] text-slate-400 mt-1">📅 ${m.matchDate || 'Hari 1'} | 🕐 ${m.kickoffTime}</div>
     </div>
   `).join('');
 
@@ -1183,11 +1216,12 @@ function renderActiveRefereeMatchPanel() {
           <span style="font-size:11px; font-weight:700; color:${statusColor}; background: ${statusColor}22; padding: 2px 8px; border-radius:999px; border: 1px solid ${statusColor}55;">${statusLabel}</span>
         </div>
         <h3 class="text-xl font-bold text-white">${match.homeTeamName} vs ${match.awayTeamName}</h3>
-        <p class="text-xs text-slate-400 mt-1">📍 ${match.pitchLocation} | 🕐 ${match.kickoffTime}</p>
+        <p class="text-xs text-slate-400 mt-1">📅 ${match.matchDate || 'Hari 1 (14 Maret 2026)'} | 🕐 ${match.kickoffTime} | 📍 ${match.pitchLocation}</p>
       </div>
       <div class="flex gap-2 flex-wrap">
         ${isScheduled ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px; background: linear-gradient(135deg,#16a34a,#15803d);" onclick="startMatch('${match.id}')">▶ Mulai Pertandingan</button>` : ''}
         ${isLive ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px;" onclick="finishMatch('${match.id}')">🏁 Peluit Akhir & Majukan Pemenang</button>` : ''}
+        <button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openEditScheduleModal('${match.id}')">📅 Edit Jadwal</button>
         <button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openEditScoreModal('${match.id}')">✏️ Edit Skor Manual</button>
         <button onclick="resetSingleMatch('${match.id}')" style="padding: 7px 14px; font-size: 13px; font-weight:700; border-radius:8px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.1); color:#f87171; cursor:pointer;" title="Reset skor dan event match ini ke 0-0 Scheduled">🔄 Reset Match</button>
         ${!isScheduled ? `<button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openMatchSheetModal('${match.id}')">📄 Match Sheet</button>` : ''}
@@ -1228,7 +1262,7 @@ function renderActiveRefereeMatchPanel() {
             </select>
           </div>
           <div><label class="form-label">Tim</label>
-            <select id="eventTeamSelect" class="form-input" required>
+            <select id="eventTeamSelect" class="form-input" onchange="updateEventPlayerDropdowns('${match.id}')" required>
               <option value="${match.homeTeamId}">${match.homeTeamName}</option>
               <option value="${match.awayTeamId}">${match.awayTeamName}</option>
             </select>
@@ -1300,6 +1334,51 @@ function resetSingleMatch(matchId) {
   }
 }
 
+function openEditScheduleModal(matchId) {
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">📅 Edit Jadwal &amp; Lokasi Pertandingan</h3>
+    <p class="text-sm text-slate-400 mb-5">Match #${match.matchNumber}: <strong class="text-cyan-300">${match.homeTeamName}</strong> vs <strong class="text-cyan-300">${match.awayTeamName}</strong></p>
+    
+    <form onsubmit="handleEditScheduleSubmit(event, '${matchId}')" class="space-y-4">
+      <div>
+        <label class="form-label">Hari &amp; Tanggal Pertandingan <span class="text-rose-400">*</span></label>
+        <input type="text" id="editMatchDate" class="form-input" value="${match.matchDate || 'Sabtu, 14 Maret 2026'}" placeholder="misal: Sabtu, 14 Maret 2026" required>
+      </div>
+      <div>
+        <label class="form-label">Waktu / Jam Kickoff <span class="text-rose-400">*</span></label>
+        <input type="text" id="editMatchTime" class="form-input" value="${match.kickoffTime || '08:00 WIB'}" placeholder="misal: 08:30 WIB" required>
+      </div>
+      <div>
+        <label class="form-label">Lokasi Lapangan / Venue <span class="text-rose-400">*</span></label>
+        <input type="text" id="editMatchPitch" class="form-input" value="${match.pitchLocation || 'UMS Stadium Field A'}" placeholder="misal: Lapangan A UMS Stadium" required>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Jadwal</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+function handleEditScheduleSubmit(e, matchId) {
+  e.preventDefault();
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+
+  match.matchDate = document.getElementById('editMatchDate').value.trim();
+  match.kickoffTime = document.getElementById('editMatchTime').value.trim();
+  match.pitchLocation = document.getElementById('editMatchPitch').value.trim();
+
+  closeModal();
+  saveState();
+  renderApp();
+  alert(`✅ Jadwal Match #${match.matchNumber} berhasil diperbarui!\n${match.matchDate} | ${match.kickoffTime} | ${match.pitchLocation}`);
+}
+
 function addMatchEvent(e, matchId) {
   e.preventDefault();
   const match = matches.find(m => m.id === matchId);
@@ -1323,7 +1402,6 @@ function addMatchEvent(e, matchId) {
   const goalEvId = 'ev-' + Date.now();
   match.events.push({ id: goalEvId, minute, eventType, teamId, playerId, playerFullName });
 
-  // If assist is selected, record an ASSIST event
   if (assistPlayerObj && (eventType === 'GOAL' || eventType === 'PENALTY_GOAL')) {
     match.events.push({
       id: 'ev-ast-' + Date.now(),
@@ -1360,22 +1438,17 @@ function deleteMatchEvent(matchId, eventId) {
   if (!ev) return;
 
   if (confirm(`Hapus/koreksi event: "${ev.eventType} - ${ev.playerFullName}"?`)) {
-    // Revert score if it was a goal
     if (ev.eventType === 'GOAL' || ev.eventType === 'PENALTY_GOAL') {
       if (ev.teamId === match.homeTeamId && match.homeScore > 0) match.homeScore -= 1;
       else if (ev.teamId === match.awayTeamId && match.awayScore > 0) match.awayScore -= 1;
-
-      // Also remove associated assist event if any
       match.events = match.events.filter(e => e.goalId !== eventId);
     } else if (ev.eventType === 'OWN_GOAL') {
       if (ev.teamId === match.homeTeamId && match.awayScore > 0) match.awayScore -= 1;
       else if (ev.teamId === match.awayTeamId && match.homeScore > 0) match.homeScore -= 1;
     }
 
-    // Remove event
     match.events = match.events.filter(e => e.id !== eventId);
 
-    // Remove card if applicable
     if (match.cards) {
       match.cards = match.cards.filter(c => c.minute !== ev.minute || c.playerId !== ev.playerId);
     }
@@ -1491,7 +1564,7 @@ function trigger16TeamDrawingUI() {
 }
 
 function resetTournamentData() {
-  if (confirm('Reset semua data pertandingan?\nSemua skor kembali 0-0, status SCHEDULED.')) {
+  if (confirm('Reset semua data pertandingan?\nSemua skor kembali 0-0, status SCHEDULED, dan bagan kembali ke Tim 1 s.d Tim 16.')) {
     localStorage.clear();
     location.reload(true);
   }
@@ -1721,7 +1794,7 @@ function openMatchSheetModal(matchId) {
       <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px;">
         <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase;">LAPORAN RESMI PERTANDINGAN</h2>
         <h3 style="font-size: 14px; font-weight: 700; color: #003366;">DIES NATALIS UMS 2026 MINISOCCER</h3>
-        <p style="font-size: 11px;">Match #${match.matchNumber} (${match.stage}) | ${match.pitchLocation}</p>
+        <p style="font-size: 11px;">Match #${match.matchNumber} (${match.stage}) | ${match.matchDate || ''} | ${match.kickoffTime} | ${match.pitchLocation}</p>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
         <div style="font-weight: 700;">${match.homeTeamName}</div>
