@@ -13,6 +13,7 @@ let currentVisitorTab = 'bracket';
 let currentAdminTab = 'matchcenter';
 let activeRefereeMatchId = null;
 let draggedTeamInfo = null;
+let draggedPoolTeamId = null;
 
 // Drawing Engine State
 let drawnSlots = JSON.parse(localStorage.getItem('ums_drawn_slots')) || []; // [{ matchNumber, teamType: 'home'|'away', teamId }]
@@ -70,11 +71,17 @@ window.openTeamDetailModal = openTeamDetailModal;
 window.renderVisitorMatches = renderVisitorMatches;
 window.closeModal = closeModal;
 
-// Drag & Drop Window Bindings
+// Drag & Drop Window Bindings (Bracket Tree)
 window.handleTeamDragStart = handleTeamDragStart;
 window.handleTeamDragOver = handleTeamDragOver;
 window.handleTeamDragLeave = handleTeamDragLeave;
 window.handleTeamDrop = handleTeamDrop;
+
+// Drag & Drop Window Bindings (Pool to Slot Seeding)
+window.handlePoolTeamDragStart = handlePoolTeamDragStart;
+window.handleSlotDragOver = handleSlotDragOver;
+window.handleSlotDragLeave = handleSlotDragLeave;
+window.handleSlotDrop = handleSlotDrop;
 
 // Drawing Wheel Window Bindings
 window.spinDrawingWheel = spinDrawingWheel;
@@ -88,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderApp();
 });
 
-// ========== DRAG & DROP FOR ROUND OF 16 BRACKET (SUPER ADMIN ONLY) ==========
+// ========== DRAG & DROP FOR ROUND OF 16 BRACKET TREE ==========
 function handleTeamDragStart(e, matchId, teamType) {
   if (authState.role !== 'ADMIN') return;
   draggedTeamInfo = { matchId, teamType };
@@ -117,7 +124,6 @@ function handleTeamDrop(e, targetMatchId, targetTeamType) {
   const sourceMatchId = draggedTeamInfo.matchId;
   const sourceTeamType = draggedTeamInfo.teamType;
 
-  // Same slot
   if (sourceMatchId === targetMatchId && sourceTeamType === targetTeamType) return;
 
   const sourceMatch = matches.find(m => m.id === sourceMatchId);
@@ -157,6 +163,54 @@ function handleTeamDrop(e, targetMatchId, targetTeamType) {
   }
 
   draggedTeamInfo = null;
+  saveState();
+  renderApp();
+}
+
+// ========== DRAG & DROP FROM POOL TO DRAWING SLOT (MANUAL SEEDING) ==========
+function handlePoolTeamDragStart(e, teamId) {
+  if (authState.role !== 'ADMIN') return;
+  draggedPoolTeamId = teamId;
+  e.dataTransfer.setData('text/plain', teamId);
+  e.currentTarget.style.opacity = '0.4';
+}
+
+function handleSlotDragOver(e) {
+  if (authState.role !== 'ADMIN') return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('slot-drag-over');
+}
+
+function handleSlotDragLeave(e) {
+  if (authState.role !== 'ADMIN') return;
+  e.currentTarget.classList.remove('slot-drag-over');
+}
+
+function handleSlotDrop(e, matchNumber, teamType) {
+  if (authState.role !== 'ADMIN') return;
+  e.preventDefault();
+  e.currentTarget.classList.remove('slot-drag-over');
+
+  if (!draggedPoolTeamId) return;
+
+  const teamObj = teams.find(t => t.id === draggedPoolTeamId);
+  if (!teamObj) return;
+
+  // 1. Remove any existing assignment for this dragged team
+  drawnSlots = drawnSlots.filter(s => s.teamId !== draggedPoolTeamId);
+
+  // 2. Remove any existing assignment for this target slot
+  drawnSlots = drawnSlots.filter(s => !(s.matchNumber === matchNumber && s.teamType === teamType));
+
+  // 3. Add new assignment
+  drawnSlots.push({
+    matchNumber,
+    teamType,
+    teamId: draggedPoolTeamId
+  });
+
+  draggedPoolTeamId = null;
   saveState();
   renderApp();
 }
@@ -735,7 +789,7 @@ function renderDrawingPoolAndSlots() {
     targetText.textContent = nextSlot ? nextSlot.label : '🎉 UNDIAN 16 TIM LENGKAP!';
   }
 
-  // 1. Remaining Teams Pool
+  // 1. Remaining Teams Pool (Filter out already drawn teams!)
   const drawnTeamIds = drawnSlots.map(s => s.teamId);
   const remainingTeams = teams.filter(t => !drawnTeamIds.includes(t.id));
 
@@ -744,42 +798,49 @@ function renderDrawingPoolAndSlots() {
   if (countBadge) countBadge.textContent = `${remainingTeams.length} Tim Tersisa`;
 
   if (poolGrid) {
+    const isAdmin = authState.role === 'ADMIN';
     poolGrid.innerHTML = remainingTeams.length === 0
       ? '<p class="text-xs text-emerald-400 py-2 w-full text-center font-bold">🎉 Semua 16 Tim telah diundi ke dalam slot!</p>'
       : remainingTeams.map(t => `
-        <div class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-2 text-xs font-bold text-white">
+        <div class="pool-team-badge px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-2 text-xs font-bold text-white cursor-grab" ${isAdmin ? `draggable="true" ondragstart="handlePoolTeamDragStart(event, '${t.id}')" title="👑 Super Admin: Tarik (drag) tim ini langsung ke slot Match di bawah untuk Seeding"` : ''}>
+          ${isAdmin ? '<span class="text-xs text-cyan-400">⋮⋮</span>' : ''}
           <img src="${t.logoUrl}" style="width:18px;height:18px;border-radius:50%;">
           <span>${t.name}</span>
         </div>
       `).join('');
   }
 
-  // 2. Drawn Slots Table (Match 1-8 Home/Away)
+  // 2. Drawn Slots Table (Match 1-8 Home/Away as Drop Zones)
   const slotsTable = document.getElementById('drawnSlotsTable');
   if (!slotsTable) return;
 
   const totalR16Slots = 16;
+  const isAdmin = authState.role === 'ADMIN';
   let html = '';
 
   for (let i = 0; i < totalR16Slots; i++) {
     const mNum = Math.floor(i / 2) + 1;
-    const tType = i % 2 === 0 ? 'Home' : 'Away';
-    const drawnItem = drawnSlots[i];
+    const tType = i % 2 === 0 ? 'home' : 'away';
+    const tTypeLabel = i % 2 === 0 ? 'Home' : 'Away';
+
+    const drawnItem = drawnSlots.find(s => s.matchNumber === mNum && s.teamType === tType);
     const teamObj = drawnItem ? teams.find(t => t.id === drawnItem.teamId) : null;
 
+    const dropAttrs = isAdmin ? `ondragover="handleSlotDragOver(event)" ondragleave="handleSlotDragLeave(event)" ondrop="handleSlotDrop(event, ${mNum}, '${tType}')" title="👑 Super Admin: Lepaskan (drop) tim di sini"` : '';
+
     html += `
-      <div class="p-2.5 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid ${teamObj ? 'rgba(0,240,255,0.3)' : 'rgba(51,65,85,0.4)'}">
+      <div class="drawing-slot-dropzone p-2.5 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid ${teamObj ? 'rgba(0,240,255,0.4)' : 'rgba(51,65,85,0.4)'}" ${dropAttrs}>
         <div class="flex items-center gap-3">
-          <span class="font-mono font-bold text-cyan-400" style="min-width: 100px;">Match #${mNum} (${tType})</span>
+          <span class="font-mono font-bold text-cyan-400" style="min-width: 100px;">Match #${mNum} (${tTypeLabel})</span>
           ${teamObj ? `
             <div class="flex items-center gap-2 font-bold text-white">
               <img src="${teamObj.logoUrl}" style="width:20px;height:20px;border-radius:50%;">
               <span>${teamObj.name}</span>
             </div>
-          ` : `<span class="text-slate-500 italic">⏳ Belum Diundi</span>`}
+          ` : `<span class="text-slate-500 italic">⏳ Drop Tim / Spin Wheel</span>`}
         </div>
         ${teamObj ? `
-          <button onclick="removeDrawnTeam('${teamObj.id}')" class="text-rose-400 font-bold hover:underline" title="Hapus tim ini dari hasil undian">🗑️ Hapus</button>
+          <button onclick="removeDrawnTeam('${teamObj.id}')" class="text-rose-400 font-bold hover:underline" title="Hapus tim dari slot (kembali ke Spin Wheel)">🗑️ Hapus</button>
         ` : ''}
       </div>
     `;
@@ -863,7 +924,7 @@ function spinDrawingWheel() {
   const spinBtn = document.getElementById('spinWheelBtn');
   if (spinBtn) { spinBtn.disabled = true; spinBtn.textContent = '🔄 MEMUTAR RODA...'; }
 
-  // Pick random winner index
+  // Pick random winner index from REMAINING teams only
   const winnerIndex = Math.floor(Math.random() * remainingTeams.length);
   const winningTeam = remainingTeams[winnerIndex];
 

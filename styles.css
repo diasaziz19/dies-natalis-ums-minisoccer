@@ -356,12 +356,30 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(34, 197, 94, 0.2) !important;
 }
 
-/* Spinning Wheel & Flip Flop Drawing UI */
-.drawing-canvas-wrapper {
-  position: relative;
-  width: 320px;
-  height: 320px;
-  margin: 0 auto;
+.pool-team-badge {
+  cursor: grab;
+  user-select: none;
+  transition: all 0.2s ease;
+  border: 1px dashed rgba(0, 240, 255, 0.4);
+}
+
+.pool-team-badge:hover {
+  border-color: var(--ucl-gold);
+  background: rgba(255, 215, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.pool-team-badge:active {
+  cursor: grabbing;
+}
+
+.drawing-slot-dropzone {
+  transition: all 0.2s ease;
+}
+
+.drawing-slot-dropzone.slot-drag-over {
+  border: 2px dashed #22c55e !important;
+  background: rgba(34, 197, 94, 0.25) !important;
 }
 
 #wheelCanvas {
