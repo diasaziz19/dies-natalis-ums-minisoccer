@@ -24,6 +24,7 @@
     <!-- Menu Selector -->
     <div class="flex items-center gap-2" id="roleSelectorContainer">
       <span class="role-badge active" data-role="VISITOR" onclick="switchRole('VISITOR')">🏠 Beranda</span>
+      <span class="role-badge" data-role="RULES" onclick="switchRole('RULES')">📜 Peraturan</span>
       <span class="role-badge" data-role="TEAM_MANAGER" onclick="switchRole('TEAM_MANAGER')">⚽ Manajemen Tim</span>
       <span class="role-badge" data-role="LOGIN" id="navLoginBtn" onclick="switchRole('LOGIN')">🔑 Login / Akun</span>
     </div>
@@ -136,7 +137,63 @@
       </div>
     </div>
 
-    <!-- 2. UNIFIED LOGIN VIEW -->
+    <!-- 2. MENU PERATURAN TURNAMEN -->
+    <div id="view-RULES" class="app-view hidden">
+      <div class="glass-panel p-8 mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <span style="font-size: 36px;">📜</span>
+          <div>
+            <h1 class="text-2xl font-bold text-white">PERATURAN RESMI TURNAMEN MINISOCCER DIES NATALIS UMS 2026</h1>
+            <p class="text-sm text-cyan-400 font-semibold">Regulasi Resmi Pertandingan Minisoccer UMS 7v7 (Sistem Gugur / Knockout)</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <!-- Card 1: Format & Waktu -->
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <h3 class="text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">⏱️ 1. Format Pertandingan &amp; Durasi Waktu</h3>
+            <ul class="space-y-2 text-sm text-slate-300">
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Sistem Turnamen:</strong> Knockout / Sistem Gugur 16 Tim (Mulai dari Babak 16 Besar $\rightarrow$ Perempat Final $\rightarrow$ Semi Final $\rightarrow$ Final &amp; Juara 3).</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Durasi Main:</strong> <strong>2 x 10 Menit</strong> (Kotor) dengan waktu istirahat antar babak selama <strong>5 Menit</strong>.</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Penentuan Pemenang (Seri):</strong> Apabila hasil imbang hingga waktu normal usai, pertandingan langsung dilanjutkan dengan <strong>Adu Penalti (3 Penendang Utama per Tim)</strong>.</span></li>
+            </ul>
+          </div>
+
+          <!-- Card 2: Pemain & Skuad -->
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <h3 class="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2">👥 2. Komposisi Pemain &amp; Skuad</h3>
+            <ul class="space-y-2 text-sm text-slate-300">
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Pemain di Lapangan:</strong> <strong>7 vs 7</strong> (6 Pemain Lapangan + 1 Penjaga Gawang). Minimum 5 pemain untuk memulai pertandingan.</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Batas Skuad Roster:</strong> Maksimal <strong>14 Pemain</strong> terdaftar, <strong>1 Head Coach</strong>, dan <strong>1 Official Tim</strong>.</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Pergantian Pemain (Substitution):</strong> Bebas/Melayang (Rolling Substitution) dari area teknis wasit tanpa membatasi jumlah pergantian.</span></li>
+            </ul>
+          </div>
+
+          <!-- Card 3: Peraturan Lapangan -->
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <h3 class="text-lg font-bold text-emerald-400 mb-3 flex items-center gap-2">⚽ 3. Peraturan Lapangan (Minisoccer Standard)</h3>
+            <ul class="space-y-2 text-sm text-slate-300">
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Offside:</strong> <strong>TIDAK ADA OFFSIDE</strong> dalam seluruh babak pertandingan.</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Bola Out / Garis Samping:</strong> Menggunakan <strong>Kick-in (Tendangan ke Dalam)</strong>. Bola harus diam di atas garis saat ditendang (maksimal 4 detik).</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Penjaga Gawang (Kiper):</strong> Lemparan gawang dari kiper tidak boleh langsung melewati garis tengah lapangan tanpa menyentuh tanah/pemain terlebih dahulu.</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Back-pass:</strong> Kiper <strong>TIDAK BOLEH</strong> menangkap bola dengan tangan dari umpan kaki rekan setim.</span></li>
+            </ul>
+          </div>
+
+          <!-- Card 4: Kedisiplinan & Administrasi -->
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <h3 class="text-lg font-bold text-rose-400 mb-3 flex items-center gap-2">🟨 4. Kedisiplinan, Kartu &amp; Berkas Administrasi</h3>
+            <ul class="space-y-2 text-sm text-slate-300">
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Akumulasi Kartu Kuning:</strong> 2 Kartu Kuning dalam pertandingan berbeda $\rightarrow$ <strong>Hukuman Absen 1 Pertandingan Berikutnya</strong>.</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Kartu Merah Langsung:</strong> Pemain wajib keluar lapangan + <strong>Absen 1 Pertandingan Berikutnya</strong>. Tim bermain dengan 6 pemain selama 2 menit sebelum digantikan.</span></li>
+              <li class="flex items-start gap-2"><span>•</span> <span><strong>Persyaratan Berkas:</strong> Wajib mengunggah <strong>Surat Tugas Resmi Dekanat / Unit UMS</strong> serta membawa KTP / NI. Kepegawaian asli saat verifikasi fisik.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. UNIFIED LOGIN VIEW -->
     <div id="view-LOGIN" class="app-view hidden">
       <div class="glass-panel p-8 text-center" style="max-width: 480px; margin: 40px auto;">
         <div style="font-size: 48px; margin-bottom: 12px;">🔑</div>
@@ -165,17 +222,17 @@
       </div>
     </div>
 
-    <!-- 3. MANAJEMEN TIM VIEW -->
+    <!-- 4. MANAJEMEN TIM VIEW (PUBLIC ACCESSIBLE READ-ONLY & EDITABLE FOR AUTH USERS) -->
     <div id="view-TEAM_MANAGER" class="app-view hidden">
       <div class="glass-panel p-6 mb-6">
         <div class="flex justify-between items-center flex-wrap gap-4 mb-2">
           <div>
-            <h2 class="text-2xl font-bold text-white mb-1">⚽ Manajemen Tim &amp; Official</h2>
-            <p class="text-sm text-slate-400" id="managerSubtitleText">Kelola informasi tim, pendaftaran pemain, official, dan surat tugas.</p>
+            <h2 class="text-2xl font-bold text-white mb-1">⚽ Manajemen Tim &amp; Skuad Peserta</h2>
+            <p class="text-sm text-slate-400" id="managerSubtitleText">Daftar tim terdaftar, susunan pemain, official, dan verifikasi Surat Tugas.</p>
             <p class="text-xs text-cyan-400 font-bold mt-1" id="managerLoggedInAs"></p>
           </div>
           <div class="flex gap-2 flex-wrap" id="managerHeaderActions">
-            <!-- Rendered dynamically based on role -->
+            <!-- Rendered dynamically -->
           </div>
         </div>
       </div>
@@ -183,7 +240,7 @@
       <div id="managerTeamsContainer" class="space-y-6"></div>
     </div>
 
-    <!-- 4. SUPER ADMIN DASHBOARD VIEW (MATCH CENTER + CONTROLS) -->
+    <!-- 5. SUPER ADMIN DASHBOARD VIEW (MATCH CENTER + CONTROLS) -->
     <div id="view-ADMIN" class="app-view hidden">
       <div class="glass-panel p-6 mb-6">
         <div class="flex justify-between items-center flex-wrap gap-4">

@@ -449,7 +449,7 @@ function renderPublicTeamsGrid() {
   }).join('');
 }
 
-// ========== 2. MANAJEMEN TIM (SUPER ADMIN & MANAGER ACCESSIBLE) ==========
+// ========== 2. MANAJEMEN TIM (PUBLIC READ-ONLY + EDITABLE FOR AUTH USERS) ==========
 function renderTeamManagerPortal() {
   const container = document.getElementById('managerTeamsContainer');
   const loggedInAsEl = document.getElementById('managerLoggedInAs');
@@ -458,59 +458,40 @@ function renderTeamManagerPortal() {
 
   if (!container) return;
 
-  // Check login status
-  if (!authState.isLoggedIn) {
-    container.innerHTML = `
-      <div class="glass-panel p-12 text-center" style="max-width: 550px; margin: 40px auto;">
-        <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
-        <h3 class="text-2xl font-bold text-white mb-2">Akses Terkunci</h3>
-        <p class="text-slate-400 mb-6">Silakan login sebagai <strong>Manajer Tim</strong> atau <strong>Super Admin</strong> untuk melihat dan mengelola data tim.</p>
-        <button class="btn-ucl-primary" onclick="switchRole('LOGIN')">🔑 Pergi ke Halaman Login</button>
-      </div>
-    `;
-    if (loggedInAsEl) loggedInAsEl.textContent = 'Status: Belum Login (Guest)';
-    if (actionsEl) actionsEl.innerHTML = '';
-    return;
-  }
-
   // Header state
   if (loggedInAsEl) {
-    loggedInAsEl.textContent = authState.role === 'ADMIN'
-      ? `👑 Status Login: SUPER ADMIN (Akses Edit Seluruh ${teams.length} Tim)`
-      : `👤 Status Login: ${authState.displayName} (Akses Tim Terdaftar)`;
+    if (!authState.isLoggedIn) {
+      loggedInAsEl.textContent = '🌐 Mode Publik: Membaca Seluruh Skuad Tim (Login untuk mengedit)';
+    } else if (authState.role === 'ADMIN') {
+      loggedInAsEl.textContent = `👑 Status Login: SUPER ADMIN (Akses Edit Seluruh ${teams.length} Tim)`;
+    } else {
+      loggedInAsEl.textContent = `👤 Status Login: ${authState.displayName} (Akses Edit Tim Terdaftar)`;
+    }
   }
 
   if (subtitleEl) {
-    subtitleEl.textContent = authState.role === 'ADMIN'
-      ? 'Mode Super Admin: Anda dapat mengedit nama tim, pemain, official, dan surat tugas seluruh tim.'
-      : 'Mode Manajer Tim: Anda dapat mengedit info tim Anda, pendaftaran pemain, official, dan surat tugas.';
+    subtitleEl.textContent = 'Daftar resmi seluruh tim peserta, skuad pemain, official, dan berkas verifikasi Surat Tugas.';
   }
 
   if (actionsEl) {
-    actionsEl.innerHTML = `
-      <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
-      <button onclick="handleLogout()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
-    `;
-  }
-
-  // Filter teams based on role:
-  // ADMIN -> see ALL teams
-  // MANAGER -> see ONLY their assigned team
-  const visibleTeams = authState.role === 'ADMIN'
-    ? teams
-    : teams.filter(t => t.id === authState.teamId);
-
-  if (visibleTeams.length === 0) {
-    container.innerHTML = `
-      <div class="glass-panel p-12 text-center">
-        <p class="text-slate-400 mb-4">Tim Anda belum terdaftar di sistem.</p>
+    if (authState.isLoggedIn) {
+      actionsEl.innerHTML = `
         <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
-      </div>
-    `;
-    return;
+        <button onclick="handleLogout()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
+      `;
+    } else {
+      actionsEl.innerHTML = `
+        <button class="btn-ucl-primary" onclick="switchRole('LOGIN')">🔑 Login Manajer Tim / Admin</button>
+      `;
+    }
   }
 
-  container.innerHTML = visibleTeams.map(team => {
+  // Determine editable permissions:
+  // Public/Guest: All teams read-only
+  // Admin: All teams editable
+  // Manager: Assigned team editable, others read-only
+  container.innerHTML = teams.map(team => {
+    const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.teamId === team.id);
     const teamPlayers = players.filter(p => p.teamId === team.id);
     const teamOfficials = officials.filter(o => o.teamId === team.id);
     const headCoach = teamOfficials.find(o => o.role === 'HEAD_COACH');
@@ -518,7 +499,7 @@ function renderTeamManagerPortal() {
     const isPlayerFull = teamPlayers.length >= 14;
 
     return `
-      <div class="glass-panel p-6">
+      <div class="glass-panel p-6" style="${isEditable ? 'border: 1px solid rgba(0, 240, 255, 0.4); box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);' : ''}">
         <!-- Team Header -->
         <div class="flex justify-between items-start flex-wrap gap-4 mb-6 pb-4 border-b border-slate-800">
           <div class="flex items-center gap-4">
@@ -527,15 +508,18 @@ function renderTeamManagerPortal() {
               <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="text-xl font-bold text-white">${team.name}</h3>
                 <span class="badge-${team.status === 'APPROVED' ? 'gold' : team.status === 'REJECTED' ? 'danger' : 'cyan'}">${team.status}</span>
+                ${isEditable ? `<span class="badge-cyan text-xs">✏️ Skuad Anda (Dapat Diedit)</span>` : ''}
               </div>
               <span class="text-xs text-cyan-400 block mt-1">${team.facultyUnit} | Manager: ${team.managerName} (${team.managerPhone || '-'})</span>
             </div>
           </div>
           
-          <div class="flex gap-2 flex-wrap">
-            <button onclick="openEditTeamModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.08); color: #22d3ee; cursor: pointer;">✏️ Edit Info Tim</button>
-            <button onclick="openUploadSuratTugasModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.08); color: #ffd700; cursor: pointer;">📄 Upload Surat Tugas</button>
-          </div>
+          ${isEditable ? `
+            <div class="flex gap-2 flex-wrap">
+              <button onclick="openEditTeamModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.08); color: #22d3ee; cursor: pointer;">✏️ Edit Info Tim</button>
+              <button onclick="openUploadSuratTugasModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.08); color: #ffd700; cursor: pointer;">📄 Upload Surat Tugas</button>
+            </div>
+          ` : ''}
         </div>
 
         <!-- Surat Tugas Status Banner -->
@@ -543,13 +527,15 @@ function renderTeamManagerPortal() {
           <div class="flex items-center gap-2 text-xs">
             <span>${team.suratTugasName ? '📄' : '⚠️'}</span>
             <div>
-              <strong class="text-white block">Surat Tugas Rektorat / Dekanat:</strong>
+              <strong class="text-white block">Surat Tugas Dekanat / Unit:</strong>
               <span class="${team.suratTugasName ? 'text-emerald-400 font-mono' : 'text-rose-400'}">${team.suratTugasName || 'Belum diunggah oleh manajer tim'}</span>
             </div>
           </div>
-          <button onclick="openUploadSuratTugasModal('${team.id}')" class="text-xs font-bold ${team.suratTugasName ? 'text-emerald-300 hover:underline' : 'text-amber-400 hover:underline'}">
-            ${team.suratTugasName ? 'Ganti File' : '+ Upload Sekarang'}
-          </button>
+          ${isEditable ? `
+            <button onclick="openUploadSuratTugasModal('${team.id}')" class="text-xs font-bold ${team.suratTugasName ? 'text-emerald-300 hover:underline' : 'text-amber-400 hover:underline'}">
+              ${team.suratTugasName ? 'Ganti File' : '+ Upload Sekarang'}
+            </button>
+          ` : ''}
         </div>
 
         <!-- Squad Roster Section -->
@@ -559,9 +545,11 @@ function renderTeamManagerPortal() {
               <span>🏃 Daftar Pemain Skuad</span>
               <span class="text-xs text-slate-400">(${teamPlayers.length} / 14 Pemain)</span>
             </h4>
-            <button class="btn-ucl-primary" style="padding: 6px 12px; font-size: 12px;" ${isPlayerFull ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="openAddPlayerModal('${team.id}')">
-              + Tambah Pemain ${isPlayerFull ? '(Maks 14)' : ''}
-            </button>
+            ${isEditable ? `
+              <button class="btn-ucl-primary" style="padding: 6px 12px; font-size: 12px;" ${isPlayerFull ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="openAddPlayerModal('${team.id}')">
+                + Tambah Pemain ${isPlayerFull ? '(Maks 14)' : ''}
+              </button>
+            ` : ''}
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -577,7 +565,7 @@ function renderTeamManagerPortal() {
                       ${p.isSuspended ? `<span class="text-xs text-rose-400 font-bold block">⛔ ${p.suspensionReason}</span>` : ''}
                     </div>
                   </div>
-                  <button onclick="deletePlayer('${p.id}')" class="text-xs text-rose-400 hover:text-rose-300 font-bold">Hapus</button>
+                  ${isEditable ? `<button onclick="deletePlayer('${p.id}')" class="text-xs text-rose-400 hover:text-rose-300 font-bold">Hapus</button>` : ''}
                 </div>
               `).join('')}
           </div>
@@ -587,7 +575,9 @@ function renderTeamManagerPortal() {
         <div>
           <div class="flex justify-between items-center mb-3">
             <h4 class="font-bold text-white text-base">👨‍💼 Tim Official &amp; Pelatih</h4>
-            <button class="btn-ucl-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openAddOfficialModal('${team.id}')">+ Tambah Official / Coach</button>
+            ${isEditable ? `
+              <button class="btn-ucl-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openAddOfficialModal('${team.id}')">+ Tambah Official / Coach</button>
+            ` : ''}
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
@@ -596,7 +586,7 @@ function renderTeamManagerPortal() {
                 <span class="font-bold text-white text-sm">${headCoach ? headCoach.fullName : 'Belum diisi'}</span>
                 ${headCoach ? `<span class="text-xs text-slate-400 block">NI/KTP: ${headCoach.identityNumber}</span>` : ''}
               </div>
-              ${headCoach ? `<button onclick="deleteOfficial('${headCoach.id}')" class="text-xs text-rose-400 hover:underline">Hapus</button>` : ''}
+              ${isEditable && headCoach ? `<button onclick="deleteOfficial('${headCoach.id}')" class="text-xs text-rose-400 hover:underline">Hapus</button>` : ''}
             </div>
             <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
               <div>
@@ -604,7 +594,7 @@ function renderTeamManagerPortal() {
                 <span class="font-bold text-white text-sm">${teamOfficial ? teamOfficial.fullName : 'Belum diisi'}</span>
                 ${teamOfficial ? `<span class="text-xs text-slate-400 block">NI/KTP: ${teamOfficial.identityNumber}</span>` : ''}
               </div>
-              ${teamOfficial ? `<button onclick="deleteOfficial('${teamOfficial.id}')" class="text-xs text-rose-400 hover:underline">Hapus</button>` : ''}
+              ${isEditable && teamOfficial ? `<button onclick="deleteOfficial('${teamOfficial.id}')" class="text-xs text-rose-400 hover:underline">Hapus</button>` : ''}
             </div>
           </div>
         </div>
