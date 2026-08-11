@@ -12,6 +12,7 @@ let currentRole = 'VISITOR';
 let currentVisitorTab = 'bracket';
 let currentAdminTab = 'matchcenter';
 let activeRefereeMatchId = null;
+let draggedTeamInfo = null;
 
 // Auth State
 let authState = JSON.parse(sessionStorage.getItem('ums_auth')) || {
@@ -63,10 +64,89 @@ window.openTeamDetailModal = openTeamDetailModal;
 window.renderVisitorMatches = renderVisitorMatches;
 window.closeModal = closeModal;
 
+// Drag & Drop Window Bindings
+window.handleTeamDragStart = handleTeamDragStart;
+window.handleTeamDragOver = handleTeamDragOver;
+window.handleTeamDragLeave = handleTeamDragLeave;
+window.handleTeamDrop = handleTeamDrop;
+
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
   renderApp();
 });
+
+// ========== DRAG & DROP FOR ROUND OF 16 BRACKET (SUPER ADMIN ONLY) ==========
+function handleTeamDragStart(e, matchId, teamType) {
+  if (authState.role !== 'ADMIN') return;
+  draggedTeamInfo = { matchId, teamType };
+  e.dataTransfer.setData('text/plain', JSON.stringify({ matchId, teamType }));
+  e.currentTarget.style.opacity = '0.4';
+}
+
+function handleTeamDragOver(e) {
+  if (authState.role !== 'ADMIN') return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function handleTeamDragLeave(e) {
+  if (authState.role !== 'ADMIN') return;
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function handleTeamDrop(e, targetMatchId, targetTeamType) {
+  if (authState.role !== 'ADMIN') return;
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+
+  if (!draggedTeamInfo) return;
+  const sourceMatchId = draggedTeamInfo.matchId;
+  const sourceTeamType = draggedTeamInfo.teamType;
+
+  // Same slot
+  if (sourceMatchId === targetMatchId && sourceTeamType === targetTeamType) return;
+
+  const sourceMatch = matches.find(m => m.id === sourceMatchId);
+  const targetMatch = matches.find(m => m.id === targetMatchId);
+  if (!sourceMatch || !targetMatch) return;
+
+  // Read Source Team Data
+  const sourceId = sourceTeamType === 'home' ? sourceMatch.homeTeamId : sourceMatch.awayTeamId;
+  const sourceName = sourceTeamType === 'home' ? sourceMatch.homeTeamName : sourceMatch.awayTeamName;
+  const sourceLogo = sourceTeamType === 'home' ? sourceMatch.homeTeamLogo : sourceMatch.awayTeamLogo;
+
+  // Read Target Team Data
+  const targetId = targetTeamType === 'home' ? targetMatch.homeTeamId : targetMatch.awayTeamId;
+  const targetName = targetTeamType === 'home' ? targetMatch.homeTeamName : targetMatch.awayTeamName;
+  const targetLogo = targetTeamType === 'home' ? targetMatch.homeTeamLogo : targetMatch.awayTeamLogo;
+
+  // Swap Source with Target
+  if (sourceTeamType === 'home') {
+    sourceMatch.homeTeamId = targetId;
+    sourceMatch.homeTeamName = targetName;
+    sourceMatch.homeTeamLogo = targetLogo;
+  } else {
+    sourceMatch.awayTeamId = targetId;
+    sourceMatch.awayTeamName = targetName;
+    sourceMatch.awayTeamLogo = targetLogo;
+  }
+
+  // Swap Target with Source
+  if (targetTeamType === 'home') {
+    targetMatch.homeTeamId = sourceId;
+    targetMatch.homeTeamName = sourceName;
+    targetMatch.homeTeamLogo = sourceLogo;
+  } else {
+    targetMatch.awayTeamId = sourceId;
+    targetMatch.awayTeamName = sourceName;
+    targetMatch.awayTeamLogo = sourceLogo;
+  }
+
+  draggedTeamInfo = null;
+  saveState();
+  renderApp();
+}
 
 // ========== AUTH SYSTEM ==========
 function handleUnifiedLogin(e) {
@@ -201,9 +281,15 @@ function renderVisitorTabContent() {
   else if (currentVisitorTab === 'teams') renderPublicTeamsGrid();
 }
 
-// VISUAL KNOCKOUT BRACKET TREE (16-Team Knockout Tree)
+// VISUAL KNOCKOUT BRACKET TREE (16-Team Knockout Tree with Drag & Drop for Super Admin)
 function renderKnockoutBracket() {
   const container = document.getElementById('knockoutBracketContainer');
+  const noticeEl = document.getElementById('adminDragNotice');
+
+  if (noticeEl) {
+    noticeEl.classList.toggle('hidden', authState.role !== 'ADMIN');
+  }
+
   if (!container) return;
 
   const r16Matches = matches.filter(m => m.stage === 'ROUND_OF_16');
@@ -216,7 +302,7 @@ function renderKnockoutBracket() {
     <!-- Round 1: 16 Besar -->
     <div class="bracket-round">
       <div class="bracket-round-header">16 Besar (Round of 16)</div>
-      ${r16Matches.map(m => renderBracketCardHTML(m)).join('')}
+      ${r16Matches.map(m => renderBracketCardHTML(m, null, true)).join('')}
     </div>
 
     <!-- Round 2: Perempat Final -->
@@ -240,11 +326,15 @@ function renderKnockoutBracket() {
   `;
 }
 
-function renderBracketCardHTML(m, customLabel = null) {
+function renderBracketCardHTML(m, customLabel = null, allowDrag = false) {
   const isLive = m.status === 'LIVE';
   const isFinished = m.status === 'FINISHED';
   const homeWinner = isFinished && m.homeScore > m.awayScore;
   const awayWinner = isFinished && m.awayScore > m.homeScore;
+  const isAdmin = authState.role === 'ADMIN' && allowDrag;
+
+  const homeDragAttrs = isAdmin ? `draggable="true" ondragstart="handleTeamDragStart(event, '${m.id}', 'home')" ondragover="handleTeamDragOver(event)" ondragleave="handleTeamDragLeave(event)" ondrop="handleTeamDrop(event, '${m.id}', 'home')" title="👑 Super Admin: Tarik (drag) untuk menukar posisi tim ini"` : '';
+  const awayDragAttrs = isAdmin ? `draggable="true" ondragstart="handleTeamDragStart(event, '${m.id}', 'away')" ondragover="handleTeamDragOver(event)" ondragleave="handleTeamDragLeave(event)" ondrop="handleTeamDrop(event, '${m.id}', 'away')" title="👑 Super Admin: Tarik (drag) untuk menukar posisi tim ini"` : '';
 
   return `
     <div class="bracket-card ${isLive ? 'is-live' : isFinished ? 'is-finished' : ''}">
@@ -256,8 +346,9 @@ function renderBracketCardHTML(m, customLabel = null) {
       </div>
       
       <!-- Home Team Slot -->
-      <div class="bracket-team-slot ${homeWinner ? 'is-winner' : ''}">
+      <div class="bracket-team-slot ${homeWinner ? 'is-winner' : ''} ${isAdmin ? 'is-draggable' : ''}" ${homeDragAttrs}>
         <div class="bracket-team-name">
+          ${isAdmin ? '<span class="text-xs text-cyan-400">⋮⋮</span>' : ''}
           <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;">
           <span title="${m.homeTeamName}">${m.homeTeamName}</span>
         </div>
@@ -265,8 +356,9 @@ function renderBracketCardHTML(m, customLabel = null) {
       </div>
 
       <!-- Away Team Slot -->
-      <div class="bracket-team-slot ${awayWinner ? 'is-winner' : ''}">
+      <div class="bracket-team-slot ${awayWinner ? 'is-winner' : ''} ${isAdmin ? 'is-draggable' : ''}" ${awayDragAttrs}>
         <div class="bracket-team-name">
+          ${isAdmin ? '<span class="text-xs text-cyan-400">⋮⋮</span>' : ''}
           <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;">
           <span title="${m.awayTeamName}">${m.awayTeamName}</span>
         </div>
@@ -486,10 +578,6 @@ function renderTeamManagerPortal() {
     }
   }
 
-  // Determine editable permissions:
-  // Public/Guest: All teams read-only
-  // Admin: All teams editable
-  // Manager: Assigned team editable, others read-only
   container.innerHTML = teams.map(team => {
     const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.teamId === team.id);
     const teamPlayers = players.filter(p => p.teamId === team.id);

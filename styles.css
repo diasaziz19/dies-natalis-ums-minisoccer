@@ -337,9 +337,23 @@ h1, h2, h3, h4, h5, h6 {
   color: #e2e8f0;
 }
 
-.bracket-team-slot.is-winner .bracket-score-badge {
-  color: #22d3ee;
-  background: rgba(0, 240, 255, 0.2);
+.bracket-team-slot.is-draggable {
+  cursor: grab;
+  border: 1px dashed rgba(0, 240, 255, 0.4);
+}
+
+.bracket-team-slot.is-draggable:hover {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--ucl-cyan);
+}
+
+.bracket-team-slot.is-draggable:active {
+  cursor: grabbing;
+}
+
+.bracket-team-slot.drag-over {
+  border: 2px solid #22c55e !important;
+  background: rgba(34, 197, 94, 0.2) !important;
 }
 
 /* Custom Buttons */
