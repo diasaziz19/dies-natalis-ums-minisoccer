@@ -13,10 +13,13 @@ let currentVisitorTab = 'bracket';
 let currentAdminTab = 'matchcenter';
 let activeRefereeMatchId = null;
 
-// Auth state
-let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('ums_admin_logged_in')) || false;
-let loggedInManagerTeamId = sessionStorage.getItem('ums_manager_teamid') || null;
-let loggedInManagerName = sessionStorage.getItem('ums_manager_name') || null;
+// Auth State
+let authState = JSON.parse(sessionStorage.getItem('ums_auth')) || {
+  isLoggedIn: false,
+  role: 'GUEST', // 'GUEST', 'MANAGER', 'ADMIN'
+  teamId: null,
+  displayName: null
+};
 
 // Data
 let teams = JSON.parse(localStorage.getItem('ums_teams')) || INITIAL_TEAMS;
@@ -29,18 +32,18 @@ function saveState() {
   localStorage.setItem('ums_players', JSON.stringify(players));
   localStorage.setItem('ums_officials', JSON.stringify(officials));
   localStorage.setItem('ums_matches', JSON.stringify(matches));
+  sessionStorage.setItem('ums_auth', JSON.stringify(authState));
 }
 
 // ========== WINDOW BINDINGS ==========
 window.switchRole = switchRole;
 window.switchVisitorTab = switchVisitorTab;
 window.switchAdminTab = switchAdminTab;
-window.handleAdminLogin = handleAdminLogin;
-window.handleManagerLogin = handleManagerLogin;
-window.logoutAdmin = logoutAdmin;
-window.logoutManager = logoutManager;
+window.handleUnifiedLogin = handleUnifiedLogin;
+window.handleLogout = handleLogout;
 window.openRegisterTeamModal = openRegisterTeamModal;
 window.openEditTeamModal = openEditTeamModal;
+window.openUploadSuratTugasModal = openUploadSuratTugasModal;
 window.openAddPlayerModal = openAddPlayerModal;
 window.openAddOfficialModal = openAddOfficialModal;
 window.deletePlayer = deletePlayer;
@@ -65,61 +68,88 @@ document.addEventListener('DOMContentLoaded', () => {
   renderApp();
 });
 
-// ========== AUTH ==========
-function handleAdminLogin(e) {
+// ========== AUTH SYSTEM ==========
+function handleUnifiedLogin(e) {
   e.preventDefault();
-  const u = document.getElementById('adminLoginUsername').value.trim();
-  const p = document.getElementById('adminLoginPassword').value;
-  if (u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password) {
-    isAdminLoggedIn = true;
-    sessionStorage.setItem('ums_admin_logged_in', 'true');
-    document.getElementById('adminLoginError')?.classList.add('hidden');
-    renderApp();
-  } else {
-    document.getElementById('adminLoginError')?.classList.remove('hidden');
-  }
-}
+  const u = document.getElementById('unifiedUsername').value.trim();
+  const p = document.getElementById('unifiedPassword').value;
+  const errEl = document.getElementById('unifiedLoginError');
 
-function handleManagerLogin(e) {
-  e.preventDefault();
-  const u = document.getElementById('mgrLoginUsername').value.trim();
-  const p = document.getElementById('mgrLoginPassword').value;
+  // 1. Check Super Admin Credentials
+  if (u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password) {
+    authState = {
+      isLoggedIn: true,
+      role: 'ADMIN',
+      teamId: null,
+      displayName: 'Super Admin'
+    };
+    saveState();
+    if (errEl) errEl.classList.add('hidden');
+    switchRole('ADMIN');
+    return;
+  }
+
+  // 2. Check Team Manager Credentials
   const cred = MANAGER_CREDENTIALS.find(c => c.username === u && c.password === p);
   if (cred) {
-    loggedInManagerTeamId = cred.teamId;
-    loggedInManagerName = cred.displayName;
-    sessionStorage.setItem('ums_manager_teamid', cred.teamId);
-    sessionStorage.setItem('ums_manager_name', cred.displayName);
-    document.getElementById('mgrLoginError')?.classList.add('hidden');
-    renderApp();
-  } else {
-    document.getElementById('mgrLoginError')?.classList.remove('hidden');
+    const teamObj = teams.find(t => t.id === cred.teamId);
+    authState = {
+      isLoggedIn: true,
+      role: 'MANAGER',
+      teamId: cred.teamId,
+      displayName: cred.displayName || (teamObj ? teamObj.name : 'Manajer Tim')
+    };
+    saveState();
+    if (errEl) errEl.classList.add('hidden');
+    switchRole('TEAM_MANAGER');
+    return;
   }
+
+  // Failed
+  if (errEl) errEl.classList.remove('hidden');
 }
 
-function logoutAdmin() {
-  isAdminLoggedIn = false;
-  sessionStorage.removeItem('ums_admin_logged_in');
-  renderApp();
-}
-
-function logoutManager() {
-  loggedInManagerTeamId = null;
-  loggedInManagerName = null;
-  sessionStorage.removeItem('ums_manager_teamid');
-  sessionStorage.removeItem('ums_manager_name');
-  renderApp();
+function handleLogout() {
+  authState = {
+    isLoggedIn: false,
+    role: 'GUEST',
+    teamId: null,
+    displayName: null
+  };
+  saveState();
+  switchRole('VISITOR');
 }
 
 // ========== NAVIGATION ==========
 function switchRole(role) {
+  // Security guard for ADMIN role
+  if (role === 'ADMIN' && authState.role !== 'ADMIN') {
+    switchRole('LOGIN');
+    return;
+  }
+
   currentRole = role;
+
+  // Update Nav selector badges
   document.querySelectorAll('#roleSelectorContainer .role-badge').forEach(el => {
     el.classList.toggle('active', el.getAttribute('data-role') === role);
   });
+
+  // Update Login Nav Badge Text
+  const loginNavBtn = document.getElementById('navLoginBtn');
+  if (loginNavBtn) {
+    if (authState.isLoggedIn) {
+      loginNavBtn.innerHTML = `👤 ${authState.displayName} (${authState.role === 'ADMIN' ? 'Admin' : 'Manager'}) <button onclick="event.stopPropagation(); handleLogout();" class="text-rose-400 font-bold ml-1 hover:underline">Logout</button>`;
+    } else {
+      loginNavBtn.innerHTML = `🔑 Login / Akun`;
+    }
+  }
+
+  // Hide all views, show active
   document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
   const activeView = document.getElementById(`view-${role}`);
   if (activeView) activeView.classList.remove('hidden');
+
   renderApp();
 }
 
@@ -127,10 +157,12 @@ function switchVisitorTab(tabName) {
   currentVisitorTab = tabName;
   document.querySelectorAll('#view-VISITOR .tab-btn').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('#view-VISITOR .vtab-content').forEach(el => el.classList.add('hidden'));
+  
   const activeTabBtn = document.querySelector(`#view-VISITOR .tab-btn[onclick*="${tabName}"]`);
   if (activeTabBtn) activeTabBtn.classList.add('active');
   const activeContent = document.getElementById(`vtab-${tabName}`);
   if (activeContent) activeContent.classList.remove('hidden');
+
   renderVisitorTabContent();
 }
 
@@ -169,6 +201,81 @@ function renderVisitorTabContent() {
   else if (currentVisitorTab === 'teams') renderPublicTeamsGrid();
 }
 
+// VISUAL KNOCKOUT BRACKET TREE (16-Team Knockout Tree)
+function renderKnockoutBracket() {
+  const container = document.getElementById('knockoutBracketContainer');
+  if (!container) return;
+
+  const r16Matches = matches.filter(m => m.stage === 'ROUND_OF_16');
+  const qfMatches = matches.filter(m => m.stage === 'QUARTER_FINAL');
+  const sfMatches = matches.filter(m => m.stage === 'SEMI_FINAL');
+  const finalMatch = matches.find(m => m.stage === 'FINAL');
+  const thirdMatch = matches.find(m => m.stage === 'THIRD_PLACE');
+
+  container.innerHTML = `
+    <!-- Round 1: 16 Besar -->
+    <div class="bracket-round">
+      <div class="bracket-round-header">16 Besar (Round of 16)</div>
+      ${r16Matches.map(m => renderBracketCardHTML(m)).join('')}
+    </div>
+
+    <!-- Round 2: Perempat Final -->
+    <div class="bracket-round">
+      <div class="bracket-round-header">Perempat Final</div>
+      ${qfMatches.map(m => renderBracketCardHTML(m)).join('')}
+    </div>
+
+    <!-- Round 3: Semi Final -->
+    <div class="bracket-round">
+      <div class="bracket-round-header">Semi Final</div>
+      ${sfMatches.map(m => renderBracketCardHTML(m)).join('')}
+    </div>
+
+    <!-- Round 4: Grand Final & Juara 3 -->
+    <div class="bracket-round">
+      <div class="bracket-round-header" style="background: rgba(255, 215, 0, 0.2); border-color: var(--ucl-gold); color: var(--ucl-gold);">🏆 Grand Final &amp; Juara 3</div>
+      ${finalMatch ? renderBracketCardHTML(finalMatch, '🏆 GRAND FINAL') : ''}
+      ${thirdMatch ? renderBracketCardHTML(thirdMatch, '🥉 PEREBUTAN JUARA 3') : ''}
+    </div>
+  `;
+}
+
+function renderBracketCardHTML(m, customLabel = null) {
+  const isLive = m.status === 'LIVE';
+  const isFinished = m.status === 'FINISHED';
+  const homeWinner = isFinished && m.homeScore > m.awayScore;
+  const awayWinner = isFinished && m.awayScore > m.homeScore;
+
+  return `
+    <div class="bracket-card ${isLive ? 'is-live' : isFinished ? 'is-finished' : ''}">
+      <div class="bracket-card-header">
+        <span>${customLabel || `Match #${m.matchNumber}`}</span>
+        <span style="font-weight:700; color: ${isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#94a3b8'};">
+          ${isLive ? '🔴 LIVE' : isFinished ? 'SELESAI' : 'SCHEDULED'}
+        </span>
+      </div>
+      
+      <!-- Home Team Slot -->
+      <div class="bracket-team-slot ${homeWinner ? 'is-winner' : ''}">
+        <div class="bracket-team-name">
+          <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;">
+          <span title="${m.homeTeamName}">${m.homeTeamName}</span>
+        </div>
+        <span class="bracket-score-badge">${m.homeScore}</span>
+      </div>
+
+      <!-- Away Team Slot -->
+      <div class="bracket-team-slot ${awayWinner ? 'is-winner' : ''}">
+        <div class="bracket-team-name">
+          <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;">
+          <span title="${m.awayTeamName}">${m.awayTeamName}</span>
+        </div>
+        <span class="bracket-score-badge">${m.awayScore}</span>
+      </div>
+    </div>
+  `;
+}
+
 function renderLiveScore() {
   const container = document.getElementById('liveScoreContainer');
   if (!container) return;
@@ -202,53 +309,6 @@ function renderLiveScore() {
           <div class="mt-3 pt-3 border-t border-slate-800">
             ${(m.events || []).slice(-3).map(e => `<div class="text-xs text-slate-300"><span class="text-cyan-400 font-mono font-bold">${e.minute}'</span> ${e.eventType === 'GOAL' ? '⚽' : e.eventType === 'PENALTY_GOAL' ? '⚽P' : e.eventType === 'OWN_GOAL' ? '⚽OG' : '🟨'} ${e.playerFullName || '-'}</div>`).join('')}
           </div>` : ''}
-      </div>
-    `;
-  }).join('');
-}
-
-function renderKnockoutBracket() {
-  const container = document.getElementById('knockoutBracketContainer');
-  if (!container) return;
-
-  const stages = [
-    { name: '16 Besar', key: 'ROUND_OF_16' },
-    { name: 'Perempat Final', key: 'QUARTER_FINAL' },
-    { name: 'Semi Final', key: 'SEMI_FINAL' },
-    { name: 'Perebutan Juara 3', key: 'THIRD_PLACE' },
-    { name: '🏆 Grand Final', key: 'FINAL' }
-  ];
-
-  container.innerHTML = stages.map(stage => {
-    const stageMatches = matches.filter(m => m.stage === stage.key);
-    return `
-      <div class="mb-8">
-        <h3 class="text-lg font-bold text-cyan-400 mb-3 pb-2 border-b border-slate-800">${stage.name}</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          ${stageMatches.map(m => {
-            const statusColor = m.status === 'LIVE' ? '#22c55e' : m.status === 'FINISHED' ? '#f59e0b' : '#475569';
-            return `
-              <div class="p-4 rounded-xl" style="background: rgba(15,23,42,0.8); border: 1px solid ${m.status === 'LIVE' ? 'rgba(34,197,94,0.4)' : 'rgba(51,65,85,0.5)'}; ${m.status === 'LIVE' ? 'box-shadow: 0 0 15px rgba(34,197,94,0.1);' : ''}">
-                <div class="flex justify-between text-xs mb-2">
-                  <span class="text-cyan-400 font-bold">Match #${m.matchNumber}</span>
-                  <span style="color:${statusColor}; font-weight:700;">${m.status}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <div class="flex items-center gap-2 flex-1">
-                    <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=TBD'}" style="width:28px;height:28px;border-radius:50%;background:#111;">
-                    <span class="text-white text-sm font-bold">${m.homeTeamName}</span>
-                  </div>
-                  <span class="font-black text-lg text-cyan-400 font-mono mx-3">${m.homeScore} - ${m.awayScore}</span>
-                  <div class="flex items-center gap-2 flex-1 justify-end">
-                    <span class="text-white text-sm font-bold text-right">${m.awayTeamName}</span>
-                    <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=TBD'}" style="width:28px;height:28px;border-radius:50%;background:#111;">
-                  </div>
-                </div>
-                <div class="text-xs text-slate-500 mt-2">📍 ${m.pitchLocation} | 🕐 ${m.kickoffTime}</div>
-              </div>
-            `;
-          }).join('')}
-        </div>
       </div>
     `;
   }).join('');
@@ -382,47 +442,75 @@ function renderPublicTeamsGrid() {
         <div class="text-xs text-slate-400 pt-3 border-t border-slate-800 space-y-1">
           <div>👥 <strong>${tPlayers.length}</strong> Pemain</div>
           <div>👨‍💼 Coach: <strong>${headCoach?.fullName || 'Belum diisi'}</strong></div>
+          <div>📄 Surat Tugas: <strong>${t.suratTugasName ? '✅ Diupload' : '❌ Belum'}</strong></div>
         </div>
       </div>
     `;
   }).join('');
 }
 
-// ========== 2. MANAJEMEN TIM ==========
+// ========== 2. MANAJEMEN TIM (SUPER ADMIN & MANAGER ACCESSIBLE) ==========
 function renderTeamManagerPortal() {
-  const loginGate = document.getElementById('managerLoginGate');
-  const portal = document.getElementById('managerPortalContent');
-  if (!loginGate || !portal) return;
+  const container = document.getElementById('managerTeamsContainer');
+  const loggedInAsEl = document.getElementById('managerLoggedInAs');
+  const actionsEl = document.getElementById('managerHeaderActions');
+  const subtitleEl = document.getElementById('managerSubtitleText');
 
-  if (!loggedInManagerTeamId) {
-    loginGate.classList.remove('hidden');
-    portal.classList.add('hidden');
+  if (!container) return;
+
+  // Check login status
+  if (!authState.isLoggedIn) {
+    container.innerHTML = `
+      <div class="glass-panel p-12 text-center" style="max-width: 550px; margin: 40px auto;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+        <h3 class="text-2xl font-bold text-white mb-2">Akses Terkunci</h3>
+        <p class="text-slate-400 mb-6">Silakan login sebagai <strong>Manajer Tim</strong> atau <strong>Super Admin</strong> untuk melihat dan mengelola data tim.</p>
+        <button class="btn-ucl-primary" onclick="switchRole('LOGIN')">🔑 Pergi ke Halaman Login</button>
+      </div>
+    `;
+    if (loggedInAsEl) loggedInAsEl.textContent = 'Status: Belum Login (Guest)';
+    if (actionsEl) actionsEl.innerHTML = '';
     return;
   }
 
-  loginGate.classList.add('hidden');
-  portal.classList.remove('hidden');
+  // Header state
+  if (loggedInAsEl) {
+    loggedInAsEl.textContent = authState.role === 'ADMIN'
+      ? `👑 Status Login: SUPER ADMIN (Akses Edit Seluruh ${teams.length} Tim)`
+      : `👤 Status Login: ${authState.displayName} (Akses Tim Terdaftar)`;
+  }
 
-  const nameEl = document.getElementById('managerLoggedInAs');
-  if (nameEl) nameEl.textContent = `Login sebagai: ${loggedInManagerName} (Tim ID: ${loggedInManagerTeamId})`;
+  if (subtitleEl) {
+    subtitleEl.textContent = authState.role === 'ADMIN'
+      ? 'Mode Super Admin: Anda dapat mengedit nama tim, pemain, official, dan surat tugas seluruh tim.'
+      : 'Mode Manajer Tim: Anda dapat mengedit info tim Anda, pendaftaran pemain, official, dan surat tugas.';
+  }
 
-  const container = document.getElementById('managerTeamsContainer');
-  if (!container) return;
+  if (actionsEl) {
+    actionsEl.innerHTML = `
+      <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
+      <button onclick="handleLogout()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
+    `;
+  }
 
-  // Only show the team belonging to the logged-in manager
-  const myTeams = teams.filter(t => t.id === loggedInManagerTeamId);
+  // Filter teams based on role:
+  // ADMIN -> see ALL teams
+  // MANAGER -> see ONLY their assigned team
+  const visibleTeams = authState.role === 'ADMIN'
+    ? teams
+    : teams.filter(t => t.id === authState.teamId);
 
-  if (myTeams.length === 0) {
+  if (visibleTeams.length === 0) {
     container.innerHTML = `
       <div class="glass-panel p-12 text-center">
-        <p class="text-slate-400 mb-4">Tim Anda belum terdaftar. Daftarkan tim baru.</p>
-        <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Sekarang</button>
+        <p class="text-slate-400 mb-4">Tim Anda belum terdaftar di sistem.</p>
+        <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = myTeams.map(team => {
+  container.innerHTML = visibleTeams.map(team => {
     const teamPlayers = players.filter(p => p.teamId === team.id);
     const teamOfficials = officials.filter(o => o.teamId === team.id);
     const headCoach = teamOfficials.find(o => o.role === 'HEAD_COACH');
@@ -431,63 +519,92 @@ function renderTeamManagerPortal() {
 
     return `
       <div class="glass-panel p-6">
+        <!-- Team Header -->
         <div class="flex justify-between items-start flex-wrap gap-4 mb-6 pb-4 border-b border-slate-800">
           <div class="flex items-center gap-4">
-            <img src="${team.logoUrl}" style="width: 54px; height: 54px; border-radius: 50%; background: #000; border: 2px solid rgba(34,211,238,0.3);">
+            <img src="${team.logoUrl}" style="width: 56px; height: 56px; border-radius: 50%; background: #000; border: 2px solid rgba(34,211,238,0.4);">
             <div>
               <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="text-xl font-bold text-white">${team.name}</h3>
                 <span class="badge-${team.status === 'APPROVED' ? 'gold' : team.status === 'REJECTED' ? 'danger' : 'cyan'}">${team.status}</span>
               </div>
-              <span class="text-xs text-cyan-400 block mt-1">${team.facultyUnit} | Manager: ${team.managerName} (${team.managerPhone})</span>
+              <span class="text-xs text-cyan-400 block mt-1">${team.facultyUnit} | Manager: ${team.managerName} (${team.managerPhone || '-'})</span>
             </div>
           </div>
-          <button onclick="openEditTeamModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.08); color: #22d3ee; cursor: pointer;">✏️ Edit Info Tim</button>
+          
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="openEditTeamModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.08); color: #22d3ee; cursor: pointer;">✏️ Edit Info Tim</button>
+            <button onclick="openUploadSuratTugasModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.08); color: #ffd700; cursor: pointer;">📄 Upload Surat Tugas</button>
+          </div>
         </div>
 
+        <!-- Surat Tugas Status Banner -->
+        <div class="p-3 rounded-lg mb-6 flex justify-between items-center flex-wrap gap-2" style="background: ${team.suratTugasName ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}; border: 1px solid ${team.suratTugasName ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}">
+          <div class="flex items-center gap-2 text-xs">
+            <span>${team.suratTugasName ? '📄' : '⚠️'}</span>
+            <div>
+              <strong class="text-white block">Surat Tugas Rektorat / Dekanat:</strong>
+              <span class="${team.suratTugasName ? 'text-emerald-400 font-mono' : 'text-rose-400'}">${team.suratTugasName || 'Belum diunggah oleh manajer tim'}</span>
+            </div>
+          </div>
+          <button onclick="openUploadSuratTugasModal('${team.id}')" class="text-xs font-bold ${team.suratTugasName ? 'text-emerald-300 hover:underline' : 'text-amber-400 hover:underline'}">
+            ${team.suratTugasName ? 'Ganti File' : '+ Upload Sekarang'}
+          </button>
+        </div>
+
+        <!-- Squad Roster Section -->
         <div class="mb-6">
-          <div class="flex justify-between items-center mb-3">
+          <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
             <h4 class="font-bold text-white text-base flex items-center gap-2">
-              <span>🏃 Daftar Pemain</span>
+              <span>🏃 Daftar Pemain Skuad</span>
               <span class="text-xs text-slate-400">(${teamPlayers.length} / 14 Pemain)</span>
             </h4>
             <button class="btn-ucl-primary" style="padding: 6px 12px; font-size: 12px;" ${isPlayerFull ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="openAddPlayerModal('${team.id}')">
               + Tambah Pemain ${isPlayerFull ? '(Maks 14)' : ''}
             </button>
           </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            ${teamPlayers.map(p => `
-              <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                  <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-                  <div>
-                    <span class="font-bold text-white text-sm block">${p.fullName}</span>
-                    <span class="text-xs text-slate-400 block">${p.position} | Usia: ${p.usia || '-'} th</span>
-                    <span class="text-xs text-slate-500 block">KTP/NI: ${p.identityNumber}</span>
-                    ${p.isSuspended ? `<span class="text-xs text-rose-400 font-bold block">⛔ ${p.suspensionReason}</span>` : ''}
+            ${teamPlayers.length === 0 ? '<p class="text-xs text-slate-400 py-4 col-span-3 text-center">Belum ada pemain ditambahkan.</p>' :
+              teamPlayers.map(p => `
+                <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center">
+                  <div class="flex items-center gap-3">
+                    <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                      <span class="font-bold text-white text-sm block">${p.fullName}</span>
+                      <span class="text-xs text-cyan-400 font-semibold block">${p.position} | Usia: ${p.usia || '-'} th</span>
+                      <span class="text-xs text-slate-500 block">KTP/NI: ${p.identityNumber}</span>
+                      ${p.isSuspended ? `<span class="text-xs text-rose-400 font-bold block">⛔ ${p.suspensionReason}</span>` : ''}
+                    </div>
                   </div>
+                  <button onclick="deletePlayer('${p.id}')" class="text-xs text-rose-400 hover:text-rose-300 font-bold">Hapus</button>
                 </div>
-                <button onclick="deletePlayer('${p.id}')" class="text-xs text-rose-400 hover:text-rose-300">Hapus</button>
-              </div>
-            `).join('')}
+              `).join('')}
           </div>
         </div>
 
+        <!-- Officials Section -->
         <div>
           <div class="flex justify-between items-center mb-3">
-            <h4 class="font-bold text-white text-base">👨‍💼 Tim Official & Pelatih</h4>
+            <h4 class="font-bold text-white text-base">👨‍💼 Tim Official &amp; Pelatih</h4>
             <button class="btn-ucl-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openAddOfficialModal('${team.id}')">+ Tambah Official / Coach</button>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
-              <span class="text-xs font-bold text-cyan-400 block">HEAD COACH (Maks 1)</span>
-              <span class="font-bold text-white text-sm">${headCoach ? headCoach.fullName : 'Belum diisi'}</span>
-              ${headCoach ? `<span class="text-xs text-slate-400 block">NI: ${headCoach.identityNumber}</span>` : ''}
+            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <span class="text-xs font-bold text-cyan-400 block">HEAD COACH (Maks 1)</span>
+                <span class="font-bold text-white text-sm">${headCoach ? headCoach.fullName : 'Belum diisi'}</span>
+                ${headCoach ? `<span class="text-xs text-slate-400 block">NI/KTP: ${headCoach.identityNumber}</span>` : ''}
+              </div>
+              ${headCoach ? `<button onclick="deleteOfficial('${headCoach.id}')" class="text-xs text-rose-400 hover:underline">Hapus</button>` : ''}
             </div>
-            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
-              <span class="text-xs font-bold text-amber-400 block">OFFICIAL TIM (Maks 1)</span>
-              <span class="font-bold text-white text-sm">${teamOfficial ? teamOfficial.fullName : 'Belum diisi'}</span>
-              ${teamOfficial ? `<span class="text-xs text-slate-400 block">NI: ${teamOfficial.identityNumber}</span>` : ''}
+            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <span class="text-xs font-bold text-amber-400 block">OFFICIAL TIM (Maks 1)</span>
+                <span class="font-bold text-white text-sm">${teamOfficial ? teamOfficial.fullName : 'Belum diisi'}</span>
+                ${teamOfficial ? `<span class="text-xs text-slate-400 block">NI/KTP: ${teamOfficial.identityNumber}</span>` : ''}
+              </div>
+              ${teamOfficial ? `<button onclick="deleteOfficial('${teamOfficial.id}')" class="text-xs text-rose-400 hover:underline">Hapus</button>` : ''}
             </div>
           </div>
         </div>
@@ -496,21 +613,8 @@ function renderTeamManagerPortal() {
   }).join('');
 }
 
-// ========== 3. SUPER ADMIN (Match Center + Manage) ==========
+// ========== 3. SUPER ADMIN DASHBOARD ==========
 function renderAdminPortal() {
-  const loginGate = document.getElementById('adminLoginGate');
-  const portal = document.getElementById('adminPortalContent');
-  if (!loginGate || !portal) return;
-
-  if (!isAdminLoggedIn) {
-    loginGate.classList.remove('hidden');
-    portal.classList.add('hidden');
-    return;
-  }
-
-  loginGate.classList.add('hidden');
-  portal.classList.remove('hidden');
-
   if (currentAdminTab === 'matchcenter') renderRefereePortal();
   else renderAdminManagePanel();
 }
@@ -529,7 +633,7 @@ function renderAdminManagePanel() {
         <img src="${t.logoUrl}" style="width: 40px; height: 40px; border-radius: 50%; background: #000;">
         <div>
           <span class="font-bold text-white text-base block">${t.name}</span>
-          <span class="text-xs text-cyan-400">${t.facultyUnit} | Manager: ${t.managerName}</span>
+          <span class="text-xs text-cyan-400">${t.facultyUnit} | Surat Tugas: ${t.suratTugasName ? '✅' : '❌'}</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
@@ -832,6 +936,62 @@ function hardResetAndReload() {
   }
 }
 
+// ========== SURAT TUGAS MODAL ==========
+function openUploadSuratTugasModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">📄 Upload Surat Tugas Dekanat / Unit</h3>
+    <p class="text-sm text-slate-400 mb-5">Tim: <strong class="text-cyan-300">${team.name}</strong></p>
+    
+    <form onsubmit="handleUploadSuratTugasSubmit(event, '${teamId}')" class="space-y-4">
+      <div>
+        <label class="form-label">Pilih File Surat Tugas (PDF / Gambar)</label>
+        <input type="file" id="suratTugasFileInput" accept=".pdf,.png,.jpg,.jpeg" class="form-input" style="padding: 8px;">
+      </div>
+      <div>
+        <label class="form-label">Atau Nama Dokumen / Nomor Surat</label>
+        <input type="text" id="suratTugasNameInput" class="form-input" value="${team.suratTugasName || ''}" placeholder="Surat_Tugas_Dekan_FKIP_2026.pdf" required>
+      </div>
+
+      <div class="p-3 rounded-lg" style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2);">
+        <p class="text-xs text-amber-300">💡 Surat Tugas wajib diunggah sebagai verifikasi keikutsertaan tim resmi UMS.</p>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Surat Tugas</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+window.handleUploadSuratTugasSubmit = function(e, teamId) {
+  e.preventDefault();
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  const fileInput = document.getElementById('suratTugasFileInput');
+  const nameInput = document.getElementById('suratTugasNameInput').value.trim();
+
+  let fileName = nameInput;
+  if (fileInput && fileInput.files.length > 0) {
+    fileName = fileInput.files[0].name;
+  }
+
+  if (!fileName) {
+    alert('Harap masukkan nama berkas Surat Tugas.');
+    return;
+  }
+
+  team.suratTugasName = fileName;
+  saveState();
+  closeModal();
+  renderApp();
+  alert(`✅ Surat Tugas untuk "${team.name}" berhasil disimpan: ${fileName}`);
+};
+
 // ========== MODALS ==========
 function closeModal() {
   const modal = document.getElementById('modalContainer');
@@ -868,7 +1028,8 @@ window.handleRegisterTeamSubmit = function(e) {
     name, facultyUnit,
     logoUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`,
     managerId: 'mgr-' + Date.now(), managerName, managerPhone,
-    status: 'APPROVED'
+    status: 'APPROVED',
+    suratTugasName: null
   });
   saveState();
   closeModal();
@@ -1022,6 +1183,7 @@ function openTeamDetailModal(teamId) {
       <h2 class="text-2xl font-bold text-white">${team.name}</h2>
       <span class="text-sm text-cyan-400">${team.facultyUnit}</span>
       <p class="text-xs text-slate-400 mt-1">Coach: ${headCoach?.fullName || 'N/A'} | Manager: ${team.managerName}</p>
+      <p class="text-xs text-slate-400 mt-1">Surat Tugas: ${team.suratTugasName || 'Belum diupload'}</p>
     </div>
     <h3 class="font-bold text-white text-sm mb-3">Daftar Pemain (${teamPlayers.length})</h3>
     <div class="space-y-2 max-h-80 overflow-y-auto">
