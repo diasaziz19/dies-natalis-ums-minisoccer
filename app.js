@@ -22,8 +22,8 @@ let selectedTargetSlot = null; // { matchNumber, teamType }
 let isSpinning = false;
 let currentWheelAngle = 0;
 
-// Auth State
-let authState = JSON.parse(sessionStorage.getItem('ums_auth')) || {
+// Auth State (Persisted in localStorage across page reloads & tabs)
+let authState = JSON.parse(localStorage.getItem('ums_auth')) || {
   isLoggedIn: false,
   role: 'GUEST', // 'GUEST', 'MANAGER', 'ADMIN'
   teamId: null,
@@ -42,7 +42,7 @@ function saveState() {
   localStorage.setItem('ums_officials', JSON.stringify(officials));
   localStorage.setItem('ums_matches', JSON.stringify(matches));
   localStorage.setItem('ums_drawn_slots', JSON.stringify(drawnSlots));
-  sessionStorage.setItem('ums_auth', JSON.stringify(authState));
+  localStorage.setItem('ums_auth', JSON.stringify(authState));
 }
 
 // ========== WINDOW BINDINGS ==========
@@ -98,7 +98,18 @@ window.applyDrawingToBracket = applyDrawingToBracket;
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
-  renderApp();
+  // Restore initial view based on persisted login session
+  if (authState.isLoggedIn) {
+    if (authState.role === 'ADMIN') {
+      currentRole = 'ADMIN';
+    } else if (authState.role === 'MANAGER') {
+      currentRole = 'TEAM_MANAGER';
+    }
+  } else {
+    currentRole = 'VISITOR';
+  }
+
+  switchRole(currentRole);
   startGlobalTimerLoop();
 });
 
