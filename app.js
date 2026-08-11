@@ -90,6 +90,11 @@ window.openEditRuleModal = openEditRuleModal;
 window.deleteRule = deleteRule;
 window.resetRulesToDefault = resetRulesToDefault;
 
+// Super Admin Team & File Deletion Bindings
+window.deleteTeam = deleteTeam;
+window.deleteSuratTugas = deleteSuratTugas;
+window.deleteAllPlayers = deleteAllPlayers;
+
 // Drag & Drop Window Bindings (Bracket Tree)
 window.handleTeamDragStart = handleTeamDragStart;
 window.handleTeamDragOver = handleTeamDragOver;
@@ -1145,6 +1150,9 @@ function renderTeamManagerPortal() {
             <div class="flex gap-2 flex-wrap">
               <button onclick="openEditTeamModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.08); color: #22d3ee; cursor: pointer;">✏️ Edit Info Tim</button>
               <button onclick="openUploadSuratTugasModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.08); color: #ffd700; cursor: pointer;">📄 Upload Surat Tugas</button>
+              ${authState.role === 'ADMIN' ? `
+                <button onclick="deleteTeam('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.15); color: #f87171; cursor: pointer;" title="👑 Super Admin: Hapus Tim & Skuad Permanen">🗑️ Hapus Tim</button>
+              ` : ''}
             </div>
           ` : ''}
         </div>
@@ -1159,9 +1167,16 @@ function renderTeamManagerPortal() {
             </div>
           </div>
           ${isEditable ? `
-            <button onclick="openUploadSuratTugasModal('${team.id}')" class="text-xs font-bold ${team.suratTugasName ? 'text-emerald-300 hover:underline' : 'text-amber-400 hover:underline'}">
-              ${team.suratTugasName ? 'Ganti File' : '+ Upload Sekarang'}
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="openUploadSuratTugasModal('${team.id}')" class="text-xs font-bold ${team.suratTugasName ? 'text-emerald-300 hover:underline' : 'text-amber-400 hover:underline'}">
+                ${team.suratTugasName ? 'Ganti File' : '+ Upload Sekarang'}
+              </button>
+              ${team.suratTugasName ? `
+                <button onclick="deleteSuratTugas('${team.id}')" class="text-xs font-bold text-rose-400 hover:underline ml-2" title="Hapus berkas Surat Tugas">
+                  🗑️ Hapus File
+                </button>
+              ` : ''}
+            </div>
           ` : ''}
         </div>
 
@@ -1173,9 +1188,16 @@ function renderTeamManagerPortal() {
               <span class="text-xs text-slate-400">(${teamPlayers.length} / 14 Pemain)</span>
             </h4>
             ${isEditable ? `
-              <button class="btn-ucl-primary" style="padding: 6px 12px; font-size: 12px;" ${isPlayerFull ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="openAddPlayerModal('${team.id}')">
-                + Tambah Pemain ${isPlayerFull ? '(Maks 14)' : ''}
-              </button>
+              <div class="flex items-center gap-2 flex-wrap">
+                ${authState.role === 'ADMIN' && teamPlayers.length > 0 ? `
+                  <button onclick="deleteAllPlayers('${team.id}')" class="text-xs text-rose-400 font-bold hover:underline mr-2" title="👑 Super Admin: Hapus Seluruh Skuad Pemain">
+                    🗑️ Hapus Seluruh Skuad (${teamPlayers.length})
+                  </button>
+                ` : ''}
+                <button class="btn-ucl-primary" style="padding: 6px 12px; font-size: 12px;" ${isPlayerFull ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="openAddPlayerModal('${team.id}')">
+                  + Tambah Pemain ${isPlayerFull ? '(Maks 14)' : ''}
+                </button>
+              </div>
             ` : ''}
           </div>
 
@@ -1581,6 +1603,7 @@ function renderAdminManagePanel() {
           <button onclick="approveTeam('${t.id}')" class="btn-ucl-primary" style="padding: 4px 10px; font-size: 11px;">Approve</button>
           <button onclick="rejectTeam('${t.id}')" class="btn-danger" style="padding: 4px 10px; font-size: 11px;">Reject</button>
         ` : ''}
+        <button onclick="deleteTeam('${t.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.15); color:#f87171; cursor:pointer;" title="👑 Super Admin: Hapus Tim & Skuad Permanen">🗑️ Hapus Tim</button>
       </div>
     </div>
   `).join('');
@@ -2002,6 +2025,63 @@ function approveTeam(teamId) {
 function rejectTeam(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (team) { team.status = 'REJECTED'; saveState(); renderApp(); }
+}
+
+function deleteTeam(teamId) {
+  if (authState.role !== 'ADMIN') return;
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  if (confirm(`⚠️ HAPUS TIM PERMANEN?\n\nYakin ingin menghapus tim "${team.name}"?\nSeluruh data pemain, official, berkas Surat Tugas, dan histori tim ini akan dihapus secara permanen.`)) {
+    teams = teams.filter(t => t.id !== teamId);
+    players = players.filter(p => p.teamId !== teamId);
+    officials = officials.filter(o => o.teamId !== teamId);
+    drawnSlots = drawnSlots.filter(s => s.teamId !== teamId);
+
+    matches.forEach(m => {
+      if (m.homeTeamId === teamId) {
+        m.homeTeamId = 't-empty';
+        m.homeTeamName = 'Tim Kosong';
+        m.homeTeamLogo = '';
+      }
+      if (m.awayTeamId === teamId) {
+        m.awayTeamId = 't-empty';
+        m.awayTeamName = 'Tim Kosong';
+        m.awayTeamLogo = '';
+      }
+    });
+
+    saveState();
+    renderApp();
+    alert(`✅ Tim "${team.name}" dan seluruh berkas/pemainnya berhasil dihapus.`);
+  }
+}
+
+function deleteSuratTugas(teamId) {
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+  const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.teamId === teamId);
+  if (!isEditable) return;
+
+  if (confirm(`Hapus file Surat Tugas untuk tim "${team.name}"?`)) {
+    team.suratTugasName = null;
+    saveState();
+    renderApp();
+    alert(`✅ File Surat Tugas tim "${team.name}" berhasil dihapus.`);
+  }
+}
+
+function deleteAllPlayers(teamId) {
+  if (authState.role !== 'ADMIN') return;
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  if (confirm(`Hapus SELURUH Skuad Pemain dari tim "${team.name}"?`)) {
+    players = players.filter(p => p.teamId !== teamId);
+    saveState();
+    renderApp();
+    alert(`✅ Seluruh pemain tim "${team.name}" berhasil dihapus.`);
+  }
 }
 
 function trigger16TeamDrawingUI() {
