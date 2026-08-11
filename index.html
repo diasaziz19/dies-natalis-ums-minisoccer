@@ -26,6 +26,8 @@
       <span class="role-badge active" data-role="VISITOR" onclick="switchRole('VISITOR')">🏠 Beranda</span>
       <span class="role-badge" data-role="RULES" onclick="switchRole('RULES')">📜 Peraturan</span>
       <span class="role-badge" data-role="TEAM_MANAGER" onclick="switchRole('TEAM_MANAGER')">⚽ Manajemen Tim</span>
+      <span class="role-badge hidden" id="navMatchCenterBtn" data-role="MATCH_CENTER" onclick="switchRole('MATCH_CENTER')">⏱️ Match Center</span>
+      <span class="role-badge hidden" id="navDrawingBtn" data-role="DRAWING" onclick="switchRole('DRAWING')">🎲 Undian 16 Tim</span>
       <span class="role-badge" data-role="LOGIN" id="navLoginBtn" onclick="switchRole('LOGIN')">🔑 Login / Akun</span>
     </div>
   </div>
@@ -205,7 +207,98 @@
       </div>
     </div>
 
-    <!-- 3. UNIFIED LOGIN VIEW -->
+    <!-- 3. DEDICATED MATCH CENTER VIEW (SUPER ADMIN ONLY) -->
+    <div id="view-MATCH_CENTER" class="app-view hidden">
+      <div class="glass-panel p-6 mb-6">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-cyan-400 mb-1">⏱️ Match Center (Wasit &amp; Operator Skor)</h2>
+            <p class="text-sm text-slate-400">Input Live Score, Pencetak Gol, Kartu Kuning/Merah, &amp; Akumulasi Suspensi Otomatis.</p>
+          </div>
+          <span class="badge-gold text-xs">👑 Akses Super Admin</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="glass-panel p-5">
+          <h3 class="font-bold text-lg mb-3 text-white">Pilih Pertandingan</h3>
+          <div id="refereeMatchSelector" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
+        </div>
+        <div class="lg:col-span-2 glass-panel p-6" id="matchCenterActivePanel">
+          <p class="text-slate-400 text-center py-12">Pilih salah satu pertandingan di sebelah kiri untuk mulai mengelola Live Score &amp; Event.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. DEDICATED DRAWING ENGINE VIEW (SUPER ADMIN ONLY) -->
+    <div id="view-DRAWING" class="app-view hidden">
+      <div class="glass-panel p-6 mb-6">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-amber-400 mb-1">🎲 Interactive UCL Drawing Engine (Random Wheel &amp; Shuffle)</h2>
+            <p class="text-sm text-slate-400">Putar Roda Keberuntungan atau Acak Kartu Flip-Flop untuk mengundi slot 16 Besar secara live!</p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn-ucl-secondary" onclick="resetDrawingState()" style="border-color: rgba(239,68,68,0.4); color: #f87171;">🔄 Reset Hasil Undian</button>
+            <button class="btn-ucl-primary" onclick="applyDrawingToBracket()">✅ Terapkan Hasil ke Bagan Utama</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Interactive Wheel / Flip Flop Controls (5 Cols) -->
+        <div class="lg:col-span-5 glass-panel p-6 text-center flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white mb-2">🎡 Roda Keberuntungan Undian Tim</h3>
+            <p class="text-xs text-slate-400 mb-6">Klik tombol di bawah untuk memutar roda undian secara acak.</p>
+            
+            <!-- Wheel Canvas -->
+            <div class="drawing-canvas-wrapper mb-6">
+              <div class="wheel-pointer"></div>
+              <canvas id="wheelCanvas" width="320" height="320"></canvas>
+            </div>
+
+            <!-- Current Target Slot Banner -->
+            <div class="p-3 rounded-xl mb-4 bg-slate-900 border border-cyan-400/30">
+              <span class="text-xs text-slate-400 block">Target Slot Berikutnya:</span>
+              <strong class="text-lg font-bold text-cyan-300 block mt-1" id="nextTargetSlotText">Match #1 (Home)</strong>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="btn-ucl-primary w-full" id="spinWheelBtn" onclick="spinDrawingWheel()" style="justify-content: center; padding: 12px; font-size: 15px;">
+              🎡 SPIN WHEEL (PUTAR UNDIAN)
+            </button>
+            <button class="btn-ucl-secondary w-full" onclick="quickAutoDrawAll()" style="font-size: 12px;">
+              ⚡ Auto-Draw Acak Semua Tim Sekaligus
+            </button>
+          </div>
+        </div>
+
+        <!-- Remaining Teams & Drawn Bracket Matchups (7 Cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- Pool Teams Remaining -->
+          <div class="glass-panel p-5">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-bold text-white text-base">🛡️ Pot Tim Belum Diundi</h3>
+              <span class="badge-cyan text-xs" id="remainingTeamsCountBadge">16 Tim Tersisa</span>
+            </div>
+            <div id="remainingTeamsPoolGrid" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 rounded-lg bg-slate-900/60 border border-slate-800"></div>
+          </div>
+
+          <!-- Drawn Matchup Slots Table (R16) -->
+          <div class="glass-panel p-5">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-bold text-cyan-400 text-base">📋 Hasill Undian Slot 16 Besar</h3>
+              <button onclick="resetDrawingState()" class="text-xs text-rose-400 font-bold hover:underline">🗑️ Kosongkan Hasil</button>
+            </div>
+            <div id="drawnSlotsTable" class="space-y-2 max-h-[340px] overflow-y-auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. UNIFIED LOGIN VIEW -->
     <div id="view-LOGIN" class="app-view hidden">
       <div class="glass-panel p-8 text-center" style="max-width: 480px; margin: 40px auto;">
         <div style="font-size: 48px; margin-bottom: 12px;">🔑</div>
@@ -234,7 +327,7 @@
       </div>
     </div>
 
-    <!-- 4. MANAJEMEN TIM VIEW (PUBLIC ACCESSIBLE READ-ONLY & EDITABLE FOR AUTH USERS) -->
+    <!-- 6. MANAJEMEN TIM VIEW (PUBLIC ACCESSIBLE READ-ONLY & EDITABLE FOR AUTH USERS) -->
     <div id="view-TEAM_MANAGER" class="app-view hidden">
       <div class="glass-panel p-6 mb-6">
         <div class="flex justify-between items-center flex-wrap gap-4 mb-2">
@@ -252,7 +345,7 @@
       <div id="managerTeamsContainer" class="space-y-6"></div>
     </div>
 
-    <!-- 5. SUPER ADMIN DASHBOARD VIEW (MATCH CENTER + CONTROLS) -->
+    <!-- 7. SUPER ADMIN DASHBOARD VIEW -->
     <div id="view-ADMIN" class="app-view hidden">
       <div class="glass-panel p-6 mb-6">
         <div class="flex justify-between items-center flex-wrap gap-4">
@@ -261,7 +354,7 @@
             <p class="text-sm text-slate-400">Kontrol penuh: Match Center, skor pertandingan, approval tim, dan undian bagan.</p>
           </div>
           <div class="flex gap-2 flex-wrap">
-            <button class="btn-ucl-primary" onclick="trigger16TeamDrawingUI()">🎲 Undian 16 Tim</button>
+            <button class="btn-ucl-primary" onclick="switchRole('DRAWING')">🎲 Undian 16 Tim</button>
             <button class="btn-ucl-secondary" onclick="resetTournamentData()">🔄 Reset</button>
             <button onclick="hardResetAndReload()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🗑️ Hard Reset</button>
             <button onclick="handleLogout()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
@@ -280,9 +373,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="glass-panel p-5">
             <h3 class="font-bold text-lg mb-3">Pilih Pertandingan</h3>
-            <div id="refereeMatchSelector" class="space-y-2 max-h-96 overflow-y-auto"></div>
+            <div id="refereeMatchSelectorAdmin" class="space-y-2 max-h-96 overflow-y-auto"></div>
           </div>
-          <div class="lg:col-span-2 glass-panel p-6" id="matchCenterActivePanel">
+          <div class="lg:col-span-2 glass-panel p-6" id="matchCenterActivePanelAdmin">
             <p class="text-slate-400 text-center py-12">Pilih salah satu pertandingan di sebelah kiri untuk mengelola skor &amp; event.</p>
           </div>
         </div>
@@ -301,7 +394,8 @@
           <div class="glass-panel p-6">
             <h3 class="font-bold text-lg mb-4 text-cyan-400">Undian &amp; Drawing 16 Tim</h3>
             <div id="adminDrawingVisualizer">
-              <p class="text-slate-400 text-sm">Klik tombol "🎲 Undian 16 Tim" untuk mengacak ulang pasangan bagan knockout secara otomatis.</p>
+              <p class="text-slate-400 text-sm">Klik tombol "🎲 Undian 16 Tim" untuk membuka canvas putar roda undian.</p>
+              <button onclick="switchRole('DRAWING')" class="btn-ucl-primary mt-4">🎡 Buka Modul Undian Roda Interaktif</button>
             </div>
           </div>
         </div>

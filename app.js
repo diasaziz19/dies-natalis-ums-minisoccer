@@ -14,6 +14,11 @@ let currentAdminTab = 'matchcenter';
 let activeRefereeMatchId = null;
 let draggedTeamInfo = null;
 
+// Drawing Engine State
+let drawnSlots = JSON.parse(localStorage.getItem('ums_drawn_slots')) || []; // [{ matchNumber, teamType: 'home'|'away', teamId }]
+let isSpinning = false;
+let currentWheelAngle = 0;
+
 // Auth State
 let authState = JSON.parse(sessionStorage.getItem('ums_auth')) || {
   isLoggedIn: false,
@@ -33,6 +38,7 @@ function saveState() {
   localStorage.setItem('ums_players', JSON.stringify(players));
   localStorage.setItem('ums_officials', JSON.stringify(officials));
   localStorage.setItem('ums_matches', JSON.stringify(matches));
+  localStorage.setItem('ums_drawn_slots', JSON.stringify(drawnSlots));
   sessionStorage.setItem('ums_auth', JSON.stringify(authState));
 }
 
@@ -69,6 +75,13 @@ window.handleTeamDragStart = handleTeamDragStart;
 window.handleTeamDragOver = handleTeamDragOver;
 window.handleTeamDragLeave = handleTeamDragLeave;
 window.handleTeamDrop = handleTeamDrop;
+
+// Drawing Wheel Window Bindings
+window.spinDrawingWheel = spinDrawingWheel;
+window.quickAutoDrawAll = quickAutoDrawAll;
+window.resetDrawingState = resetDrawingState;
+window.removeDrawnTeam = removeDrawnTeam;
+window.applyDrawingToBracket = applyDrawingToBracket;
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
@@ -202,8 +215,8 @@ function handleLogout() {
 
 // ========== NAVIGATION ==========
 function switchRole(role) {
-  // Security guard for ADMIN role
-  if (role === 'ADMIN' && authState.role !== 'ADMIN') {
+  // Security guard for ADMIN roles
+  if ((role === 'ADMIN' || role === 'MATCH_CENTER' || role === 'DRAWING') && authState.role !== 'ADMIN') {
     switchRole('LOGIN');
     return;
   }
@@ -214,6 +227,12 @@ function switchRole(role) {
   document.querySelectorAll('#roleSelectorContainer .role-badge').forEach(el => {
     el.classList.toggle('active', el.getAttribute('data-role') === role);
   });
+
+  // Admin-only Top Nav Badges
+  const matchNavBtn = document.getElementById('navMatchCenterBtn');
+  const drawNavBtn = document.getElementById('navDrawingBtn');
+  if (matchNavBtn) matchNavBtn.classList.toggle('hidden', authState.role !== 'ADMIN');
+  if (drawNavBtn) drawNavBtn.classList.toggle('hidden', authState.role !== 'ADMIN');
 
   // Update Login Nav Badge Text
   const loginNavBtn = document.getElementById('navLoginBtn');
@@ -269,6 +288,10 @@ function renderApp() {
     renderTeamManagerPortal();
   } else if (currentRole === 'ADMIN') {
     renderAdminPortal();
+  } else if (currentRole === 'MATCH_CENTER') {
+    renderRefereePortal();
+  } else if (currentRole === 'DRAWING') {
+    renderDrawingEnginePortal();
   }
 }
 
@@ -281,7 +304,7 @@ function renderVisitorTabContent() {
   else if (currentVisitorTab === 'teams') renderPublicTeamsGrid();
 }
 
-// VISUAL KNOCKOUT BRACKET TREE (16-Team Knockout Tree with Drag & Drop for Super Admin)
+// VISUAL KNOCKOUT BRACKET TREE
 function renderKnockoutBracket() {
   const container = document.getElementById('knockoutBracketContainer');
   const noticeEl = document.getElementById('adminDragNotice');
@@ -691,7 +714,286 @@ function renderTeamManagerPortal() {
   }).join('');
 }
 
-// ========== 3. SUPER ADMIN DASHBOARD ==========
+// ========== 3. INTERACTIVE DRAWING ENGINE PORTAL (SUPER ADMIN ONLY) ==========
+function renderDrawingEnginePortal() {
+  renderDrawingWheelCanvas();
+  renderDrawingPoolAndSlots();
+}
+
+function getNextSlotInfo() {
+  const drawnCount = drawnSlots.length;
+  if (drawnCount >= 16) return null;
+  const matchNum = Math.floor(drawnCount / 2) + 1;
+  const teamType = drawnCount % 2 === 0 ? 'Home' : 'Away';
+  return { matchNum, teamType, label: `Match #${matchNum} (${teamType})` };
+}
+
+function renderDrawingPoolAndSlots() {
+  const nextSlot = getNextSlotInfo();
+  const targetText = document.getElementById('nextTargetSlotText');
+  if (targetText) {
+    targetText.textContent = nextSlot ? nextSlot.label : '🎉 UNDIAN 16 TIM LENGKAP!';
+  }
+
+  // 1. Remaining Teams Pool
+  const drawnTeamIds = drawnSlots.map(s => s.teamId);
+  const remainingTeams = teams.filter(t => !drawnTeamIds.includes(t.id));
+
+  const poolGrid = document.getElementById('remainingTeamsPoolGrid');
+  const countBadge = document.getElementById('remainingTeamsCountBadge');
+  if (countBadge) countBadge.textContent = `${remainingTeams.length} Tim Tersisa`;
+
+  if (poolGrid) {
+    poolGrid.innerHTML = remainingTeams.length === 0
+      ? '<p class="text-xs text-emerald-400 py-2 w-full text-center font-bold">🎉 Semua 16 Tim telah diundi ke dalam slot!</p>'
+      : remainingTeams.map(t => `
+        <div class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-2 text-xs font-bold text-white">
+          <img src="${t.logoUrl}" style="width:18px;height:18px;border-radius:50%;">
+          <span>${t.name}</span>
+        </div>
+      `).join('');
+  }
+
+  // 2. Drawn Slots Table (Match 1-8 Home/Away)
+  const slotsTable = document.getElementById('drawnSlotsTable');
+  if (!slotsTable) return;
+
+  const totalR16Slots = 16;
+  let html = '';
+
+  for (let i = 0; i < totalR16Slots; i++) {
+    const mNum = Math.floor(i / 2) + 1;
+    const tType = i % 2 === 0 ? 'Home' : 'Away';
+    const drawnItem = drawnSlots[i];
+    const teamObj = drawnItem ? teams.find(t => t.id === drawnItem.teamId) : null;
+
+    html += `
+      <div class="p-2.5 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid ${teamObj ? 'rgba(0,240,255,0.3)' : 'rgba(51,65,85,0.4)'}">
+        <div class="flex items-center gap-3">
+          <span class="font-mono font-bold text-cyan-400" style="min-width: 100px;">Match #${mNum} (${tType})</span>
+          ${teamObj ? `
+            <div class="flex items-center gap-2 font-bold text-white">
+              <img src="${teamObj.logoUrl}" style="width:20px;height:20px;border-radius:50%;">
+              <span>${teamObj.name}</span>
+            </div>
+          ` : `<span class="text-slate-500 italic">⏳ Belum Diundi</span>`}
+        </div>
+        ${teamObj ? `
+          <button onclick="removeDrawnTeam('${teamObj.id}')" class="text-rose-400 font-bold hover:underline" title="Hapus tim ini dari hasil undian">🗑️ Hapus</button>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  slotsTable.innerHTML = html;
+}
+
+function renderDrawingWheelCanvas() {
+  const canvas = document.getElementById('wheelCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = cx - 10;
+
+  const drawnTeamIds = drawnSlots.map(s => s.teamId);
+  const remainingTeams = teams.filter(t => !drawnTeamIds.includes(t.id));
+
+  ctx.clearRect(0, 0, width, height);
+
+  if (remainingTeams.length === 0) {
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#22d3ee'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('UNDIAN LENGKAP', cx, cy);
+    return;
+  }
+
+  const numSlices = remainingTeams.length;
+  const sliceAngle = (Math.PI * 2) / numSlices;
+  const colors = ['#00f0ff', '#ffd700', '#10b981', '#ef4444', '#8b5cf6', '#3b82f6', '#f59e0b', '#ec4899'];
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(currentWheelAngle);
+
+  for (let i = 0; i < numSlices; i++) {
+    const startAngle = i * sliceAngle;
+    const endAngle = startAngle + sliceAngle;
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, radius, startAngle, endAngle);
+    ctx.closePath();
+
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.strokeStyle = '#070a12';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Text Label
+    ctx.save();
+    ctx.rotate(startAngle + sliceAngle / 2);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 10px Outfit, sans-serif';
+    ctx.textAlign = 'right';
+    const textName = remainingTeams[i].name.length > 16 ? remainingTeams[i].name.substring(0, 14) + '..' : remainingTeams[i].name;
+    ctx.fillText(textName, radius - 15, 4);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function spinDrawingWheel() {
+  if (isSpinning) return;
+  const drawnTeamIds = drawnSlots.map(s => s.teamId);
+  const remainingTeams = teams.filter(t => !drawnTeamIds.includes(t.id));
+
+  if (remainingTeams.length === 0) {
+    alert('🎉 Seluruh 16 Tim telah diundi!');
+    return;
+  }
+
+  isSpinning = true;
+  const spinBtn = document.getElementById('spinWheelBtn');
+  if (spinBtn) { spinBtn.disabled = true; spinBtn.textContent = '🔄 MEMUTAR RODA...'; }
+
+  // Pick random winner index
+  const winnerIndex = Math.floor(Math.random() * remainingTeams.length);
+  const winningTeam = remainingTeams[winnerIndex];
+
+  const numSlices = remainingTeams.length;
+  const sliceAngle = (Math.PI * 2) / numSlices;
+
+  // Calculate target rotation angle so pointer lands on winning sector at top (270 degrees / -PI/2)
+  const targetSectorAngle = (winnerIndex + 0.5) * sliceAngle;
+  const extraRounds = (4 + Math.floor(Math.random() * 3)) * Math.PI * 2; // 4 to 6 full spins
+  const targetTotalAngle = currentWheelAngle + extraRounds + (Math.PI * 1.5 - targetSectorAngle - (currentWheelAngle % (Math.PI * 2)));
+
+  const startAngle = currentWheelAngle;
+  const duration = 3500; // 3.5 seconds spin animation
+  const startTime = performance.now();
+
+  function animateSpin(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Ease-out cubic curve
+    const easeOut = 1 - Math.pow(1 - progress, 3);
+    currentWheelAngle = startAngle + (targetTotalAngle - startAngle) * easeOut;
+
+    renderDrawingWheelCanvas();
+
+    if (progress < 1) {
+      requestAnimationFrame(animateSpin);
+    } else {
+      isSpinning = false;
+      if (spinBtn) { spinBtn.disabled = false; spinBtn.textContent = '🎡 SPIN WHEEL (PUTAR UNDIAN)'; }
+
+      // Record slot
+      const nextSlot = getNextSlotInfo();
+      if (nextSlot) {
+        drawnSlots.push({
+          matchNumber: nextSlot.matchNum,
+          teamType: nextSlot.teamType.toLowerCase(),
+          teamId: winningTeam.id
+        });
+        saveState();
+        renderApp();
+
+        openModal(`
+          <div class="text-center p-4">
+            <div style="font-size: 48px; margin-bottom: 8px;">🎉</div>
+            <h3 class="text-xs uppercase tracking-widest text-cyan-400 font-bold mb-1">HASIL UNDIAN ${nextSlot.label}</h3>
+            <img src="${winningTeam.logoUrl}" style="width:70px;height:70px;border-radius:50%;margin:12px auto;background:#000;border:3px solid var(--ucl-gold);">
+            <h2 class="text-2xl font-bold text-white mb-2">${winningTeam.name}</h2>
+            <p class="text-sm text-slate-300 mb-6">${winningTeam.facultyUnit}</p>
+            <button onclick="closeModal()" class="btn-ucl-primary" style="justify-content: center; width:100%;">Lanjutkan Undian $\rightarrow$</button>
+          </div>
+        `);
+      }
+    }
+  }
+
+  requestAnimationFrame(animateSpin);
+}
+
+function quickAutoDrawAll() {
+  if (confirm('🎲 Acak otomatis seluruh sisa tim ke dalam slot 16 Besar secara instant?')) {
+    const drawnTeamIds = drawnSlots.map(s => s.teamId);
+    let remaining = teams.filter(t => !drawnTeamIds.includes(t.id));
+    
+    // Shuffle array
+    for (let i = remaining.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+    }
+
+    remaining.forEach(t => {
+      const nextSlot = getNextSlotInfo();
+      if (nextSlot) {
+        drawnSlots.push({
+          matchNumber: nextSlot.matchNum,
+          teamType: nextSlot.teamType.toLowerCase(),
+          teamId: t.id
+        });
+      }
+    });
+
+    saveState();
+    renderApp();
+    alert('🎉 Seluruh 16 Tim berhasil diacak!');
+  }
+}
+
+function resetDrawingState() {
+  if (confirm('🔄 Kosongkan hasil undian roda & reset seluruh slot 16 Besar?')) {
+    drawnSlots = [];
+    saveState();
+    renderApp();
+  }
+}
+
+function removeDrawnTeam(teamId) {
+  drawnSlots = drawnSlots.filter(s => s.teamId !== teamId);
+  saveState();
+  renderApp();
+}
+
+function applyDrawingToBracket() {
+  if (drawnSlots.length < 16) {
+    if (!confirm(`Undian belum lengkap (baru ${drawnSlots.length}/16 tim terisi). Yakin ingin menerapkan posisi saat ini ke bagan utama?`)) return;
+  }
+
+  drawnSlots.forEach(slot => {
+    const match = matches.find(m => m.matchNumber === slot.matchNumber && m.stage === 'ROUND_OF_16');
+    const teamObj = teams.find(t => t.id === slot.teamId);
+
+    if (match && teamObj) {
+      if (slot.teamType === 'home') {
+        match.homeTeamId = teamObj.id;
+        match.homeTeamName = teamObj.name;
+        match.homeTeamLogo = teamObj.logoUrl;
+      } else {
+        match.awayTeamId = teamObj.id;
+        match.awayTeamName = teamObj.name;
+        match.awayTeamLogo = teamObj.logoUrl;
+      }
+    }
+  });
+
+  saveState();
+  renderApp();
+  alert('✅ Hasil undian berhasil diterapkan ke Bagan Utama Turnamen!');
+  switchRole('VISITOR');
+}
+
+// ========== 4. SUPER ADMIN DASHBOARD & MATCH CENTER ==========
 function renderAdminPortal() {
   if (currentAdminTab === 'matchcenter') renderRefereePortal();
   else renderAdminManagePanel();
@@ -726,7 +1028,7 @@ function renderAdminManagePanel() {
 }
 
 function renderRefereePortal() {
-  const selectorEl = document.getElementById('refereeMatchSelector');
+  const selectorEl = document.getElementById('refereeMatchSelector') || document.getElementById('refereeMatchSelectorAdmin');
   if (!selectorEl) return;
 
   selectorEl.innerHTML = matches.map(m => `
@@ -753,7 +1055,7 @@ function selectRefereeMatch(matchId) {
 }
 
 function renderActiveRefereeMatchPanel() {
-  const panel = document.getElementById('matchCenterActivePanel');
+  const panel = document.getElementById('matchCenterActivePanel') || document.getElementById('matchCenterActivePanelAdmin');
   if (!panel || !activeRefereeMatchId) return;
   const match = matches.find(m => m.id === activeRefereeMatchId);
   if (!match) return;
