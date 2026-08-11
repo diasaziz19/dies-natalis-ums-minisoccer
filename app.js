@@ -3,7 +3,7 @@
  * Dies Natalis UMS 2026 Minisoccer Tournament System (16-Team Knockout)
  */
 
-import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES, ADMIN_CREDENTIALS, MANAGER_CREDENTIALS } from './src/lib/mockData.js';
+import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES, INITIAL_HOMEPAGE, INITIAL_RULES, ADMIN_CREDENTIALS, MANAGER_CREDENTIALS } from './src/lib/mockData.js';
 import { execute16TeamKnockoutDraw } from './src/lib/drawingEngine.js';
 import { evaluatePlayerSuspensions } from './src/lib/cardAccumulation.js';
 
@@ -15,6 +15,10 @@ let activeRefereeMatchId = null;
 let draggedTeamInfo = null;
 let draggedPoolTeamId = null;
 let liveTimerInterval = null;
+
+// Dynamic Homepage & Rules State
+let homepageContent = JSON.parse(localStorage.getItem('ums_homepage')) || INITIAL_HOMEPAGE;
+let tournamentRules = JSON.parse(localStorage.getItem('ums_rules')) || INITIAL_RULES;
 
 // Drawing Engine State
 let drawnSlots = JSON.parse(localStorage.getItem('ums_drawn_slots')) || []; // [{ matchNumber, teamType: 'home'|'away', teamId }]
@@ -43,6 +47,8 @@ function saveState() {
   localStorage.setItem('ums_matches', JSON.stringify(matches));
   localStorage.setItem('ums_drawn_slots', JSON.stringify(drawnSlots));
   localStorage.setItem('ums_auth', JSON.stringify(authState));
+  localStorage.setItem('ums_homepage', JSON.stringify(homepageContent));
+  localStorage.setItem('ums_rules', JSON.stringify(tournamentRules));
 }
 
 // ========== WINDOW BINDINGS ==========
@@ -76,6 +82,13 @@ window.openMatchSheetModal = openMatchSheetModal;
 window.openTeamDetailModal = openTeamDetailModal;
 window.renderVisitorMatches = renderVisitorMatches;
 window.closeModal = closeModal;
+
+// Homepage & Rules Window Bindings
+window.openEditHomepageModal = openEditHomepageModal;
+window.openAddRuleModal = openAddRuleModal;
+window.openEditRuleModal = openEditRuleModal;
+window.deleteRule = deleteRule;
+window.resetRulesToDefault = resetRulesToDefault;
 
 // Drag & Drop Window Bindings (Bracket Tree)
 window.handleTeamDragStart = handleTeamDragStart;
@@ -401,6 +414,8 @@ function renderApp() {
 
   if (currentRole === 'VISITOR') {
     renderVisitorTabContent();
+  } else if (currentRole === 'RULES') {
+    renderRulesSection();
   } else if (currentRole === 'TEAM_MANAGER') {
     renderTeamManagerPortal();
   } else if (currentRole === 'ADMIN') {
@@ -409,6 +424,333 @@ function renderApp() {
     renderRefereePortal();
   } else if (currentRole === 'DRAWING') {
     renderDrawingEnginePortal();
+  }
+}
+
+// ========== DYNAMIC HOMEPAGE HERO BANNER ==========
+function renderHomepageHero() {
+  const container = document.getElementById('homepageHeroContainer');
+  if (!container) return;
+
+  const isAdmin = authState.role === 'ADMIN';
+
+  container.innerHTML = `
+    <div class="hero-ucl p-8 mb-8 relative overflow-hidden">
+      <div class="hero-starball"></div>
+      
+      ${isAdmin ? `
+        <div class="flex justify-end mb-3 relative z-20">
+          <button onclick="openEditHomepageModal()" style="padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,215,0,0.5); background: rgba(255,215,0,0.15); color: #ffd700; cursor: pointer;" title="👑 Super Admin: Edit Teks Beranda">
+            ✏️ Edit Banner Beranda
+          </button>
+        </div>
+      ` : ''}
+
+      <div class="flex justify-between items-start flex-wrap gap-4 relative z-10">
+        <div>
+          <span class="badge-gold mb-3 inline-block">${homepageContent.heroBadge}</span>
+          <h1 style="font-size: 2.2rem; line-height: 1.2; margin-bottom: 8px; text-transform: uppercase;">${homepageContent.heroTitle}</h1>
+          <p style="color: var(--text-secondary); max-width: 680px; font-size: 0.95rem; line-height: 1.5;">
+            ${homepageContent.heroSubtitle}
+          </p>
+        </div>
+        <div class="glass-panel p-4 text-center" style="min-width: 200px;">
+          <span class="text-xs uppercase text-cyan-400 font-bold tracking-widest block mb-1">TOTAL HADIAH</span>
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--ucl-gold)">${homepageContent.totalPrize}</span>
+          <span class="text-xs text-slate-400 block mt-1">${homepageContent.prizeSub}</span>
+        </div>
+      </div>
+
+      ${homepageContent.announcementText ? `
+        <div class="mt-4 p-3 rounded-lg flex items-center gap-2 text-xs font-semibold text-cyan-300 relative z-10" style="background: rgba(0,240,255,0.08); border: 1px solid rgba(0,240,255,0.25);">
+          <span>${homepageContent.announcementText}</span>
+        </div>
+      ` : ''}
+
+      <div class="flex gap-6 mt-6 pt-6 border-t border-slate-700/50 flex-wrap relative z-10">
+        <div><span class="text-xs text-slate-400 block">Format Turnamen</span><span class="badge-live">${homepageContent.tournamentFormat}</span></div>
+        <div><span class="text-xs text-slate-400 block">Total Peserta</span><span class="font-bold text-white text-sm">${teams.filter(t => t.status === 'APPROVED').length} Tim Approved</span></div>
+        <div><span class="text-xs text-slate-400 block">Lokasi Lapangan</span><span class="font-bold text-cyan-400 text-sm">${homepageContent.pitchLocation}</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function openEditHomepageModal() {
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Teks &amp; Banner Beranda</h3>
+    <p class="text-sm text-slate-400 mb-5">Ubah informasi judul, subtitle, total hadiah, dan pengumuman di Beranda.</p>
+    
+    <form onsubmit="handleHomepageEditSubmit(event)" class="space-y-4">
+      <div>
+        <label class="form-label">Badge Atas <span class="text-rose-400">*</span></label>
+        <input type="text" id="hpBadge" class="form-input" value="${homepageContent.heroBadge}" required>
+      </div>
+      <div>
+        <label class="form-label">Judul Utama Turnamen <span class="text-rose-400">*</span></label>
+        <input type="text" id="hpTitle" class="form-input" value="${homepageContent.heroTitle}" required>
+      </div>
+      <div>
+        <label class="form-label">Deskripsi / Subtitle Beranda <span class="text-rose-400">*</span></label>
+        <textarea id="hpSubtitle" class="form-input" rows="3" required>${homepageContent.heroSubtitle}</textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Total Hadiah</label>
+          <input type="text" id="hpPrize" class="form-input" value="${homepageContent.totalPrize}" required>
+        </div>
+        <div>
+          <label class="form-label">Keterangan Hadiah</label>
+          <input type="text" id="hpPrizeSub" class="form-input" value="${homepageContent.prizeSub}" required>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Format Turnamen</label>
+          <input type="text" id="hpFormat" class="form-input" value="${homepageContent.tournamentFormat}" required>
+        </div>
+        <div>
+          <label class="form-label">Lokasi Lapangan</label>
+          <input type="text" id="hpPitch" class="form-input" value="${homepageContent.pitchLocation}" required>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Teks Pengumuman Terbaru (Opsional)</label>
+        <input type="text" id="hpAnnouncement" class="form-input" value="${homepageContent.announcementText || ''}" placeholder="misal: 📢 Pendaftaran dibuka sampai 12 Maret!">
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Beranda</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+window.handleHomepageEditSubmit = function(e) {
+  e.preventDefault();
+  homepageContent = {
+    heroBadge: document.getElementById('hpBadge').value.trim(),
+    heroTitle: document.getElementById('hpTitle').value.trim(),
+    heroSubtitle: document.getElementById('hpSubtitle').value.trim(),
+    totalPrize: document.getElementById('hpPrize').value.trim(),
+    prizeSub: document.getElementById('hpPrizeSub').value.trim(),
+    tournamentFormat: document.getElementById('hpFormat').value.trim(),
+    pitchLocation: document.getElementById('hpPitch').value.trim(),
+    announcementText: document.getElementById('hpAnnouncement').value.trim()
+  };
+  saveState();
+  closeModal();
+  renderApp();
+  alert('✅ Teks dan Banner Beranda berhasil diperbarui!');
+};
+
+// ========== DYNAMIC RULES SECTION & SUPER ADMIN CRUD ==========
+function renderRulesSection() {
+  const container = document.getElementById('rulesViewContainer');
+  if (!container) return;
+
+  const isAdmin = authState.role === 'ADMIN';
+
+  let html = `
+    <div class="glass-panel p-8 mb-8">
+      <div class="flex justify-between items-start flex-wrap gap-4 mb-4">
+        <div class="flex items-center gap-3">
+          <span style="font-size: 36px;">📜</span>
+          <div>
+            <h1 class="text-2xl font-bold text-white">PERATURAN RESMI TURNAMEN MINISOCCER DIES NATALIS UMS 2026</h1>
+            <p class="text-sm text-cyan-400 font-semibold">Regulasi Resmi Pertandingan Minisoccer UMS 7v7 (Sistem Gugur / Knockout)</p>
+          </div>
+        </div>
+
+        ${isAdmin ? `
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="openAddRuleModal()" class="btn-ucl-primary" style="padding: 8px 14px; font-size: 12px;">+ Tambah Kategori Peraturan Baru</button>
+            <button onclick="resetRulesToDefault()" style="padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🔄 Reset Standard</button>
+          </div>
+        ` : ''}
+      </div>
+
+      ${isAdmin ? `
+        <div class="p-3 rounded-lg mb-6 flex justify-between items-center flex-wrap gap-2 text-xs" style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.25);">
+          <span class="text-amber-300">👑 <strong>Mode Super Admin Aktif:</strong> Anda dapat menambah, mengedit, atau menghapus item peraturan di bawah ini secara langsung.</span>
+        </div>
+      ` : ''}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+  `;
+
+  if (tournamentRules.length === 0) {
+    html += `<p class="text-slate-400 text-sm py-8 text-center col-span-2">Belum ada peraturan ditambahkan.</p>`;
+  } else {
+    tournamentRules.forEach((rule) => {
+      html += `
+        <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between" style="${isAdmin ? 'border-color: rgba(34,211,238,0.3);' : ''}">
+          <div>
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-bold ${rule.colorClass || 'text-cyan-400'} flex items-center gap-2">
+                <span>${rule.icon || '📜'}</span> ${rule.title}
+              </h3>
+              ${isAdmin ? `
+                <div class="flex gap-2">
+                  <button onclick="openEditRuleModal('${rule.id}')" class="text-xs text-cyan-400 font-bold hover:underline">✏️ Edit</button>
+                  <button onclick="deleteRule('${rule.id}')" class="text-xs text-rose-400 font-bold hover:underline">🗑️ Hapus</button>
+                </div>
+              ` : ''}
+            </div>
+            
+            <ul class="space-y-2 text-sm text-slate-300">
+              ${(rule.items || []).map(item => `<li class="flex items-start gap-2"><span>•</span> <span>${item}</span></li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  html += `
+        </div>
+      </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function openAddRuleModal() {
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">+ Tambah Kategori Peraturan Baru</h3>
+    <p class="text-sm text-slate-400 mb-5">Tambahkan kelompok peraturan baru beserta poin-poin ketentuannya.</p>
+
+    <form onsubmit="handleRuleSubmit(event)" class="space-y-4">
+      <div>
+        <label class="form-label">Judul Kategori Peraturan <span class="text-rose-400">*</span></label>
+        <input type="text" id="ruleTitle" class="form-input" placeholder="misal: 5. Ketentuan Jersey &amp; Aksesoris" required>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Icon / Emoji</label>
+          <input type="text" id="ruleIcon" class="form-input" value="📜" placeholder="misal: 👕" required>
+        </div>
+        <div>
+          <label class="form-label">Warna Judul</label>
+          <select id="ruleColor" class="form-input">
+            <option value="text-amber-400">🟡 Amber (Kuning)</option>
+            <option value="text-cyan-400">🔷 Cyan (Biru Muda)</option>
+            <option value="text-emerald-400">🟢 Emerald (Hijau)</option>
+            <option value="text-rose-400">🔴 Rose (Merah)</option>
+            <option value="text-purple-400">🟣 Purple (Ungu)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label">Poin-Poin Peraturan (1 Poin Per Baris) <span class="text-rose-400">*</span></label>
+        <textarea id="ruleItemsText" class="form-input" rows="5" placeholder="Poin 1: Wajib memakai jersey bernomor dada&#10;Poin 2: Dilarang memakai perhiasan saat bertanding" required></textarea>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Peraturan</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+function openEditRuleModal(ruleId) {
+  const rule = tournamentRules.find(r => r.id === ruleId);
+  if (!rule) return;
+
+  const itemsText = (rule.items || []).join('\n');
+
+  openModal(`
+    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Kategori Peraturan</h3>
+    <p class="text-sm text-slate-400 mb-5">Perbarui judul, icon, dan poin-poin peraturan.</p>
+
+    <form onsubmit="handleRuleSubmit(event, '${ruleId}')" class="space-y-4">
+      <div>
+        <label class="form-label">Judul Kategori Peraturan <span class="text-rose-400">*</span></label>
+        <input type="text" id="ruleTitle" class="form-input" value="${rule.title}" required>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Icon / Emoji</label>
+          <input type="text" id="ruleIcon" class="form-input" value="${rule.icon || '📜'}" required>
+        </div>
+        <div>
+          <label class="form-label">Warna Judul</label>
+          <select id="ruleColor" class="form-input">
+            <option value="text-amber-400" ${rule.colorClass === 'text-amber-400' ? 'selected' : ''}>🟡 Amber (Kuning)</option>
+            <option value="text-cyan-400" ${rule.colorClass === 'text-cyan-400' ? 'selected' : ''}>🔷 Cyan (Biru Muda)</option>
+            <option value="text-emerald-400" ${rule.colorClass === 'text-emerald-400' ? 'selected' : ''}>🟢 Emerald (Hijau)</option>
+            <option value="text-rose-400" ${rule.colorClass === 'text-rose-400' ? 'selected' : ''}>🔴 Rose (Merah)</option>
+            <option value="text-purple-400" ${rule.colorClass === 'text-purple-400' ? 'selected' : ''}>🟣 Purple (Ungu)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label">Poin-Poin Peraturan (1 Poin Per Baris) <span class="text-rose-400">*</span></label>
+        <textarea id="ruleItemsText" class="form-input" rows="5" required>${itemsText}</textarea>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Peraturan</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
+    </form>
+  `);
+}
+
+window.handleRuleSubmit = function(e, ruleId = null) {
+  e.preventDefault();
+  const title = document.getElementById('ruleTitle').value.trim();
+  const icon = document.getElementById('ruleIcon').value.trim() || '📜';
+  const colorClass = document.getElementById('ruleColor').value;
+  const itemsText = document.getElementById('ruleItemsText').value.trim();
+  const items = itemsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+  if (ruleId) {
+    const rule = tournamentRules.find(r => r.id === ruleId);
+    if (rule) {
+      rule.title = title;
+      rule.icon = icon;
+      rule.colorClass = colorClass;
+      rule.items = items;
+    }
+  } else {
+    tournamentRules.push({
+      id: 'rule-' + Date.now(),
+      title,
+      icon,
+      colorClass,
+      items
+    });
+  }
+
+  saveState();
+  closeModal();
+  renderApp();
+  alert(`✅ Peraturan "${title}" berhasil disimpan!`);
+};
+
+function deleteRule(ruleId) {
+  const rule = tournamentRules.find(r => r.id === ruleId);
+  if (!rule) return;
+
+  if (confirm(`Hapus kategori peraturan: "${rule.title}"?`)) {
+    tournamentRules = tournamentRules.filter(r => r.id !== ruleId);
+    saveState();
+    renderApp();
+  }
+}
+
+function resetRulesToDefault() {
+  if (confirm('🔄 Reset seluruh daftar peraturan ke standard awal turnamen?')) {
+    tournamentRules = [...INITIAL_RULES];
+    saveState();
+    renderApp();
   }
 }
 
@@ -429,6 +771,7 @@ function getMatchGoalEventsSummary(match, teamId) {
 
 // ========== 1. BERANDA (VISITOR) ==========
 function renderVisitorTabContent() {
+  renderHomepageHero();
   if (currentVisitorTab === 'bracket') renderKnockoutBracket();
   else if (currentVisitorTab === 'livescore') renderLiveScore();
   else if (currentVisitorTab === 'matches') renderVisitorMatches();

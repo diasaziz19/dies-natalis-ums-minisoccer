@@ -1,3 +1,62 @@
+export const INITIAL_HOMEPAGE = {
+  heroBadge: 'OFFICIAL COMPETITION 7v7 (16 TIM KNOCKOUT)',
+  heroTitle: 'TURNAMEN MINISOCCER DIES NATALIS UMS 2026',
+  heroSubtitle: 'Kompetisi Minisoccer resmi 16 Tim Fakultas & Unit di Universitas Muhammadiyah Surakarta dengan Sistem Gugur (Knockout). Babak 16 Besar → Perempat Final → Semi Final → Grand Final!',
+  totalPrize: 'Rp 15.000.000',
+  prizeSub: '+ Trophy & Medali UMS',
+  tournamentFormat: 'SYSTEM KNOCKOUT (16 TIM)',
+  pitchLocation: 'UMS Stadium Field A & B',
+  announcementText: '📢 Pengumuman: Pengundian babak 16 Besar dapat disaksikan secara live. Wajib mengunggah Surat Tugas Dekanat!'
+};
+
+export const INITIAL_RULES = [
+  {
+    id: 'rule-1',
+    title: '1. Format Pertandingan & Durasi Waktu',
+    icon: '⏱️',
+    colorClass: 'text-amber-400',
+    items: [
+      'Sistem Turnamen: Knockout / Sistem Gugur 16 Tim (Mulai dari Babak 16 Besar → Perempat Final → Semi Final → Final & Juara 3).',
+      'Durasi Main: 2 x 10 Menit (Kotor) dengan waktu istirahat antar babak selama 5 Menit.',
+      'Penentuan Pemenang (Seri): Apabila hasil imbang hingga waktu normal usai, pertandingan langsung dilanjutkan dengan Adu Penalti (3 Penendang Utama per Tim).'
+    ]
+  },
+  {
+    id: 'rule-2',
+    title: '2. Komposisi Pemain & Skuad',
+    icon: '👥',
+    colorClass: 'text-cyan-400',
+    items: [
+      'Pemain di Lapangan: 7 vs 7 (6 Pemain Lapangan + 1 Penjaga Gawang). Minimum 5 pemain untuk memulai pertandingan.',
+      'Batas Skuad Roster: Maksimal 14 Pemain terdaftar, 1 Head Coach, dan 1 Official Tim.',
+      'Pergantian Pemain (Substitution): Bebas/Melayang (Rolling Substitution) dari area teknis wasit tanpa membatasi jumlah pergantian.'
+    ]
+  },
+  {
+    id: 'rule-3',
+    title: '3. Peraturan Lapangan (Minisoccer Standard)',
+    icon: '⚽',
+    colorClass: 'text-emerald-400',
+    items: [
+      'Offside: TIDAK ADA OFFSIDE dalam seluruh babak pertandingan.',
+      'Bola Out / Garis Samping: Menggunakan Kick-in (Tendangan ke Dalam). Bola harus diam di atas garis saat ditendang (maksimal 4 detik).',
+      'Penjaga Gawang (Kiper): Lemparan gawang dari kiper tidak boleh langsung melewati garis tengah lapangan tanpa menyentuh tanah/pemain terlebih dahulu.',
+      'Back-pass: Kiper TIDAK BOLEH menangkap bola dengan tangan dari umpan kaki rekan setim.'
+    ]
+  },
+  {
+    id: 'rule-4',
+    title: '4. Kedisiplinan, Kartu & Berkas Administrasi',
+    icon: '🟨',
+    colorClass: 'text-rose-400',
+    items: [
+      'Akumulasi Kartu Kuning: 2 Kartu Kuning dalam pertandingan berbeda → Hukuman Absen 1 Pertandingan Berikutnya.',
+      'Kartu Merah Langsung: Pemain wajib keluar lapangan + Absen 1 Pertandingan Berikutnya. Tim bermain dengan 6 pemain selama 2 menit sebelum digantikan.',
+      'Persyaratan Berkas: Wajib mengunggah Surat Tugas Resmi Dekanat / Unit UMS serta membawa KTP / NI. Kepegawaian asli saat verifikasi fisik.'
+    ]
+  }
+];
+
 export const INITIAL_TEAMS = [
   { id: 'team-1', name: 'Pendidikan Olahraga (POR FKIP)', facultyUnit: 'FKIP UMS', logoUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=PORFKIP&backgroundColor=ff6600', managerId: 'mgr-team-1', managerName: 'Bambang Supriyanto', managerPhone: '081234567801', status: 'APPROVED', suratTugasName: 'Surat_Tugas_Dekan_POR_2026.pdf' },
   { id: 'team-2', name: 'Pendidikan Matematika FC', facultyUnit: 'FKIP UMS', logoUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=MATEMATIKAFKIP&backgroundColor=003366', managerId: 'mgr-team-2', managerName: 'Ahmad Dahlan', managerPhone: '081234567802', status: 'APPROVED', suratTugasName: 'Surat_Tugas_Dekan_Matematika_2026.pdf' },
