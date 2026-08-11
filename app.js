@@ -64,6 +64,8 @@ window.resetTournamentData = resetTournamentData;
 window.hardResetAndReload = hardResetAndReload;
 window.selectRefereeMatch = selectRefereeMatch;
 window.addMatchEvent = addMatchEvent;
+window.deleteMatchEvent = deleteMatchEvent;
+window.resetSingleMatch = resetSingleMatch;
 window.finishMatch = finishMatch;
 window.startMatch = startMatch;
 window.openEditScoreModal = openEditScoreModal;
@@ -350,6 +352,21 @@ function renderApp() {
   }
 }
 
+// ========== HELPER: GOAL SCORERS & ASSISTS SUMMARY FOR SCOREBOARD ==========
+function getMatchGoalEventsSummary(match, teamId) {
+  if (!match.events || match.events.length === 0) return '';
+
+  const goals = match.events.filter(e => e.teamId === teamId && (e.eventType === 'GOAL' || e.eventType === 'PENALTY_GOAL' || e.eventType === 'OWN_GOAL'));
+  if (goals.length === 0) return '';
+
+  return goals.map(g => {
+    const typeIcon = g.eventType === 'PENALTY_GOAL' ? ' (P)' : g.eventType === 'OWN_GOAL' ? ' (OG)' : '';
+    const assistEv = match.events.find(e => e.goalId === g.id && e.eventType === 'ASSIST');
+    const assistText = assistEv ? ` (ast: ${assistEv.playerFullName.split(' ')[0]})` : '';
+    return `<div>⚽ ${g.playerFullName} ${g.minute}'${typeIcon}${assistText}</div>`;
+  }).join('');
+}
+
 // ========== 1. BERANDA (VISITOR) ==========
 function renderVisitorTabContent() {
   if (currentVisitorTab === 'bracket') renderKnockoutBracket();
@@ -455,30 +472,33 @@ function renderLiveScore() {
     const statusLabel = m.status === 'LIVE' ? '🔴 LIVE' : m.status === 'FINISHED' ? '✅ Selesai' : '⏳ Belum Mulai';
     const scoreStyle = m.status === 'LIVE' ? 'color:#22c55e; text-shadow: 0 0 12px rgba(34,197,94,0.5);' : 'color:#22d3ee;';
 
+    const homeGoalsSummary = getMatchGoalEventsSummary(m, m.homeTeamId);
+    const awayGoalsSummary = getMatchGoalEventsSummary(m, m.awayTeamId);
+
     return `
       <div class="glass-panel p-5" style="${m.status === 'LIVE' ? 'border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 0 20px rgba(34,197,94,0.1);' : ''}">
         <div class="flex justify-between items-center mb-3">
           <span class="text-xs font-bold text-cyan-400">Match #${m.matchNumber} | ${m.stage.replace(/_/g, ' ')}</span>
           <span style="font-size:11px; font-weight:700; color:${statusColor}; background:${statusColor}22; padding:2px 8px; border-radius:999px; border:1px solid ${statusColor}55;">${statusLabel}</span>
         </div>
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-start">
           <div class="text-center flex-1">
             <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:40px;height:40px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
-            <span class="font-bold text-white text-xs block">${m.homeTeamName}</span>
+            <span class="font-bold text-white text-xs block mb-1">${m.homeTeamName}</span>
+            <div class="text-[11px] text-cyan-300 space-y-0.5">${homeGoalsSummary}</div>
           </div>
-          <div class="text-center px-4">
-            <span class="font-black text-3xl font-mono" style="${scoreStyle}">${m.homeScore} - ${m.awayScore}</span>
+
+          <div class="text-center px-4 pt-1">
+            <span class="font-black text-3xl font-mono block" style="${scoreStyle}">${m.homeScore} - ${m.awayScore}</span>
             <span class="block text-xs text-slate-500 mt-1">${m.kickoffTime}</span>
           </div>
+
           <div class="text-center flex-1">
             <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:40px;height:40px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
-            <span class="font-bold text-white text-xs block">${m.awayTeamName}</span>
+            <span class="font-bold text-white text-xs block mb-1">${m.awayTeamName}</span>
+            <div class="text-[11px] text-cyan-300 space-y-0.5">${awayGoalsSummary}</div>
           </div>
         </div>
-        ${m.status === 'LIVE' && (m.events || []).length > 0 ? `
-          <div class="mt-3 pt-3 border-t border-slate-800">
-            ${(m.events || []).slice(-3).map(e => `<div class="text-xs text-slate-300"><span class="text-cyan-400 font-mono font-bold">${e.minute}'</span> ${e.eventType === 'GOAL' ? '⚽' : e.eventType === 'PENALTY_GOAL' ? '⚽P' : e.eventType === 'OWN_GOAL' ? '⚽OG' : '🟨'} ${e.playerFullName || '-'}</div>`).join('')}
-          </div>` : ''}
       </div>
     `;
   }).join('');
@@ -493,18 +513,27 @@ function renderVisitorMatches() {
 
   container.innerHTML = filtered.map(m => {
     const statusColor = m.status === 'LIVE' ? '#22c55e' : m.status === 'FINISHED' ? '#f59e0b' : '#64748b';
+    const homeGoalsSummary = getMatchGoalEventsSummary(m, m.homeTeamId);
+    const awayGoalsSummary = getMatchGoalEventsSummary(m, m.awayTeamId);
+
     return `
       <div class="glass-panel p-5">
         <div class="flex justify-between items-center mb-2">
           <span class="badge-cyan text-xs">Match #${m.matchNumber} | ${m.stage.replace(/_/g, ' ')}</span>
           <span style="font-size:11px; font-weight:700; color:${statusColor};">${m.status}</span>
         </div>
-        <div class="flex justify-between items-center">
-          <span class="font-bold text-white text-sm">${m.homeTeamName}</span>
-          <span class="font-black text-xl text-cyan-400 font-mono">${m.homeScore} - ${m.awayScore}</span>
-          <span class="font-bold text-white text-sm text-right">${m.awayTeamName}</span>
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <span class="font-bold text-white text-sm block">${m.homeTeamName}</span>
+            <div class="text-[11px] text-cyan-300 mt-1">${homeGoalsSummary}</div>
+          </div>
+          <span class="font-black text-xl text-cyan-400 font-mono px-4">${m.homeScore} - ${m.awayScore}</span>
+          <div class="flex-1 text-right">
+            <span class="font-bold text-white text-sm block">${m.awayTeamName}</span>
+            <div class="text-[11px] text-cyan-300 mt-1">${awayGoalsSummary}</div>
+          </div>
         </div>
-        <div class="text-xs text-slate-500 mt-2">📍 ${m.pitchLocation} | 🕐 ${m.kickoffTime}</div>
+        <div class="text-xs text-slate-500 mt-3 pt-2 border-t border-slate-800">📍 ${m.pitchLocation} | 🕐 ${m.kickoffTime}</div>
       </div>
     `;
   }).join('');
@@ -815,7 +844,6 @@ function renderDrawingPoolAndSlots() {
         return `<option value="${val}" ${isSel ? 'selected' : ''}>🎯 ${s.label}</option>`;
       }).join('');
 
-      // If current selection is no longer valid, default to first available
       if (!selectedTargetSlot || !availableSlots.some(s => s.matchNum === selectedTargetSlot.matchNumber && s.teamType === selectedTargetSlot.teamType)) {
         selectedTargetSlot = { matchNumber: availableSlots[0].matchNum, teamType: availableSlots[0].teamType };
       }
@@ -976,20 +1004,18 @@ function spinDrawingWheel() {
   const numSlices = remainingTeams.length;
   const sliceAngle = (Math.PI * 2) / numSlices;
 
-  // Calculate target rotation angle so pointer lands on winning sector at top (270 degrees / -PI/2)
   const targetSectorAngle = (winnerIndex + 0.5) * sliceAngle;
-  const extraRounds = (4 + Math.floor(Math.random() * 3)) * Math.PI * 2; // 4 to 6 full spins
+  const extraRounds = (4 + Math.floor(Math.random() * 3)) * Math.PI * 2;
   const targetTotalAngle = currentWheelAngle + extraRounds + (Math.PI * 1.5 - targetSectorAngle - (currentWheelAngle % (Math.PI * 2)));
 
   const startAngle = currentWheelAngle;
-  const duration = 3500; // 3.5 seconds spin animation
+  const duration = 3500;
   const startTime = performance.now();
 
   function animateSpin(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
-    // Ease-out cubic curve
     const easeOut = 1 - Math.pow(1 - progress, 3);
     currentWheelAngle = startAngle + (targetTotalAngle - startAngle) * easeOut;
 
@@ -1001,16 +1027,13 @@ function spinDrawingWheel() {
       isSpinning = false;
       if (spinBtn) { spinBtn.disabled = false; spinBtn.textContent = '🎡 SPIN WHEEL (PUTAR UNDIAN)'; }
 
-      // Record slot
       drawnSlots.push({
         matchNumber: targetSlot.matchNumber,
         teamType: targetSlot.teamType,
         teamId: winningTeam.id
       });
 
-      // Clear selected target slot so it automatically picks the next empty slot
       selectedTargetSlot = null;
-
       saveState();
       renderApp();
 
@@ -1166,6 +1189,7 @@ function renderActiveRefereeMatchPanel() {
         ${isScheduled ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px; background: linear-gradient(135deg,#16a34a,#15803d);" onclick="startMatch('${match.id}')">▶ Mulai Pertandingan</button>` : ''}
         ${isLive ? `<button class="btn-ucl-primary" style="padding: 7px 14px; font-size: 13px;" onclick="finishMatch('${match.id}')">🏁 Peluit Akhir & Majukan Pemenang</button>` : ''}
         <button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openEditScoreModal('${match.id}')">✏️ Edit Skor Manual</button>
+        <button onclick="resetSingleMatch('${match.id}')" style="padding: 7px 14px; font-size: 13px; font-weight:700; border-radius:8px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.1); color:#f87171; cursor:pointer;" title="Reset skor dan event match ini ke 0-0 Scheduled">🔄 Reset Match</button>
         ${!isScheduled ? `<button class="btn-ucl-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="openMatchSheetModal('${match.id}')">📄 Match Sheet</button>` : ''}
       </div>
     </div>
@@ -1187,10 +1211,9 @@ function renderActiveRefereeMatchPanel() {
 
     ${isScheduled ? `<div class="p-4 rounded-xl text-center" style="background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.3); margin-bottom: 16px;"><p class="text-slate-400 text-sm">⏳ Pertandingan belum dimulai. Klik <strong class="text-white">"▶ Mulai Pertandingan"</strong> atau <strong class="text-white">"✏️ Edit Skor Manual"</strong>.</p></div>` : ''}
 
-    ${isLive || isFinished ? `
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
-        <h4 class="font-bold text-cyan-400 text-sm mb-3">⚽ + Input Event Pertandingan</h4>
+        <h4 class="font-bold text-cyan-400 text-sm mb-3">⚽ + Input Event &amp; Assist Pertandingan</h4>
         <form onsubmit="addMatchEvent(event, '${match.id}')" class="space-y-3">
           <div><label class="form-label">Menit</label><input type="number" id="eventMinute" class="form-input" min="1" max="60" value="1" required></div>
           <div><label class="form-label">Tipe Event</label>
@@ -1198,6 +1221,7 @@ function renderActiveRefereeMatchPanel() {
               <option value="GOAL">⚽ Gol Biasa</option>
               <option value="PENALTY_GOAL">⚽ Gol Penalti</option>
               <option value="OWN_GOAL">⚽ Gol Bunuh Diri</option>
+              <option value="ASSIST">🎯 Assist (Umpan Gol)</option>
               <option value="YELLOW_CARD">🟨 Kartu Kuning</option>
               <option value="RED_CARD">🟥 Kartu Merah</option>
               <option value="SECOND_YELLOW_RED">🟨🟥 Kartu Kuning Kedua</option>
@@ -1209,31 +1233,44 @@ function renderActiveRefereeMatchPanel() {
               <option value="${match.awayTeamId}">${match.awayTeamName}</option>
             </select>
           </div>
-          <div><label class="form-label">Pemain (Opsional)</label>
+          <div><label class="form-label">Pencetak Gol / Pemain Utama</label>
             <select id="eventPlayerSelect" class="form-input">
-              <option value="">-- Tidak Ada / Skip --</option>
+              <option value="">-- Pilih Pemain --</option>
               ${allPlayersForMatch.map(p => `<option value="${p.id}">${p.fullName} (${p.position})${p.isSuspended ? ' [SUSPENDED]' : ''}</option>`).join('')}
+            </select>
+          </div>
+          <div><label class="form-label">Pemberi Assist (Opsional)</label>
+            <select id="eventAssistPlayerSelect" class="form-input">
+              <option value="">-- Tidak Ada / Tanpa Assist --</option>
+              ${allPlayersForMatch.map(p => `<option value="${p.id}">${p.fullName} (${p.position})</option>`).join('')}
             </select>
           </div>
           <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">💾 Simpan Event</button>
         </form>
       </div>
+
+      <!-- Timeline with Delete / Koreksi button -->
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
         <h4 class="font-bold text-white text-sm mb-3">📋 Timeline Pertandingan</h4>
-        <div class="space-y-2 max-h-72 overflow-y-auto">
+        <div class="space-y-2 max-h-80 overflow-y-auto">
           ${(match.events || []).length === 0
             ? '<p class="text-xs text-slate-400 py-6 text-center">Belum ada kejadian.</p>'
             : (match.events || []).slice().sort((a,b) => (a.minute||0)-(b.minute||0)).map(e => `
-              <div class="p-2 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(51,65,85,0.5);">
-                <span class="font-mono font-bold" style="color:#22d3ee; min-width:30px;">${e.minute}'</span>
-                <span class="font-bold text-white flex-1 mx-2">${e.eventType === 'GOAL' ? '⚽' : e.eventType === 'PENALTY_GOAL' ? '⚽P' : e.eventType === 'OWN_GOAL' ? '⚽OG' : e.eventType === 'YELLOW_CARD' ? '🟨' : e.eventType === 'RED_CARD' ? '🟥' : '🟨🟥'} ${e.playerFullName || '-'}</span>
-                <span class="text-slate-400">${e.teamId === match.homeTeamId ? match.homeTeamName.split(' ')[0] : match.awayTeamName.split(' ')[0]}</span>
+              <div class="p-2.5 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(51,65,85,0.5);">
+                <div class="flex items-center gap-2 flex-1">
+                  <span class="font-mono font-bold text-cyan-400" style="min-width:30px;">${e.minute}'</span>
+                  <span class="font-bold text-white">${e.eventType === 'GOAL' ? '⚽ GOL' : e.eventType === 'PENALTY_GOAL' ? '⚽ GOL PENALTI' : e.eventType === 'OWN_GOAL' ? '⚽ GOL BUNUH DIRI' : e.eventType === 'ASSIST' ? '🎯 ASSIST' : e.eventType === 'YELLOW_CARD' ? '🟨 KUNING' : e.eventType === 'RED_CARD' ? '🟥 MERAH' : '🟨🟥 MERAH'} ${e.playerFullName || '-'}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-400">${e.teamId === match.homeTeamId ? match.homeTeamName.split(' ')[0] : match.awayTeamName.split(' ')[0]}</span>
+                  <button onclick="deleteMatchEvent('${match.id}', '${e.id}')" class="text-rose-400 font-bold hover:underline ml-1" title="Hapus / Koreksi Event ini">🗑️ Hapus</button>
+                </div>
               </div>
             `).join('')
           }
         </div>
       </div>
-    </div>` : ''}
+    </div>
   `;
 }
 
@@ -1247,6 +1284,22 @@ function startMatch(matchId) {
   renderApp();
 }
 
+function resetSingleMatch(matchId) {
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+
+  if (confirm(`🔄 Reset pertandingan Match #${match.matchNumber} (${match.homeTeamName} vs ${match.awayTeamName})?\nSeluruh skor dan event akan dikembalikan ke 0-0.`)) {
+    match.homeScore = 0;
+    match.awayScore = 0;
+    match.status = 'SCHEDULED';
+    match.events = [];
+    match.cards = [];
+    saveState();
+    renderApp();
+    alert(`Match #${match.matchNumber} berhasil di-reset.`);
+  }
+}
+
 function addMatchEvent(e, matchId) {
   e.preventDefault();
   const match = matches.find(m => m.id === matchId);
@@ -1255,12 +1308,33 @@ function addMatchEvent(e, matchId) {
   const minute = parseInt(document.getElementById('eventMinute').value);
   const eventType = document.getElementById('eventTypeSelect').value;
   const teamId = document.getElementById('eventTeamSelect').value;
-  const playerId = document.getElementById('eventPlayerSelect').value || null;
+  
+  const playerSelect = document.getElementById('eventPlayerSelect');
+  const playerId = playerSelect ? playerSelect.value : null;
   const playerObj = playerId ? players.find(p => p.id === playerId) : null;
   const playerFullName = playerObj ? playerObj.fullName : 'Pemain tidak terdaftar';
 
+  const assistSelect = document.getElementById('eventAssistPlayerSelect');
+  const assistPlayerId = assistSelect ? assistSelect.value : null;
+  const assistPlayerObj = assistPlayerId ? players.find(p => p.id === assistPlayerId) : null;
+
   if (!match.events) match.events = [];
-  match.events.push({ id: 'ev-' + Date.now(), minute, eventType, teamId, playerId, playerFullName });
+
+  const goalEvId = 'ev-' + Date.now();
+  match.events.push({ id: goalEvId, minute, eventType, teamId, playerId, playerFullName });
+
+  // If assist is selected, record an ASSIST event
+  if (assistPlayerObj && (eventType === 'GOAL' || eventType === 'PENALTY_GOAL')) {
+    match.events.push({
+      id: 'ev-ast-' + Date.now(),
+      goalId: goalEvId,
+      minute,
+      eventType: 'ASSIST',
+      teamId,
+      playerId: assistPlayerId,
+      playerFullName: assistPlayerObj.fullName
+    });
+  }
 
   if (eventType === 'GOAL' || eventType === 'PENALTY_GOAL') {
     if (teamId === match.homeTeamId) match.homeScore += 1;
@@ -1276,6 +1350,39 @@ function addMatchEvent(e, matchId) {
   if (match.status === 'SCHEDULED') match.status = 'LIVE';
   saveState();
   renderApp();
+}
+
+function deleteMatchEvent(matchId, eventId) {
+  const match = matches.find(m => m.id === matchId);
+  if (!match || !match.events) return;
+
+  const ev = match.events.find(e => e.id === eventId);
+  if (!ev) return;
+
+  if (confirm(`Hapus/koreksi event: "${ev.eventType} - ${ev.playerFullName}"?`)) {
+    // Revert score if it was a goal
+    if (ev.eventType === 'GOAL' || ev.eventType === 'PENALTY_GOAL') {
+      if (ev.teamId === match.homeTeamId && match.homeScore > 0) match.homeScore -= 1;
+      else if (ev.teamId === match.awayTeamId && match.awayScore > 0) match.awayScore -= 1;
+
+      // Also remove associated assist event if any
+      match.events = match.events.filter(e => e.goalId !== eventId);
+    } else if (ev.eventType === 'OWN_GOAL') {
+      if (ev.teamId === match.homeTeamId && match.awayScore > 0) match.awayScore -= 1;
+      else if (ev.teamId === match.awayTeamId && match.homeScore > 0) match.homeScore -= 1;
+    }
+
+    // Remove event
+    match.events = match.events.filter(e => e.id !== eventId);
+
+    // Remove card if applicable
+    if (match.cards) {
+      match.cards = match.cards.filter(c => c.minute !== ev.minute || c.playerId !== ev.playerId);
+    }
+
+    saveState();
+    renderApp();
+  }
 }
 
 function finishMatch(matchId) {
