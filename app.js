@@ -95,6 +95,14 @@ window.openEditNavbarModal = openEditNavbarModal;
 window.openPublicMatchDetailModal = openPublicMatchDetailModal;
 window.switchMatchDetailModalTab = switchMatchDetailModalTab;
 
+// Team CRUD Bindings
+window.openRegisterTeamModal = openRegisterTeamModal;
+window.handleRegisterTeamSubmitDirect = handleRegisterTeamSubmitDirect;
+window.openEditTeamModal = openEditTeamModal;
+window.handleEditTeamSubmitDirect = handleEditTeamSubmitDirect;
+window.openUploadSuratTugasModal = openUploadSuratTugasModal;
+window.handleUploadSuratTugasSubmitDirect = handleUploadSuratTugasSubmitDirect;
+
 // Player & Official CRUD Bindings
 window.openAddPlayerModal = openAddPlayerModal;
 window.handleAddPlayerSubmitDirect = handleAddPlayerSubmitDirect;
@@ -2642,48 +2650,69 @@ function advanceWinner(match) {
     }
   }
 }
+}
 
 function openEditScoreModal(matchId) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
+
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Skor Manual</h3>
-    <p class="text-sm text-slate-400 mb-5">Match #${match.matchNumber}: <strong class="text-cyan-300">${match.homeTeamName}</strong> vs <strong class="text-cyan-300">${match.awayTeamName}</strong></p>
-    <form onsubmit="handleEditScoreSubmit(event, '${matchId}')" class="space-y-5">
-      <div class="grid grid-cols-2 gap-4">
-        <div><label class="form-label">Skor ${match.homeTeamName}</label><input type="number" id="editHomeScore" class="form-input" min="0" max="99" value="${match.homeScore}" required></div>
-        <div><label class="form-label">Skor ${match.awayTeamName}</label><input type="number" id="editAwayScore" class="form-input" min="0" max="99" value="${match.awayScore}" required></div>
+    <div class="p-1">
+      <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Skor Manual</h3>
+      <p class="text-sm text-slate-400 mb-5">Match #${match.matchNumber}: <strong class="text-cyan-300">${match.homeTeamName}</strong> vs <strong class="text-cyan-300">${match.awayTeamName}</strong></p>
+      
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="form-label">Skor ${match.homeTeamName}</label><input type="number" id="editHomeScore" class="form-input" min="0" max="99" value="${match.homeScore}"></div>
+          <div><label class="form-label">Skor ${match.awayTeamName}</label><input type="number" id="editAwayScore" class="form-input" min="0" max="99" value="${match.awayScore}"></div>
+        </div>
+        <div><label class="form-label">Status Pertandingan</label>
+          <select id="editMatchStatus" class="form-input">
+            <option value="SCHEDULED" ${match.status === 'SCHEDULED' ? 'selected' : ''}>⏳ BELUM MULAI</option>
+            <option value="LIVE" ${match.status === 'LIVE' ? 'selected' : ''}>🔴 LIVE</option>
+            <option value="FINISHED" ${match.status === 'FINISHED' ? 'selected' : ''}>✅ SELESAI</option>
+          </select>
+        </div>
+        <div class="p-3 rounded-lg" style="background: rgba(34,211,238,0.05); border: 1px solid rgba(34,211,238,0.2);"><p class="text-xs text-slate-300">💡 Status SELESAI = pemenang otomatis dimajukan ke babak berikutnya.</p></div>
+        
+        <div class="flex gap-3 pt-2">
+          <button id="submitEditScoreBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            💾 Simpan Skor
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        </div>
       </div>
-      <div><label class="form-label">Status</label>
-        <select id="editMatchStatus" class="form-input">
-          <option value="SCHEDULED" ${match.status === 'SCHEDULED' ? 'selected' : ''}>⏳ BELUM MULAI</option>
-          <option value="LIVE" ${match.status === 'LIVE' ? 'selected' : ''}>🔴 LIVE</option>
-          <option value="FINISHED" ${match.status === 'FINISHED' ? 'selected' : ''}>✅ SELESAI</option>
-        </select>
-      </div>
-      <div class="p-3 rounded-lg" style="background: rgba(34,211,238,0.05); border: 1px solid rgba(34,211,238,0.2);"><p class="text-xs text-slate-300">💡 Status SELESAI = pemenang otomatis dimajukan ke babak berikutnya.</p></div>
-      <div class="flex gap-3">
-        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan</button>
-        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
-      </div>
-    </form>
+    </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitEditScoreBtn');
+    if (btn) btn.onclick = () => handleEditScoreSubmitDirect(matchId);
+  }, 10);
 }
 
-window.handleEditScoreSubmit = function(e, matchId) {
-  e.preventDefault();
+function handleEditScoreSubmitDirect(matchId) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
-  match.homeScore = parseInt(document.getElementById('editHomeScore').value) || 0;
-  match.awayScore = parseInt(document.getElementById('editAwayScore').value) || 0;
+
+  const homeScoreEl = document.getElementById('editHomeScore');
+  const awayScoreEl = document.getElementById('editAwayScore');
+  const statusEl = document.getElementById('editMatchStatus');
+
+  match.homeScore = parseInt(homeScoreEl ? homeScoreEl.value : 0) || 0;
+  match.awayScore = parseInt(awayScoreEl ? awayScoreEl.value : 0) || 0;
+
   const wasFinished = match.status === 'FINISHED';
-  match.status = document.getElementById('editMatchStatus').value;
+  match.status = statusEl ? statusEl.value : match.status;
+
   if (match.status === 'FINISHED' && !wasFinished) advanceWinner(match);
+
   closeModal();
   saveState();
   renderApp();
   alert(`✅ Skor diperbarui: ${match.homeTeamName} ${match.homeScore} - ${match.awayScore} ${match.awayTeamName} [${match.status}]`);
-};
+}
+window.handleEditScoreSubmitDirect = handleEditScoreSubmitDirect;
 
 // ========== ADMIN ACTIONS ==========
 function approveTeam(teamId) {
@@ -2784,38 +2813,46 @@ function openUploadSuratTugasModal(teamId) {
   if (!team) return;
 
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-1">📄 Upload Surat Tugas Dekanat / Unit</h3>
-    <p class="text-sm text-slate-400 mb-5">Tim: <strong class="text-cyan-300">${team.name}</strong></p>
-    
-    <form onsubmit="handleUploadSuratTugasSubmit(event, '${teamId}')" class="space-y-4">
-      <div>
-        <label class="form-label">Pilih File Surat Tugas (PDF / Gambar)</label>
-        <input type="file" id="suratTugasFileInput" accept=".pdf,.png,.jpg,.jpeg" class="form-input" style="padding: 8px;">
-      </div>
-      <div>
-        <label class="form-label">Atau Nama Dokumen / Nomor Surat</label>
-        <input type="text" id="suratTugasNameInput" class="form-input" value="${team.suratTugasName || ''}" placeholder="Surat_Tugas_Dekan_FKIP_2026.pdf" required>
-      </div>
+    <div class="p-1">
+      <h3 class="text-xl font-bold text-white mb-1">📄 Upload Surat Tugas Dekanat / Unit</h3>
+      <p class="text-sm text-slate-400 mb-5">Tim: <strong class="text-cyan-300">${team.name}</strong></p>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="form-label">Pilih File Surat Tugas (PDF / Gambar)</label>
+          <input type="file" id="suratTugasFileInput" accept=".pdf,.png,.jpg,.jpeg" class="form-input" style="padding: 8px;">
+        </div>
+        <div>
+          <label class="form-label">Atau Nama Dokumen / Nomor Surat</label>
+          <input type="text" id="suratTugasNameInput" class="form-input" value="${team.suratTugasName || ''}" placeholder="Surat_Tugas_Dekan_FKIP_2026.pdf">
+        </div>
 
-      <div class="p-3 rounded-lg" style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2);">
-        <p class="text-xs text-amber-300">💡 Surat Tugas wajib diunggah sebagai verifikasi keikutsertaan tim resmi UMS.</p>
-      </div>
+        <div class="p-3 rounded-lg" style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2);">
+          <p class="text-xs text-amber-300">💡 Surat Tugas wajib diunggah sebagai verifikasi keikutsertaan tim resmi UMS.</p>
+        </div>
 
-      <div class="flex gap-3">
-        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Surat Tugas</button>
-        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        <div class="flex gap-3 pt-2">
+          <button id="submitSuratTugasBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            💾 Simpan Surat Tugas
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        </div>
       </div>
-    </form>
+    </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitSuratTugasBtn');
+    if (btn) btn.onclick = () => handleUploadSuratTugasSubmitDirect(teamId);
+  }, 10);
 }
 
-window.handleUploadSuratTugasSubmit = function(e, teamId) {
-  e.preventDefault();
+function handleUploadSuratTugasSubmitDirect(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
 
   const fileInput = document.getElementById('suratTugasFileInput');
-  const nameInput = document.getElementById('suratTugasNameInput').value.trim();
+  const nameInput = document.getElementById('suratTugasNameInput')?.value?.trim();
 
   let fileName = nameInput;
   if (fileInput && fileInput.files.length > 0) {
@@ -2823,7 +2860,7 @@ window.handleUploadSuratTugasSubmit = function(e, teamId) {
   }
 
   if (!fileName) {
-    alert('Harap masukkan nama berkas Surat Tugas.');
+    alert('⚠️ Harap masukkan nama berkas atau pilih file Surat Tugas.');
     return;
   }
 
@@ -2832,7 +2869,8 @@ window.handleUploadSuratTugasSubmit = function(e, teamId) {
   closeModal();
   renderApp();
   alert(`✅ Surat Tugas untuk "${team.name}" berhasil disimpan: ${fileName}`);
-};
+}
+window.handleUploadSuratTugasSubmitDirect = handleUploadSuratTugasSubmitDirect;
 
 // ========== MODALS ==========
 function closeModal() {
@@ -2848,68 +2886,171 @@ function openModal(htmlContent) {
 
 function openRegisterTeamModal() {
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-4">Form Pendaftaran Tim Baru</h3>
-    <form onsubmit="handleRegisterTeamSubmit(event)" class="space-y-4">
-      <div><label class="form-label">Nama Tim</label><input type="text" id="regTeamName" class="form-input" placeholder="Contoh: Farmasi United FC" required></div>
-      <div><label class="form-label">Fakultas / Unit UMS</label><input type="text" id="regFacultyUnit" class="form-input" placeholder="Contoh: Fakultas Farmasi UMS" required></div>
-      <div><label class="form-label">Nama Manager Tim</label><input type="text" id="regManagerName" class="form-input" placeholder="Nama Lengkap Manager" required></div>
-      <div><label class="form-label">No WhatsApp Manager</label><input type="text" id="regManagerPhone" class="form-input" placeholder="0812xxxxxxxx" required></div>
-      <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">Kirim Pendaftaran Tim</button>
-    </form>
+    <div class="p-1">
+      <h3 class="text-xl font-bold text-white mb-3">Form Pendaftaran Tim Baru</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="form-label">Nama Tim <span class="text-rose-400">*</span></label>
+          <input type="text" id="regTeamName" class="form-input" placeholder="Contoh: Farmasi United FC">
+        </div>
+        <div>
+          <label class="form-label">Fakultas / Unit UMS <span class="text-rose-400">*</span></label>
+          <input type="text" id="regFacultyUnit" class="form-input" placeholder="Contoh: Fakultas Farmasi UMS">
+        </div>
+        <div>
+          <label class="form-label">Nama Manager Tim <span class="text-rose-400">*</span></label>
+          <input type="text" id="regManagerName" class="form-input" placeholder="Nama Lengkap Manager">
+        </div>
+        <div>
+          <label class="form-label">No WhatsApp Manager</label>
+          <input type="text" id="regManagerPhone" class="form-input" placeholder="0812xxxxxxxx">
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button id="submitRegisterTeamBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            🚀 Kirim Pendaftaran Tim
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        </div>
+      </div>
+    </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitRegisterTeamBtn');
+    if (btn) btn.onclick = () => handleRegisterTeamSubmitDirect();
+  }, 10);
 }
 
-window.handleRegisterTeamSubmit = function(e) {
-  e.preventDefault();
-  const name = document.getElementById('regTeamName').value;
-  const facultyUnit = document.getElementById('regFacultyUnit').value;
-  const managerName = document.getElementById('regManagerName').value;
-  const managerPhone = document.getElementById('regManagerPhone').value;
-  teams.push({
+function handleRegisterTeamSubmitDirect() {
+  const nameEl = document.getElementById('regTeamName');
+  const facultyEl = document.getElementById('regFacultyUnit');
+  const managerEl = document.getElementById('regManagerName');
+  const phoneEl = document.getElementById('regManagerPhone');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const facultyUnit = facultyEl ? facultyEl.value.trim() : '';
+  const managerName = managerEl ? managerEl.value.trim() : '';
+  const managerPhone = phoneEl ? phoneEl.value.trim() : '';
+
+  if (!name || !facultyUnit || !managerName) {
+    alert('⚠️ Mohon lengkapi Nama Tim, Fakultas/Unit, dan Nama Manager.');
+    return;
+  }
+
+  const newTeam = {
     id: 'team-' + Date.now(),
-    name, facultyUnit,
+    name,
+    facultyUnit,
     logoUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`,
-    managerId: 'mgr-' + Date.now(), managerName, managerPhone,
+    managerId: 'mgr-' + Date.now(),
+    managerName,
+    managerPhone,
     status: 'APPROVED',
     suratTugasName: null
-  });
+  };
+
+  teams.push(newTeam);
   saveState();
   closeModal();
   renderApp();
-};
+  alert(`✅ Tim "${name}" berhasil didaftarkan!`);
+}
+window.handleRegisterTeamSubmitDirect = handleRegisterTeamSubmitDirect;
 
 function openEditTeamModal(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
+
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Info Tim</h3>
-    <p class="text-sm text-slate-400 mb-5">Perbarui informasi tim <strong class="text-cyan-300">${team.name}</strong></p>
-    <form onsubmit="handleEditTeamSubmit(event, '${teamId}')" class="space-y-4">
-      <div><label class="form-label">Nama Tim <span class="text-rose-400">*</span></label><input type="text" id="editTeamName" class="form-input" value="${team.name}" required></div>
-      <div><label class="form-label">Fakultas / Unit <span class="text-rose-400">*</span></label><input type="text" id="editTeamFaculty" class="form-input" value="${team.facultyUnit}" required></div>
-      <div><label class="form-label">Nama Manager <span class="text-rose-400">*</span></label><input type="text" id="editTeamManager" class="form-input" value="${team.managerName}" required></div>
-      <div><label class="form-label">No WhatsApp</label><input type="text" id="editTeamPhone" class="form-input" value="${team.managerPhone || ''}"></div>
-      <div class="flex gap-3"><button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan</button><button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button></div>
-    </form>
+    <div class="p-1">
+      <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Info Tim</h3>
+      <p class="text-sm text-slate-400 mb-5">Perbarui informasi tim <strong class="text-cyan-300">${team.name}</strong></p>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="form-label">Nama Tim <span class="text-rose-400">*</span></label>
+          <input type="text" id="editTeamName" class="form-input" value="${team.name}">
+        </div>
+        <div>
+          <label class="form-label">Fakultas / Unit <span class="text-rose-400">*</span></label>
+          <input type="text" id="editTeamFaculty" class="form-input" value="${team.facultyUnit}">
+        </div>
+        <div>
+          <label class="form-label">Nama Manager <span class="text-rose-400">*</span></label>
+          <input type="text" id="editTeamManager" class="form-input" value="${team.managerName}">
+        </div>
+        <div>
+          <label class="form-label">No WhatsApp</label>
+          <input type="text" id="editTeamPhone" class="form-input" value="${team.managerPhone || ''}">
+        </div>
+        
+        <div class="flex gap-3 pt-2">
+          <button id="submitEditTeamBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            💾 Simpan Info Tim
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        </div>
+      </div>
+    </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitEditTeamBtn');
+    if (btn) btn.onclick = () => handleEditTeamSubmitDirect(teamId);
+  }, 10);
 }
 
-window.handleEditTeamSubmit = function(e, teamId) {
-  e.preventDefault();
+function handleEditTeamSubmitDirect(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
+
+  const nameEl = document.getElementById('editTeamName');
+  const facultyEl = document.getElementById('editTeamFaculty');
+  const managerEl = document.getElementById('editTeamManager');
+  const phoneEl = document.getElementById('editTeamPhone');
+
+  const newName = nameEl ? nameEl.value.trim() : '';
+  const newFaculty = facultyEl ? facultyEl.value.trim() : '';
+  const newManager = managerEl ? managerEl.value.trim() : '';
+  const newPhone = phoneEl ? phoneEl.value.trim() : '';
+
+  if (!newName) {
+    alert('⚠️ Mohon isi Nama Tim.');
+    if (nameEl) nameEl.focus();
+    return;
+  }
+
+  if (!newFaculty) {
+    alert('⚠️ Mohon isi Fakultas / Unit.');
+    if (facultyEl) facultyEl.focus();
+    return;
+  }
+
+  if (!newManager) {
+    alert('⚠️ Mohon isi Nama Manager.');
+    if (managerEl) managerEl.focus();
+    return;
+  }
+
   const oldName = team.name;
-  team.name = document.getElementById('editTeamName').value.trim();
-  team.facultyUnit = document.getElementById('editTeamFaculty').value.trim();
-  team.managerName = document.getElementById('editTeamManager').value.trim();
-  team.managerPhone = document.getElementById('editTeamPhone').value.trim() || team.managerPhone;
+  team.name = newName;
+  team.facultyUnit = newFaculty;
+  team.managerName = newManager;
+  team.managerPhone = newPhone || team.managerPhone;
+
   matches.forEach(m => {
     if (m.homeTeamId === teamId) { m.homeTeamName = team.name; m.homeTeamLogo = team.logoUrl; }
     if (m.awayTeamId === teamId) { m.awayTeamName = team.name; m.awayTeamLogo = team.logoUrl; }
   });
-  closeModal(); saveState(); renderApp();
-  alert(`✅ Tim diperbarui: "${oldName}" → "${team.name}"`);
-};
+
+  saveState();
+  closeModal();
+  renderApp();
+  alert(`✅ Info Tim "${oldName}" berhasil diperbarui menjadi "${team.name}"!`);
+}
+window.handleEditTeamSubmitDirect = handleEditTeamSubmitDirect;
 
 function openAddPlayerModal(teamId) {
   const team = teams.find(t => t.id === teamId);
