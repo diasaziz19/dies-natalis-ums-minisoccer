@@ -3020,31 +3020,27 @@ function hardResetAndReload() {
 
 // ========== SURAT TUGAS MODAL ==========
 function openUploadSuratTugasModal(teamId) {
-  const team = teams.find(t => t.id === teamId);
+  const team = teams.find(t => String(t.id) === String(teamId));
   if (!team) return;
 
   openModal(`
     <div class="p-1">
-      <h3 class="text-xl font-bold text-white mb-1">📄 Upload Surat Tugas Dekanat / Unit</h3>
+      <h3 class="text-xl font-bold text-white mb-1">📄 Upload File Surat Tugas Dekanat / Unit</h3>
       <p class="text-sm text-slate-400 mb-5">Tim: <strong class="text-cyan-300">${team.name}</strong></p>
       
       <div class="space-y-4">
         <div>
-          <label class="form-label">Pilih File Surat Tugas (PDF / Gambar)</label>
+          <label class="form-label">Pilih Berkas Surat Tugas (PDF / Gambar) <span class="text-rose-400">*</span></label>
           <input type="file" id="suratTugasFileInput" accept=".pdf,.png,.jpg,.jpeg" class="form-input" style="padding: 8px;">
-        </div>
-        <div>
-          <label class="form-label">Atau Nama Dokumen / Nomor Surat</label>
-          <input type="text" id="suratTugasNameInput" class="form-input" value="${team.suratTugasName || ''}" placeholder="Surat_Tugas_Dekan_FKIP_2026.pdf">
         </div>
 
         <div class="p-3 rounded-lg" style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2);">
-          <p class="text-xs text-amber-300">💡 Surat Tugas wajib diunggah sebagai verifikasi keikutsertaan tim resmi UMS.</p>
+          <p class="text-xs text-amber-300">💡 Surat Tugas resmi wajib diunggah sebagai bukti verifikasi keikutsertaan turnamen.</p>
         </div>
 
         <div class="flex gap-3 pt-2">
           <button id="submitSuratTugasBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
-            💾 Simpan Surat Tugas
+            📤 Unggah Berkas Surat Tugas
           </button>
           <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
         </div>
@@ -3054,32 +3050,26 @@ function openUploadSuratTugasModal(teamId) {
 
   setTimeout(() => {
     const btn = document.getElementById('submitSuratTugasBtn');
-    if (btn) btn.onclick = () => handleUploadSuratTugasSubmitDirect(teamId);
+    if (btn) btn.onclick = () => handleUploadSuratTugasSubmitDirect(team.id);
   }, 10);
 }
 
 function handleUploadSuratTugasSubmitDirect(teamId) {
-  const team = teams.find(t => t.id === teamId);
+  const team = teams.find(t => String(t.id) === String(teamId));
   if (!team) return;
 
   const fileInput = document.getElementById('suratTugasFileInput');
-  const nameInput = document.getElementById('suratTugasNameInput')?.value?.trim();
-
-  let fileName = nameInput;
-  if (fileInput && fileInput.files.length > 0) {
-    fileName = fileInput.files[0].name;
-  }
-
-  if (!fileName) {
-    alert('⚠️ Harap masukkan nama berkas atau pilih file Surat Tugas.');
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+    alert('⚠️ Harap pilih file Surat Tugas terlebih dahulu (format .PDF, .JPG, atau .PNG)!');
     return;
   }
 
+  const fileName = fileInput.files[0].name;
   team.suratTugasName = fileName;
   saveState();
   closeModal();
   renderApp();
-  alert(`✅ Surat Tugas untuk "${team.name}" berhasil disimpan: ${fileName}`);
+  alert(`✅ Berkas Surat Tugas "${fileName}" untuk tim "${team.name}" berhasil diunggah!`);
 }
 window.handleUploadSuratTugasSubmitDirect = handleUploadSuratTugasSubmitDirect;
 
