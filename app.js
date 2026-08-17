@@ -1093,6 +1093,105 @@ function renderVisitorMatches() {
 }
 
 // ========== PUBLIC MATCH DETAIL & LINE-UP MODAL ==========
+function buildTacticalPitchHTML(homeTeam, awayTeam, homePlayers, awayPlayers) {
+  const categorizeSquad = (playersList) => {
+    const gk = playersList.filter(p => p.position === 'GOALKEEPER');
+    const df = playersList.filter(p => p.position === 'DEFENDER');
+    const mf = playersList.filter(p => p.position === 'MIDFIELDER');
+    const fw = playersList.filter(p => p.position === 'FORWARD');
+    return { gk, df, mf, fw };
+  };
+
+  const homeCat = categorizeSquad(homePlayers);
+  const awayCat = categorizeSquad(awayPlayers);
+
+  const renderPitchNode = (p, teamType) => {
+    const isHome = teamType === 'home';
+    const borderCol = isHome ? '#00f0ff' : '#ffd700';
+    const bgBadge = isHome ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40' : 'bg-amber-500/20 text-amber-300 border-amber-400/40';
+    const posShort = p.position === 'GOALKEEPER' ? 'GK' : p.position === 'DEFENDER' ? 'DF' : p.position === 'MIDFIELDER' ? 'MF' : 'FW';
+    
+    return `
+      <div class="flex flex-col items-center text-center group cursor-pointer my-1" style="min-width: 60px;">
+        <div class="relative">
+          <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#000;border:2px solid ${borderCol};box-shadow:0 0 10px ${borderCol}aa;">
+          <span class="absolute -bottom-1 -right-1 text-[9px] font-extrabold px-1 rounded border ${bgBadge}">${posShort}</span>
+        </div>
+        <span class="text-[10px] font-bold text-white mt-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700/60 max-w-[90px] truncate" title="${p.fullName}">${p.fullName.split(' ')[0]}</span>
+      </div>
+    `;
+  };
+
+  return `
+    <div class="tactical-pitch p-4 rounded-2xl relative overflow-hidden mb-4" style="background: linear-gradient(180deg, #094721 0%, #063518 50%, #094721 100%); border: 3px solid #10b981; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);">
+      <!-- Field Lines Overlay -->
+      <div class="absolute inset-0 pointer-events-none" style="border: 2px solid rgba(255,255,255,0.3); margin: 8px;"></div>
+      <!-- Center Line & Circle -->
+      <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t-2 border-white/30 flex items-center justify-center pointer-events-none">
+        <div class="w-24 h-24 rounded-full border-2 border-white/30 -mt-12 flex items-center justify-center">
+          <span class="text-[10px] font-bold text-emerald-200/50 uppercase tracking-widest">7v7 PITCH</span>
+        </div>
+      </div>
+      <!-- Top Goal Box (Home) -->
+      <div class="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-12 border-b-2 border-x-2 border-white/30 pointer-events-none"></div>
+      <!-- Bottom Goal Box (Away) -->
+      <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-12 border-t-2 border-x-2 border-white/30 pointer-events-none"></div>
+
+      <div class="relative z-10 space-y-4 py-2">
+        <!-- HOME TEAM HALF (Top Side) -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 justify-center">
+            <img src="${homeTeam?.logoUrl || ''}" style="width:18px;height:18px;border-radius:50%;background:#000;">
+            <span class="text-xs font-bold text-cyan-300">${homeTeam?.name || 'Tim Home'} (Formasi Lapangan 7v7)</span>
+          </div>
+
+          <!-- GK Zone -->
+          <div class="flex justify-center mb-2">
+            ${homeCat.gk.length > 0 ? homeCat.gk.map(p => renderPitchNode(p, 'home')).join('') : '<span class="text-[10px] text-emerald-300/60 font-semibold italic">Kiper (GK)</span>'}
+          </div>
+          <!-- DF Zone -->
+          <div class="flex justify-around mb-2 px-4 flex-wrap gap-1">
+            ${homeCat.df.length > 0 ? homeCat.df.map(p => renderPitchNode(p, 'home')).join('') : '<span class="text-[10px] text-emerald-300/60 font-semibold italic">Bertahan (DF)</span>'}
+          </div>
+          <!-- MF Zone -->
+          <div class="flex justify-around mb-2 px-6 flex-wrap gap-1">
+            ${homeCat.mf.length > 0 ? homeCat.mf.map(p => renderPitchNode(p, 'home')).join('') : '<span class="text-[10px] text-emerald-300/60 font-semibold italic">Gelandang (MF)</span>'}
+          </div>
+          <!-- FW Zone -->
+          <div class="flex justify-center mb-4 flex-wrap gap-1">
+            ${homeCat.fw.length > 0 ? homeCat.fw.map(p => renderPitchNode(p, 'home')).join('') : '<span class="text-[10px] text-emerald-300/60 font-semibold italic">Penyerang (FW)</span>'}
+          </div>
+        </div>
+
+        <!-- AWAY TEAM HALF (Bottom Side) -->
+        <div class="pt-4 border-t border-dashed border-white/20">
+          <!-- FW Zone -->
+          <div class="flex justify-center mb-2 flex-wrap gap-1">
+            ${awayCat.fw.length > 0 ? awayCat.fw.map(p => renderPitchNode(p, 'away')).join('') : '<span class="text-[10px] text-amber-300/60 font-semibold italic">Penyerang (FW)</span>'}
+          </div>
+          <!-- MF Zone -->
+          <div class="flex justify-around mb-2 px-6 flex-wrap gap-1">
+            ${awayCat.mf.length > 0 ? awayCat.mf.map(p => renderPitchNode(p, 'away')).join('') : '<span class="text-[10px] text-amber-300/60 font-semibold italic">Gelandang (MF)</span>'}
+          </div>
+          <!-- DF Zone -->
+          <div class="flex justify-around mb-2 px-4 flex-wrap gap-1">
+            ${awayCat.df.length > 0 ? awayCat.df.map(p => renderPitchNode(p, 'away')).join('') : '<span class="text-[10px] text-amber-300/60 font-semibold italic">Bertahan (DF)</span>'}
+          </div>
+          <!-- GK Zone -->
+          <div class="flex justify-center mb-3">
+            ${awayCat.gk.length > 0 ? awayCat.gk.map(p => renderPitchNode(p, 'away')).join('') : '<span class="text-[10px] text-amber-300/60 font-semibold italic">Kiper (GK)</span>'}
+          </div>
+
+          <div class="flex items-center gap-2 justify-center">
+            <img src="${awayTeam?.logoUrl || ''}" style="width:18px;height:18px;border-radius:50%;background:#000;">
+            <span class="text-xs font-bold text-amber-300">${awayTeam?.name || 'Tim Away'} (Formasi Lapangan 7v7)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function openPublicMatchDetailModal(matchId) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
@@ -1151,13 +1250,15 @@ function openPublicMatchDetailModal(matchId) {
     `;
   };
 
+  const pitchHTML = buildTacticalPitchHTML(homeTeam, awayTeam, homePlayers, awayPlayers);
+
   openModal(`
     <div class="p-1">
       <!-- Header Info -->
       <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-800 flex-wrap gap-2">
         <div>
           <span class="badge-cyan text-xs">Match #${match.matchNumber} | ${match.stage.replace(/_/g, ' ')}</span>
-          <h2 class="text-lg font-bold text-white mt-1">Detail Pertandingan &amp; Line-Up Skuad</h2>
+          <h2 class="text-lg font-bold text-white mt-1">Detail Pertandingan &amp; Visual Formasi</h2>
         </div>
         <span style="font-size:11px; font-weight:700; color:${statusColor}; background:${statusColor}22; padding:3px 10px; border-radius:999px; border:1px solid ${statusColor}55;">${statusLabel}</span>
       </div>
@@ -1189,13 +1290,19 @@ function openPublicMatchDetailModal(matchId) {
       </div>
 
       <!-- Detail Tab Controls -->
-      <div class="flex border-b border-slate-800 mb-4 gap-2">
-        <button id="modalTabBtn-lineup" class="tab-btn active text-xs py-1.5" onclick="switchMatchDetailModalTab('lineup')">👕 Line-Up Skuad (${homePlayers.length} vs ${awayPlayers.length})</button>
+      <div class="flex border-b border-slate-800 mb-4 gap-2 flex-wrap">
+        <button id="modalTabBtn-pitch" class="tab-btn active text-xs py-1.5" onclick="switchMatchDetailModalTab('pitch')">🏟️ Formasi Lapangan 7v7</button>
+        <button id="modalTabBtn-lineup" class="tab-btn text-xs py-1.5" onclick="switchMatchDetailModalTab('lineup')">👕 Daftar Roster Skuad (${homePlayers.length} vs ${awayPlayers.length})</button>
         <button id="modalTabBtn-events" class="tab-btn text-xs py-1.5" onclick="switchMatchDetailModalTab('events')">📋 Event &amp; Timeline (${(match.events || []).length})</button>
       </div>
 
-      <!-- Tab 1: Line-Up Skuad -->
-      <div id="modalTabContent-lineup" class="space-y-4">
+      <!-- Tab 1: Tactical Pitch 7v7 -->
+      <div id="modalTabContent-pitch">
+        ${pitchHTML}
+      </div>
+
+      <!-- Tab 2: Line-Up Skuad Roster -->
+      <div id="modalTabContent-lineup" class="hidden space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Home Team Roster -->
           <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
@@ -1235,7 +1342,7 @@ function openPublicMatchDetailModal(matchId) {
         </div>
       </div>
 
-      <!-- Tab 2: Event Timeline -->
+      <!-- Tab 3: Event Timeline -->
       <div id="modalTabContent-events" class="hidden">
         <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
           <h4 class="font-bold text-white text-xs mb-3">Timeline Kejadian Pertandingan</h4>
@@ -1264,7 +1371,7 @@ function openPublicMatchDetailModal(matchId) {
 }
 
 window.switchMatchDetailModalTab = function(tab) {
-  ['lineup', 'events'].forEach(t => {
+  ['pitch', 'lineup', 'events'].forEach(t => {
     const btn = document.getElementById(`modalTabBtn-${t}`);
     const content = document.getElementById(`modalTabContent-${t}`);
     if (btn) btn.classList.toggle('active', t === tab);

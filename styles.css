@@ -564,3 +564,16 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--ucl-cyan);
   border-bottom-color: var(--ucl-cyan);
 }
+
+/* 7v7 Tactical Pitch Visualizer */
+.tactical-pitch {
+  background: repeating-linear-gradient(
+    0deg,
+    #094721,
+    #094721 40px,
+    #06381a 40px,
+    #06381a 80px
+  );
+  position: relative;
+  border-radius: 16px;
+}
