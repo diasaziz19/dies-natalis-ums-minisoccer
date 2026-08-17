@@ -1209,7 +1209,7 @@ function buildTacticalPitchHTML(homeTeam, awayTeam, homePlayers, awayPlayers) {
           <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#000;border:2px solid ${borderCol};box-shadow:0 0 10px ${borderCol}aa;">
           <span class="absolute -bottom-1 -right-1 text-[9px] font-extrabold px-1 rounded border ${bgBadge}">${posShort}</span>
         </div>
-        <span class="text-[10px] font-bold text-white mt-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700/60 max-w-[90px] truncate" title="${p.fullName}">${p.fullName.split(' ')[0]}</span>
+        <span class="text-[10px] font-bold text-white mt-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700/60 max-w-[90px] truncate" title="${p.fullName}">${String(p.fullName || 'Pemain').split(' ')[0]}</span>
       </div>
     `;
   };
@@ -1592,18 +1592,12 @@ function openSetFormationModal(teamId) {
   if (!team) return;
 
   if (!authState.isLoggedIn) {
-    if (confirm(`⚠️ Anda perlu Login terlebih dahulu sebagai Manajer Tim atau Super Admin untuk mengatur formasi 7v7.\n\nBuka halaman Login sekarang?`)) {
-      switchRole('LOGIN');
-    }
+    alert('⚠️ Anda perlu Login terlebih dahulu sebagai Manajer Tim atau Super Admin untuk mengatur formasi 7v7.');
+    switchRole('LOGIN');
     return;
   }
 
   const teamPlayers = players.filter(p => p.teamId === teamId);
-  if (teamPlayers.length === 0) {
-    alert(`⚠️ Tim "${team.name}" belum memiliki pemain terdaftar. Silakan daftarkan pemain terlebih dahulu di menu Manajemen Tim.`);
-    return;
-  }
-
   activeTacticalFormation.teamId = teamId;
   activeTacticalFormation.scheme = team.formationScheme || '2-3-1';
 
@@ -1749,10 +1743,10 @@ function renderInteractiveFormationBoard(teamId) {
             <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#000;border:2px solid #00f0ff;box-shadow:0 0 10px rgba(0,240,255,0.7);">
             <span class="absolute -bottom-1 -right-1 text-[8px] font-extrabold px-1 rounded bg-cyan-500/80 text-black border border-cyan-300">${posShort}</span>
           </div>
-          <span class="text-[10px] font-bold text-white mt-1 px-2 py-0.5 rounded bg-slate-950/90 border border-slate-700 max-w-[90px] truncate block shadow">${p.fullName.split(' ')[0]}</span>
+          <span class="text-[10px] font-bold text-white mt-1 px-2 py-0.5 rounded bg-slate-950/90 border border-slate-700 max-w-[90px] truncate block shadow">${String(p.fullName || 'Pemain').split(' ')[0]}</span>
         ` : `
           <div class="w-9 h-9 rounded-full border-2 border-dashed border-cyan-400/60 bg-black/40 flex items-center justify-center text-cyan-300 text-xs font-bold shadow-inner">+</div>
-          <span class="text-[9px] text-cyan-300/80 font-semibold mt-1 px-1 rounded bg-slate-950/60 block truncate">${label.split(' ')[0]}</span>
+          <span class="text-[9px] text-cyan-300/80 font-semibold mt-1 px-1 rounded bg-slate-950/60 block truncate">${String(label || '').split(' ')[0]}</span>
         `}
       </div>
     `;
@@ -1789,7 +1783,7 @@ function renderInteractiveFormationBoard(teamId) {
             <div>
               <label class="form-label text-[10px] text-cyan-400 mb-0.5 truncate block">${label}</label>
               <select class="form-input text-[11px] py-1 px-1.5" onchange="handleSelectSlotPlayerChange(${idx}, this.value, '${teamId}')">
-                ${teamPlayers.map(p => `<option value="${p.id}" ${startingIds[idx] === p.id ? 'selected' : ''}>${p.fullName.split(' ')[0]} (${p.position})</option>`).join('')}
+                ${teamPlayers.map(p => `<option value="${p.id}" ${startingIds[idx] === p.id ? 'selected' : ''}>${String(p.fullName || 'Pemain').split(' ')[0]} (${p.position})</option>`).join('')}
               </select>
             </div>
           `).join('')}
@@ -1894,7 +1888,7 @@ function buildSingleTeamPitchHTML(team, squadList, scheme = '2-3-1') {
           <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#000;border:2px solid #00f0ff;box-shadow:0 0 8px rgba(0,240,255,0.6);">
           <span class="absolute -bottom-1 -right-1 text-[8px] font-extrabold px-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">${posShort}</span>
         </div>
-        <span class="text-[9px] font-bold text-white mt-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700/60 max-w-[80px] truncate">${p.fullName.split(' ')[0]}</span>
+        <span class="text-[9px] font-bold text-white mt-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700/60 max-w-[80px] truncate">${String(p.fullName || 'Pemain').split(' ')[0]}</span>
       </div>
     `;
   };
@@ -2965,12 +2959,10 @@ function deleteSuratTugas(teamId) {
     return;
   }
 
-  if (confirm(`🗑️ HAPUS SURAT TUGAS?\n\nYakin ingin menghapus berkas Surat Tugas untuk tim "${team.name}"?`)) {
-    team.suratTugasName = null;
-    saveState();
-    renderApp();
-    alert(`✅ Berkas Surat Tugas tim "${team.name}" berhasil dihapus.`);
-  }
+  team.suratTugasName = null;
+  saveState();
+  renderApp();
+  alert(`✅ Berkas Surat Tugas tim "${team.name}" berhasil dihapus.`);
 }
 window.deleteSuratTugas = deleteSuratTugas;
 
@@ -3350,12 +3342,10 @@ window.handleAddPlayerSubmitDirect = handleAddPlayerSubmitDirect;
 
 function deletePlayer(playerId) {
   const p = players.find(player => player.id === playerId);
-  if (confirm(`Hapus pemain "${p ? p.fullName : 'ini'}" dari skuad?`)) {
-    players = players.filter(player => player.id !== playerId);
-    saveState();
-    renderApp();
-    alert(`✅ Pemain berhasil dihapus.`);
-  }
+  players = players.filter(player => player.id !== playerId);
+  saveState();
+  renderApp();
+  alert(`✅ Pemain "${p ? p.fullName : 'ini'}" berhasil dihapus dari skuad.`);
 }
 window.deletePlayer = deletePlayer;
 
@@ -3436,12 +3426,10 @@ window.handleAddOfficialSubmitDirect = handleAddOfficialSubmitDirect;
 
 function deleteOfficial(officialId) {
   const o = officials.find(off => off.id === officialId);
-  if (confirm(`Hapus official "${o ? o.fullName : 'ini'}"?`)) {
-    officials = officials.filter(off => off.id !== officialId);
-    saveState();
-    renderApp();
-    alert(`✅ Official berhasil dihapus.`);
-  }
+  officials = officials.filter(off => off.id !== officialId);
+  saveState();
+  renderApp();
+  alert(`✅ Official "${o ? o.fullName : 'ini'}" berhasil dihapus.`);
 }
 
 function openMatchSheetModal(matchId) {
