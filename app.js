@@ -1591,26 +1591,31 @@ function openSetFormationModal(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
 
-  const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.role === 'MANAGER' || authState.teamId === teamId);
-  if (!isEditable) {
-    alert('⚠️ Mohon login terlebih dahulu sebagai Super Admin atau Manajer tim untuk menyusun formasi.');
+  if (!authState.isLoggedIn) {
+    if (confirm(`⚠️ Anda perlu Login terlebih dahulu sebagai Manajer Tim atau Super Admin untuk mengatur formasi 7v7.\n\nBuka halaman Login sekarang?`)) {
+      switchRole('LOGIN');
+    }
     return;
   }
 
   const teamPlayers = players.filter(p => p.teamId === teamId);
-  if (teamPlayers.length < 7) {
-    alert(`⚠️ Skuad tim "${team.name}" baru memiliki ${teamPlayers.length} pemain. Minimal daftarkan 7 pemain untuk menyusun formasi 7v7.`);
+  if (teamPlayers.length === 0) {
+    alert(`⚠️ Tim "${team.name}" belum memiliki pemain terdaftar. Silakan daftarkan pemain terlebih dahulu di menu Manajemen Tim.`);
     return;
   }
 
   activeTacticalFormation.teamId = teamId;
   activeTacticalFormation.scheme = team.formationScheme || '2-3-1';
 
-  let savedStarting = team.startingSeven || [];
+  let savedStarting = (team.startingSeven || []).filter(Boolean);
   if (savedStarting.length < 7) {
     const gk = teamPlayers.find(p => p.position === 'GOALKEEPER') || teamPlayers[0];
-    const rest = teamPlayers.filter(p => p.id !== gk.id);
-    savedStarting = [gk.id, ...rest.slice(0, 6).map(p => p.id)];
+    const rest = teamPlayers.filter(p => p.id !== gk?.id);
+    const initialList = [gk?.id, ...rest.map(p => p.id)].filter(Boolean);
+    savedStarting = initialList.slice(0, 7);
+    while (savedStarting.length < 7) {
+      savedStarting.push(null);
+    }
   }
   activeTacticalFormation.startingSeven = [...savedStarting.slice(0, 7)];
 
@@ -1922,9 +1927,11 @@ function handleSaveFormationSubmitDirect(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
 
+  const teamPlayers = players.filter(p => p.teamId === teamId);
   const startingIds = activeTacticalFormation.startingSeven.filter(Boolean);
   const uniqueCount = new Set(startingIds).size;
-  if (uniqueCount < 7) {
+
+  if (teamPlayers.length >= 7 && uniqueCount < 7) {
     alert('⚠️ Mohon pastikan 7 posisi formasi terisi oleh 7 pemain yang berbeda (tidak ada pemain ganda).');
     return;
   }
@@ -2455,8 +2462,9 @@ function renderAdminManagePanel() {
           <span class="text-xs text-cyan-400">${t.facultyUnit} | Surat Tugas: ${t.suratTugasName ? '✅' : '❌'}</span>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
         <span class="badge-${t.status === 'APPROVED' ? 'gold' : t.status === 'REJECTED' ? 'danger' : 'cyan'}">${t.status}</span>
+        <button onclick="openSetFormationModal('${t.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(16,185,129,0.5); background:rgba(16,185,129,0.15); color:#34d399; cursor:pointer;" title="Atur Formasi 7v7 Taktikal">📋 Formasi 7v7 ${t.formationApproved ? '✅' : ''}</button>
         ${t.status === 'PENDING' ? `
           <button onclick="approveTeam('${t.id}')" class="btn-ucl-primary" style="padding: 4px 10px; font-size: 11px;">Approve</button>
           <button onclick="rejectTeam('${t.id}')" class="btn-danger" style="padding: 4px 10px; font-size: 11px;">Reject</button>
