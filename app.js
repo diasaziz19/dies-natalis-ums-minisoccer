@@ -95,6 +95,14 @@ window.openEditNavbarModal = openEditNavbarModal;
 window.openPublicMatchDetailModal = openPublicMatchDetailModal;
 window.switchMatchDetailModalTab = switchMatchDetailModalTab;
 
+// Player & Official CRUD Bindings
+window.openAddPlayerModal = openAddPlayerModal;
+window.handleAddPlayerSubmit = handleAddPlayerSubmit;
+window.deletePlayer = deletePlayer;
+window.openAddOfficialModal = openAddOfficialModal;
+window.handleAddOfficialSubmit = handleAddOfficialSubmit;
+window.deleteOfficial = deleteOfficial;
+
 // Manager Tactical Formation Setter Bindings
 window.openSetFormationModal = openSetFormationModal;
 window.updateFormationPreview = updateFormationPreview;
@@ -2904,15 +2912,18 @@ window.handleEditTeamSubmit = function(e, teamId) {
 };
 
 function openAddPlayerModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
   const teamPlayers = players.filter(p => p.teamId === teamId);
   if (teamPlayers.length >= 14) { alert('Kuota pemain sudah penuh (maks 14).'); return; }
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-4">Tambah Pemain (Maks 14)</h3>
-    <form onsubmit="handleAddPlayerSubmit(event, '${teamId}')" class="space-y-3">
-      <div><label class="form-label">Nama Lengkap</label><input type="text" id="pFullName" class="form-input" placeholder="Nama lengkap pemain" required></div>
-      <div><label class="form-label">No. KTP / NI. Kepegawaian</label><input type="text" id="pIdentityNumber" class="form-input" placeholder="3372xxxxxxxxxxxx" required></div>
-      <div><label class="form-label">Usia</label><input type="number" id="pUsia" class="form-input" min="17" max="60" placeholder="22" required></div>
-      <div><label class="form-label">Posisi Bermain</label>
+    <h3 class="text-xl font-bold text-white mb-1">🏃 Tambah Pemain Skuad (Maks 14)</h3>
+    <p class="text-xs text-slate-400 mb-4">Tim: <strong class="text-cyan-300">${team?.name || ''}</strong></p>
+
+    <form onsubmit="event.preventDefault(); window.handleAddPlayerSubmit(event, '${teamId}')" class="space-y-3">
+      <div><label class="form-label">Nama Lengkap Pemain <span class="text-rose-400">*</span></label><input type="text" id="pFullName" class="form-input" placeholder="Nama lengkap pemain" required></div>
+      <div><label class="form-label">No. KTP / NI. Kepegawaian <span class="text-rose-400">*</span></label><input type="text" id="pIdentityNumber" class="form-input" placeholder="3372xxxxxxxxxxxx" required></div>
+      <div><label class="form-label">Usia <span class="text-rose-400">*</span></label><input type="number" id="pUsia" class="form-input" min="17" max="60" placeholder="22" required></div>
+      <div><label class="form-label">Posisi Bermain <span class="text-rose-400">*</span></label>
         <select id="pPosition" class="form-input" required>
           <option value="GOALKEEPER">Penjaga Gawang (GK)</option>
           <option value="DEFENDER">Bek / Bertahan (DF)</option>
@@ -2920,60 +2931,110 @@ function openAddPlayerModal(teamId) {
           <option value="FORWARD">Penyerang (FW)</option>
         </select>
       </div>
-      <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">💾 Simpan Pemain</button>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-ucl-primary flex-1 justify-center">💾 Simpan Pemain</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
     </form>
   `);
 }
 
-window.handleAddPlayerSubmit = function(e, teamId) {
-  e.preventDefault();
-  const fullName = document.getElementById('pFullName').value;
-  const identityNumber = document.getElementById('pIdentityNumber').value;
-  const usia = parseInt(document.getElementById('pUsia').value);
-  const position = document.getElementById('pPosition').value;
-  players.push({
-    id: 'p-' + Date.now(), teamId, fullName, identityNumber, usia, position,
+function handleAddPlayerSubmit(e, teamId) {
+  if (e) e.preventDefault();
+  const fullName = document.getElementById('pFullName')?.value?.trim();
+  const identityNumber = document.getElementById('pIdentityNumber')?.value?.trim();
+  const usiaVal = document.getElementById('pUsia')?.value;
+  const usia = parseInt(usiaVal) || 20;
+  const position = document.getElementById('pPosition')?.value || 'MIDFIELDER';
+
+  if (!fullName || !identityNumber) {
+    alert('Harap lengkapi Nama Pemain dan Nomor KTP/NI.');
+    return;
+  }
+
+  const team = teams.find(t => t.id === teamId);
+  const newPlayer = {
+    id: 'p-' + Date.now(),
+    teamId,
+    fullName,
+    identityNumber,
+    usia,
+    position,
     photoProfileUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(fullName)}`
-  });
-  saveState(); closeModal(); renderApp();
-};
+  };
+
+  players.push(newPlayer);
+  saveState();
+  closeModal();
+  renderApp();
+  alert(`✅ Pemain "${fullName}" (${position}) berhasil ditambahkan ke tim ${team ? '"' + team.name + '"' : ''}!`);
+}
 
 function deletePlayer(playerId) {
-  if (confirm('Hapus pemain ini?')) { players = players.filter(p => p.id !== playerId); saveState(); renderApp(); }
+  const p = players.find(player => player.id === playerId);
+  if (confirm(`Hapus pemain "${p ? p.fullName : 'ini'}" dari skuad?`)) {
+    players = players.filter(player => player.id !== playerId);
+    saveState();
+    renderApp();
+    alert(`✅ Pemain berhasil dihapus.`);
+  }
 }
 
 function openAddOfficialModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-4">Tambah Official / Pelatih</h3>
-    <form onsubmit="handleAddOfficialSubmit(event, '${teamId}')" class="space-y-3">
-      <div><label class="form-label">Nama Lengkap</label><input type="text" id="offFullName" class="form-input" required></div>
-      <div><label class="form-label">No. KTP / NI. Kepegawaian</label><input type="text" id="offIdentityNumber" class="form-input" required></div>
-      <div><label class="form-label">Jabatan</label>
+    <h3 class="text-xl font-bold text-white mb-1">👨‍💼 Tambah Official / Pelatih</h3>
+    <p class="text-xs text-slate-400 mb-4">Tim: <strong class="text-cyan-300">${team?.name || ''}</strong></p>
+
+    <form onsubmit="event.preventDefault(); window.handleAddOfficialSubmit(event, '${teamId}')" class="space-y-3">
+      <div><label class="form-label">Nama Lengkap <span class="text-rose-400">*</span></label><input type="text" id="offFullName" class="form-input" placeholder="Nama lengkap official / coach" required></div>
+      <div><label class="form-label">No. KTP / NI. Kepegawaian <span class="text-rose-400">*</span></label><input type="text" id="offIdentityNumber" class="form-input" placeholder="3372xxxxxxxxxxxx" required></div>
+      <div><label class="form-label">Jabatan <span class="text-rose-400">*</span></label>
         <select id="offRole" class="form-input" required>
           <option value="HEAD_COACH">Head Coach (Maks 1)</option>
           <option value="OFFICIAL">Official Tim (Maks 1)</option>
         </select>
       </div>
-      <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center;">💾 Simpan Official</button>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-ucl-primary flex-1 justify-center">💾 Simpan Official</button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+      </div>
     </form>
   `);
 }
 
-window.handleAddOfficialSubmit = function(e, teamId) {
-  e.preventDefault();
-  const fullName = document.getElementById('offFullName').value;
-  const identityNumber = document.getElementById('offIdentityNumber').value;
-  const role = document.getElementById('offRole').value;
+function handleAddOfficialSubmit(e, teamId) {
+  if (e) e.preventDefault();
+  const fullName = document.getElementById('offFullName')?.value?.trim();
+  const identityNumber = document.getElementById('offIdentityNumber')?.value?.trim();
+  const role = document.getElementById('offRole')?.value;
+
+  if (!fullName || !identityNumber) {
+    alert('Harap lengkapi Nama Official dan Nomor KTP/NI.');
+    return;
+  }
+
   if (officials.find(o => o.teamId === teamId && o.role === role)) {
     alert(`Tim sudah memiliki ${role === 'HEAD_COACH' ? 'Head Coach' : 'Official Tim'}.`);
     return;
   }
+
+  const team = teams.find(t => t.id === teamId);
   officials.push({ id: 'off-' + Date.now(), teamId, fullName, identityNumber, role });
-  saveState(); closeModal(); renderApp();
-};
+  saveState();
+  closeModal();
+  renderApp();
+  alert(`✅ ${role === 'HEAD_COACH' ? 'Head Coach' : 'Official Tim'} "${fullName}" berhasil ditambahkan ke tim ${team ? '"' + team.name + '"' : ''}!`);
+}
 
 function deleteOfficial(officialId) {
-  if (confirm('Hapus official ini?')) { officials = officials.filter(o => o.id !== officialId); saveState(); renderApp(); }
+  const o = officials.find(off => off.id === officialId);
+  if (confirm(`Hapus official "${o ? o.fullName : 'ini'}"?`)) {
+    officials = officials.filter(off => off.id !== officialId);
+    saveState();
+    renderApp();
+    alert(`✅ Official berhasil dihapus.`);
+  }
 }
 
 function openMatchSheetModal(matchId) {
