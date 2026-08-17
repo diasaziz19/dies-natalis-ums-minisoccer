@@ -314,9 +314,12 @@
       <div id="adminContent-manage" class="hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="glass-panel p-6">
-            <h3 class="font-bold text-lg mb-4 text-white flex items-center justify-between">
+            <h3 class="font-bold text-lg mb-4 text-white flex items-center justify-between flex-wrap gap-2">
               <span>Daftar Status Pendaftaran Tim</span>
-              <span class="badge-cyan" id="adminPendingBadge">0 Pending</span>
+              <div class="flex items-center gap-2">
+                <button onclick="resetAllSuratTugas()" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(245,158,11,0.5); background:rgba(245,158,11,0.15); color:#fbbf24; cursor:pointer;" title="Kosongkan Berkas Surat Tugas Seluruh Tim">🔄 Reset Surat Tugas (0)</button>
+                <span class="badge-cyan" id="adminPendingBadge">0 Pending</span>
+              </div>
             </h3>
             <div id="adminTeamsApprovalList" class="space-y-4"></div>
           </div>

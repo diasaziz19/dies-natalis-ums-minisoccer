@@ -1588,8 +1588,11 @@ let activeTacticalFormation = {
 };
 
 function openSetFormationModal(teamId) {
-  const team = teams.find(t => t.id === teamId);
-  if (!team) return;
+  const team = teams.find(t => String(t.id) === String(teamId));
+  if (!team) {
+    alert('⚠️ Data tim tidak ditemukan.');
+    return;
+  }
 
   if (!authState.isLoggedIn) {
     alert('⚠️ Anda perlu Login terlebih dahulu sebagai Manajer Tim atau Super Admin untuk mengatur formasi 7v7.');
@@ -1597,8 +1600,8 @@ function openSetFormationModal(teamId) {
     return;
   }
 
-  const teamPlayers = players.filter(p => p.teamId === teamId);
-  activeTacticalFormation.teamId = teamId;
+  const teamPlayers = players.filter(p => String(p.teamId) === String(teamId));
+  activeTacticalFormation.teamId = team.id;
   activeTacticalFormation.scheme = team.formationScheme || '2-3-1';
 
   let savedStarting = (team.startingSeven || []).filter(Boolean);
@@ -1654,11 +1657,11 @@ function openSetFormationModal(teamId) {
     </div>
   `);
 
-  renderInteractiveFormationBoard(teamId);
+  renderInteractiveFormationBoard(team.id);
 
   setTimeout(() => {
     const btn = document.getElementById('submitSaveFormationBtn');
-    if (btn) btn.onclick = () => handleSaveFormationSubmitDirect(teamId);
+    if (btn) btn.onclick = () => handleSaveFormationSubmitDirect(team.id);
   }, 20);
 }
 
@@ -1672,8 +1675,8 @@ function renderInteractiveFormationBoard(teamId) {
   const container = document.getElementById('tacticalBoardModalContent');
   if (!container) return;
 
-  const team = teams.find(t => t.id === teamId);
-  const teamPlayers = players.filter(p => p.teamId === teamId);
+  const team = teams.find(t => String(t.id) === String(teamId));
+  const teamPlayers = players.filter(p => String(p.teamId) === String(teamId));
   const startingIds = activeTacticalFormation.startingSeven;
   const scheme = activeTacticalFormation.scheme;
 
@@ -1969,6 +1972,7 @@ function renderTeamManagerPortal() {
     if (authState.isLoggedIn) {
       actionsEl.innerHTML = `
         <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
+        <button onclick="resetAllSuratTugas()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(245,158,11,0.5); background: rgba(245,158,11,0.15); color: #fbbf24; cursor: pointer;" title="Kosongkan Berkas Surat Tugas Seluruh Tim">🔄 Reset Surat Tugas (0)</button>
         <button onclick="handleLogout()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
       `;
     } else {
@@ -2950,7 +2954,7 @@ function deleteTeam(teamId) {
 }
 
 function deleteSuratTugas(teamId) {
-  const team = teams.find(t => t.id === teamId);
+  const team = teams.find(t => String(t.id) === String(teamId));
   if (!team) return;
 
   const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.role === 'MANAGER' || authState.teamId === teamId);
@@ -2965,6 +2969,16 @@ function deleteSuratTugas(teamId) {
   alert(`✅ Berkas Surat Tugas tim "${team.name}" berhasil dihapus.`);
 }
 window.deleteSuratTugas = deleteSuratTugas;
+
+function resetAllSuratTugas() {
+  teams.forEach(t => {
+    t.suratTugasName = null;
+  });
+  saveState();
+  renderApp();
+  alert('✅ Berkas Surat Tugas seluruh tim (16 tim) berhasil dikosongkan (status: Belum diunggah).');
+}
+window.resetAllSuratTugas = resetAllSuratTugas;
 
 function deleteAllPlayers(teamId) {
   if (authState.role !== 'ADMIN') return;
