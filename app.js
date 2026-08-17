@@ -1580,169 +1580,303 @@ function renderPublicTeamsGrid() {
   }).join('');
 }
 
-// ========== TEAM MANAGER TACTICAL FORMATION SETTER ==========
+// ========== TEAM MANAGER TACTICAL FORMATION SETTER (DRAG & DROP) ==========
+let activeTacticalFormation = {
+  teamId: null,
+  scheme: '2-3-1',
+  startingSeven: []
+};
+
 function openSetFormationModal(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
 
-  const teamPlayers = players.filter(p => p.teamId === teamId);
-  if (teamPlayers.length < 7) {
-    alert(`⚠️ Skuad tim "${team.name}" baru memiliki ${teamPlayers.length} pemain. Minimal daftarkan 7 pemain untuk dapat menyusun formasi 7v7.`);
+  const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.role === 'MANAGER' || authState.teamId === teamId);
+  if (!isEditable) {
+    alert('⚠️ Mohon login terlebih dahulu sebagai Super Admin atau Manajer tim untuk menyusun formasi.');
     return;
   }
 
-  const currentScheme = team.formationScheme || '2-3-1';
-  const savedStarting = team.startingSeven || [];
+  const teamPlayers = players.filter(p => p.teamId === teamId);
+  if (teamPlayers.length < 7) {
+    alert(`⚠️ Skuad tim "${team.name}" baru memiliki ${teamPlayers.length} pemain. Minimal daftarkan 7 pemain untuk menyusun formasi 7v7.`);
+    return;
+  }
 
-  const gkPlayer = teamPlayers.find(p => p.id === savedStarting[0]) || teamPlayers.find(p => p.position === 'GOALKEEPER') || teamPlayers[0];
-  const df1Player = teamPlayers.find(p => p.id === savedStarting[1]) || teamPlayers.find(p => p.position === 'DEFENDER' && p.id !== gkPlayer?.id) || teamPlayers[1];
-  const df2Player = teamPlayers.find(p => p.id === savedStarting[2]) || teamPlayers.find(p => p.position === 'DEFENDER' && p.id !== gkPlayer?.id && p.id !== df1Player?.id) || teamPlayers[2];
-  const mf1Player = teamPlayers.find(p => p.id === savedStarting[3]) || teamPlayers.find(p => p.position === 'MIDFIELDER' && ![gkPlayer?.id, df1Player?.id, df2Player?.id].includes(p.id)) || teamPlayers[3];
-  const mf2Player = teamPlayers.find(p => p.id === savedStarting[4]) || teamPlayers.find(p => p.position === 'MIDFIELDER' && ![gkPlayer?.id, df1Player?.id, df2Player?.id, mf1Player?.id].includes(p.id)) || teamPlayers[4];
-  const mf3Player = teamPlayers.find(p => p.id === savedStarting[5]) || teamPlayers.find(p => ![gkPlayer?.id, df1Player?.id, df2Player?.id, mf1Player?.id, mf2Player?.id].includes(p.id)) || teamPlayers[5];
-  const fw1Player = teamPlayers.find(p => p.id === savedStarting[6]) || teamPlayers.find(p => p.position === 'FORWARD' && ![gkPlayer?.id, df1Player?.id, df2Player?.id, mf1Player?.id, mf2Player?.id, mf3Player?.id].includes(p.id)) || teamPlayers[6];
+  activeTacticalFormation.teamId = teamId;
+  activeTacticalFormation.scheme = team.formationScheme || '2-3-1';
 
-  const buildSelectOptions = (selectedId) => {
-    return teamPlayers.map(p => `
-      <option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>
-        ${p.fullName} (${p.position})${p.isSuspended ? ' [SUSPENDED]' : ''}
-      </option>
-    `).join('');
-  };
+  let savedStarting = team.startingSeven || [];
+  if (savedStarting.length < 7) {
+    const gk = teamPlayers.find(p => p.position === 'GOALKEEPER') || teamPlayers[0];
+    const rest = teamPlayers.filter(p => p.id !== gk.id);
+    savedStarting = [gk.id, ...rest.slice(0, 6).map(p => p.id)];
+  }
+  activeTacticalFormation.startingSeven = [...savedStarting.slice(0, 7)];
 
   openModal(`
     <div class="p-1">
-      <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-800">
+      <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-800 flex-wrap gap-2">
         <div>
           <h3 class="text-xl font-bold text-white flex items-center gap-2">
-            <span>📋 Atur Visual Formasi 7v7 Skuad</span>
+            <span>📋 Interactive Drag &amp; Drop Formasi 7v7</span>
           </h3>
-          <p class="text-xs text-cyan-400 mt-0.5">Pilih 7 pemain utama (Starting VII) &amp; skema taktikal tim <strong>"${team.name}"</strong></p>
+          <p class="text-xs text-cyan-400 mt-0.5">Tarik (drag) pemain dari skuad di kiri &amp; lepaskan (drop) ke posisi di lapangan hijau!</p>
         </div>
-        <img src="${team.logoUrl}" style="width:36px;height:36px;border-radius:50%;background:#000;border:2px solid var(--ucl-cyan);">
+        <div class="flex items-center gap-2">
+          <img src="${team.logoUrl}" style="width:36px;height:36px;border-radius:50%;background:#000;border:2px solid var(--ucl-cyan);">
+          <span class="font-bold text-white text-sm">${team.name}</span>
+        </div>
       </div>
 
-      <div class="space-y-4">
-        <!-- Scheme Select -->
-        <div>
-          <label class="form-label">Skema Taktikal Formasi 7v7 <span class="text-rose-400">*</span></label>
-          <select id="formationSchemeSelect" class="form-input font-bold text-cyan-300" onchange="updateFormationPreview('${team.id}')">
-            <option value="2-3-1" ${currentScheme === '2-3-1' ? 'selected' : ''}>⚽ 2 - 3 - 1 (Standar Minisoccer: 2 Belakang, 3 Tengah, 1 Depan)</option>
-            <option value="3-2-1" ${currentScheme === '3-2-1' ? 'selected' : ''}>🛡️ 3 - 2 - 1 (Bertahan / Counter: 3 Belakang, 2 Tengah, 1 Depan)</option>
-            <option value="2-2-2" ${currentScheme === '2-2-2' ? 'selected' : ''}>⚖️ 2 - 2 - 2 (Seimbang Grid: 2 Belakang, 2 Tengah, 2 Depan)</option>
-            <option value="1-4-1" ${currentScheme === '1-4-1' ? 'selected' : ''}>🎯 1 - 4 - 1 (Penguasaan Bola: 1 Belakang, 4 Tengah, 1 Depan)</option>
-            <option value="3-1-2" ${currentScheme === '3-1-2' ? 'selected' : ''}>⚡ 3 - 1 - 2 (Sayap Serang: 3 Belakang, 1 Tengah, 2 Depan)</option>
-          </select>
-        </div>
+      <!-- Tactical Scheme Selector -->
+      <div class="mb-4">
+        <label class="form-label text-xs">Skema Taktikal Formasi 7v7:</label>
+        <select id="formationSchemeSelect" class="form-input font-bold text-cyan-300" onchange="handleSchemeChangeInModal(this.value, '${team.id}')">
+          <option value="2-3-1" ${activeTacticalFormation.scheme === '2-3-1' ? 'selected' : ''}>⚽ 2 - 3 - 1 (Standar Minisoccer: 2 DF, 3 MF, 1 FW)</option>
+          <option value="3-2-1" ${activeTacticalFormation.scheme === '3-2-1' ? 'selected' : ''}>🛡️ 3 - 2 - 1 (Bertahan / Counter: 3 DF, 2 MF, 1 FW)</option>
+          <option value="2-2-2" ${activeTacticalFormation.scheme === '2-2-2' ? 'selected' : ''}>⚖️ 2 - 2 - 2 (Seimbang Grid: 2 DF, 2 MF, 2 FW)</option>
+          <option value="1-4-1" ${activeTacticalFormation.scheme === '1-4-1' ? 'selected' : ''}>🎯 1 - 4 - 1 (Penguasaan Bola: 1 DF, 4 MF, 1 FW)</option>
+          <option value="3-1-2" ${activeTacticalFormation.scheme === '3-1-2' ? 'selected' : ''}>⚡ 3 - 1 - 2 (Sayap Serang: 3 DF, 1 MF, 2 FW)</option>
+        </select>
+      </div>
 
-        <!-- 7 Starting Players Select Grid -->
-        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
-          <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider block">Pilih 7 Pemain Utama (Starting VII):</span>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label class="form-label text-[11px] text-amber-300">1. Penjaga Gawang (GK)</label>
-              <select id="posGK" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
-                ${buildSelectOptions(gkPlayer?.id)}
-              </select>
-            </div>
+      <!-- Main Drag & Drop Container Grid (2 Cols: Squad Pool & Pitch) -->
+      <div id="tacticalBoardModalContent">
+        <!-- Rendered dynamically -->
+      </div>
 
-            <div>
-              <label class="form-label text-[11px] text-blue-300">2. Pemain Belakang (DF 1)</label>
-              <select id="posDF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
-                ${buildSelectOptions(df1Player?.id)}
-              </select>
-            </div>
-
-            <div>
-              <label class="form-label text-[11px] text-blue-300">3. Pemain Belakang (DF 2)</label>
-              <select id="posDF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
-                ${buildSelectOptions(df2Player?.id)}
-              </select>
-            </div>
-
-            <div>
-              <label class="form-label text-[11px] text-emerald-300">4. Gelandang (MF 1)</label>
-              <select id="posMF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
-                ${buildSelectOptions(mf1Player?.id)}
-              </select>
-            </div>
-
-            <div>
-              <label class="form-label text-[11px] text-emerald-300">5. Gelandang (MF 2)</label>
-              <select id="posMF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
-                ${buildSelectOptions(mf2Player?.id)}
-              </select>
-            </div>
-
-            <div>
-              <label class="form-label text-[11px] text-emerald-300">6. Gelandang / Sayap (MF 3)</label>
-              <select id="posMF3" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
-                ${buildSelectOptions(mf3Player?.id)}
-              </select>
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="form-label text-[11px] text-rose-300">7. Penyerang / Striker Utama (FW)</label>
-              <select id="posFW1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
-                ${buildSelectOptions(fw1Player?.id)}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Preview Container -->
-        <div id="formationPreviewPitchContainer">
-          <!-- Rendered dynamically -->
-        </div>
-
-        <div class="flex gap-3 pt-2">
-          <button id="submitSaveFormationBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
-            ✅ Approve &amp; Publikasikan Formasi ke Live Score
-          </button>
-          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
-        </div>
+      <div class="flex gap-3 pt-4 border-t border-slate-800 mt-4">
+        <button id="submitSaveFormationBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+          ✅ Approve &amp; Publikasikan Formasi ke Live Score
+        </button>
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
       </div>
     </div>
   `);
 
+  renderInteractiveFormationBoard(teamId);
+
   setTimeout(() => {
-    updateFormationPreview(teamId);
     const btn = document.getElementById('submitSaveFormationBtn');
     if (btn) btn.onclick = () => handleSaveFormationSubmitDirect(teamId);
   }, 20);
 }
 
-function updateFormationPreview(teamId) {
-  const container = document.getElementById('formationPreviewPitchContainer');
+function handleSchemeChangeInModal(scheme, teamId) {
+  activeTacticalFormation.scheme = scheme;
+  renderInteractiveFormationBoard(teamId);
+}
+window.handleSchemeChangeInModal = handleSchemeChangeInModal;
+
+function renderInteractiveFormationBoard(teamId) {
+  const container = document.getElementById('tacticalBoardModalContent');
   if (!container) return;
 
   const team = teams.find(t => t.id === teamId);
-  const scheme = document.getElementById('formationSchemeSelect')?.value || '2-3-1';
+  const teamPlayers = players.filter(p => p.teamId === teamId);
+  const startingIds = activeTacticalFormation.startingSeven;
+  const scheme = activeTacticalFormation.scheme;
 
-  const getP = (id) => players.find(p => p.id === id);
+  const getP = (id) => teamPlayers.find(p => p.id === id);
 
-  const selectedIds = [
-    document.getElementById('posGK')?.value,
-    document.getElementById('posDF1')?.value,
-    document.getElementById('posDF2')?.value,
-    document.getElementById('posMF1')?.value,
-    document.getElementById('posMF2')?.value,
-    document.getElementById('posMF3')?.value,
-    document.getElementById('posFW1')?.value,
-  ].filter(Boolean);
+  const slotLabels = ['1. Penjaga Gawang (GK)', '2. Bek (DF 1)', '3. Bek (DF 2)', '4. Gelandang (MF 1)', '5. Gelandang (MF 2)', '6. Gelandang (MF 3)', '7. Penyerang (FW 1)'];
 
-  const startingPlayers = selectedIds.map(id => getP(id)).filter(Boolean);
-
-  container.innerHTML = `
-    <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30">
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-xs font-bold text-emerald-400">🏟️ Live Preview Formasi Lapangan (${scheme})</span>
-        <span class="text-[11px] text-slate-400">${startingPlayers.length} Pemain Dipilih</span>
+  // Left Column: Squad Players Pool
+  const squadPoolHTML = `
+    <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between h-full">
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider">🛡️ Skuad Pemain (${teamPlayers.length})</span>
+          <span class="text-[10px] text-slate-400">💡 Drag / Klik Pemain</span>
+        </div>
+        <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+          ${teamPlayers.map(p => {
+            const isStarting = startingIds.includes(p.id);
+            const posBadgeClass = p.position === 'GOALKEEPER' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : p.position === 'DEFENDER' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' : p.position === 'MIDFIELDER' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+            return `
+              <div 
+                draggable="true" 
+                ondragstart="handleSquadPlayerDragStart(event, '${p.id}')"
+                onclick="handleSquadPlayerClickTap('${p.id}', '${teamId}')"
+                class="p-2.5 rounded-lg bg-slate-800 border ${isStarting ? 'border-emerald-500/60 bg-emerald-950/20' : 'border-slate-700/60'} flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-cyan-400 transition-all shadow-sm select-none"
+              >
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;background:#000;">
+                  <div class="min-w-0">
+                    <span class="font-bold text-white text-xs block truncate">${p.fullName}</span>
+                    <span class="text-[10px] text-slate-400 block">KTP/NI: ${p.identityNumber}</span>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded border ${posBadgeClass}">${p.position === 'GOALKEEPER' ? 'GK' : p.position === 'DEFENDER' ? 'DF' : p.position === 'MIDFIELDER' ? 'MF' : 'FW'}</span>
+                  ${isStarting ? `<span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 rounded">✓ Starting 7</span>` : `<span class="text-[9px] text-slate-400">Cadangan</span>`}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
-      ${buildSingleTeamPitchHTML(team, startingPlayers, scheme)}
     </div>
   `;
+
+  // Right Column: Green Tactical Pitch Drop Targets
+  const gkP = getP(startingIds[0]);
+  const def1P = getP(startingIds[1]);
+  const def2P = getP(startingIds[2]);
+  const mf1P = getP(startingIds[3]);
+  const mf2P = getP(startingIds[4]);
+  const mf3P = getP(startingIds[5]);
+  const fw1P = getP(startingIds[6]);
+
+  const renderPitchSlotNode = (slotIndex, p, label) => {
+    const posShort = slotIndex === 0 ? 'GK' : slotIndex <= 2 ? 'DF' : slotIndex <= 5 ? 'MF' : 'FW';
+    return `
+      <div 
+        ondragover="handlePitchSlotDragOver(event)"
+        ondragleave="handlePitchSlotDragLeave(event)"
+        ondrop="handlePitchSlotDrop(event, ${slotIndex}, '${teamId}')"
+        class="tactical-slot-node flex flex-col items-center text-center my-1 p-1 rounded-xl transition-all cursor-pointer border border-transparent hover:border-cyan-400 hover:bg-white/10"
+        title="Drop pemain ke slot ${label}"
+      >
+        ${p ? `
+          <div class="relative">
+            <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#000;border:2px solid #00f0ff;box-shadow:0 0 10px rgba(0,240,255,0.7);">
+            <span class="absolute -bottom-1 -right-1 text-[8px] font-extrabold px-1 rounded bg-cyan-500/80 text-black border border-cyan-300">${posShort}</span>
+          </div>
+          <span class="text-[10px] font-bold text-white mt-1 px-2 py-0.5 rounded bg-slate-950/90 border border-slate-700 max-w-[90px] truncate block shadow">${p.fullName.split(' ')[0]}</span>
+        ` : `
+          <div class="w-9 h-9 rounded-full border-2 border-dashed border-cyan-400/60 bg-black/40 flex items-center justify-center text-cyan-300 text-xs font-bold shadow-inner">+</div>
+          <span class="text-[9px] text-cyan-300/80 font-semibold mt-1 px-1 rounded bg-slate-950/60 block truncate">${label.split(' ')[0]}</span>
+        `}
+      </div>
+    `;
+  };
+
+  const pitchHTML = `
+    <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-bold text-emerald-400">🏟️ Papan Taktik Formasi Lapangan Hijau (${scheme})</span>
+        <span class="text-[11px] text-cyan-300">Drop Pemain ke Node Lapangan</span>
+      </div>
+
+      <div class="tactical-pitch p-4 rounded-xl relative overflow-hidden shadow-2xl" style="background: linear-gradient(180deg, #094721 0%, #063518 100%); border: 2px solid #10b981;">
+        <div class="text-center mb-2">
+          <span class="text-[11px] font-bold text-cyan-300 uppercase tracking-widest">${team.name} [Starting VII]</span>
+        </div>
+        <div class="space-y-3">
+          <!-- GK -->
+          <div class="flex justify-center">${renderPitchSlotNode(0, gkP, 'GK')}</div>
+          <!-- DF -->
+          <div class="flex justify-around px-4">${renderPitchSlotNode(1, def1P, 'DF 1')}${renderPitchSlotNode(2, def2P, 'DF 2')}</div>
+          <!-- MF -->
+          <div class="flex justify-around px-6">${renderPitchSlotNode(3, mf1P, 'MF 1')}${renderPitchSlotNode(4, mf2P, 'MF 2')}${renderPitchSlotNode(5, mf3P, 'MF 3')}</div>
+          <!-- FW -->
+          <div class="flex justify-center">${renderPitchSlotNode(6, fw1P, 'FW 1')}</div>
+        </div>
+      </div>
+
+      <!-- Quick Selector Dropdowns for Mobile -->
+      <div class="mt-3 pt-3 border-t border-slate-800">
+        <span class="text-[11px] font-bold text-slate-400 block mb-2">Alternatif Selector Posisi:</span>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          ${slotLabels.map((label, idx) => `
+            <div>
+              <label class="form-label text-[10px] text-cyan-400 mb-0.5 truncate block">${label}</label>
+              <select class="form-input text-[11px] py-1 px-1.5" onchange="handleSelectSlotPlayerChange(${idx}, this.value, '${teamId}')">
+                ${teamPlayers.map(p => `<option value="${p.id}" ${startingIds[idx] === p.id ? 'selected' : ''}>${p.fullName.split(' ')[0]} (${p.position})</option>`).join('')}
+              </select>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div class="md:col-span-5">${squadPoolHTML}</div>
+      <div class="md:col-span-7">${pitchHTML}</div>
+    </div>
+  `;
+}
+
+// Drag & Drop Event Handlers for Formation Pitch
+function handleSquadPlayerDragStart(e, playerId) {
+  e.dataTransfer.setData('text/plain', playerId);
+  e.dataTransfer.effectAllowed = 'copyMove';
+}
+window.handleSquadPlayerDragStart = handleSquadPlayerDragStart;
+
+function handlePitchSlotDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const node = e.currentTarget;
+  if (node) {
+    node.style.borderColor = '#00f0ff';
+    node.style.backgroundColor = 'rgba(0, 240, 255, 0.2)';
+    node.style.transform = 'scale(1.08)';
+  }
+}
+window.handlePitchSlotDragOver = handlePitchSlotDragOver;
+
+function handlePitchSlotDragLeave(e) {
+  const node = e.currentTarget;
+  if (node) {
+    node.style.borderColor = 'transparent';
+    node.style.backgroundColor = 'transparent';
+    node.style.transform = 'scale(1)';
+  }
+}
+window.handlePitchSlotDragLeave = handlePitchSlotDragLeave;
+
+function handlePitchSlotDrop(e, slotIndex, teamId) {
+  e.preventDefault();
+  const node = e.currentTarget;
+  if (node) {
+    node.style.borderColor = 'transparent';
+    node.style.backgroundColor = 'transparent';
+    node.style.transform = 'scale(1)';
+  }
+
+  const playerId = e.dataTransfer.getData('text/plain');
+  if (!playerId) return;
+
+  assignPlayerToSlot(slotIndex, playerId, teamId);
+}
+window.handlePitchSlotDrop = handlePitchSlotDrop;
+
+function handleSquadPlayerClickTap(playerId, teamId) {
+  const existingSlotIdx = activeTacticalFormation.startingSeven.indexOf(playerId);
+  if (existingSlotIdx !== -1) return;
+
+  // find first slot with duplicate
+  const currentSet = new Set(activeTacticalFormation.startingSeven);
+  if (currentSet.size < 7) {
+    for (let i = 0; i < 7; i++) {
+      if (activeTacticalFormation.startingSeven.indexOf(activeTacticalFormation.startingSeven[i]) !== i) {
+        assignPlayerToSlot(i, playerId, teamId);
+        return;
+      }
+    }
+  }
+  assignPlayerToSlot(0, playerId, teamId);
+}
+window.handleSquadPlayerClickTap = handleSquadPlayerClickTap;
+
+function handleSelectSlotPlayerChange(slotIndex, playerId, teamId) {
+  assignPlayerToSlot(slotIndex, playerId, teamId);
+}
+window.handleSelectSlotPlayerChange = handleSelectSlotPlayerChange;
+
+function assignPlayerToSlot(slotIndex, playerId, teamId) {
+  const existingSlotIdx = activeTacticalFormation.startingSeven.indexOf(playerId);
+  if (existingSlotIdx !== -1 && existingSlotIdx !== slotIndex) {
+    const oldPlayerAtTarget = activeTacticalFormation.startingSeven[slotIndex];
+    activeTacticalFormation.startingSeven[existingSlotIdx] = oldPlayerAtTarget;
+  }
+  activeTacticalFormation.startingSeven[slotIndex] = playerId;
+  renderInteractiveFormationBoard(teamId);
 }
 
 function buildSingleTeamPitchHTML(team, squadList, scheme = '2-3-1') {
@@ -1788,32 +1922,21 @@ function handleSaveFormationSubmitDirect(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
 
-  const scheme = document.getElementById('formationSchemeSelect')?.value || '2-3-1';
-  const selectedIds = [
-    document.getElementById('posGK')?.value,
-    document.getElementById('posDF1')?.value,
-    document.getElementById('posDF2')?.value,
-    document.getElementById('posMF1')?.value,
-    document.getElementById('posMF2')?.value,
-    document.getElementById('posMF3')?.value,
-    document.getElementById('posFW1')?.value,
-  ].filter(Boolean);
-
-  // Check unique players selection
-  const uniqueCount = new Set(selectedIds).size;
-  if (uniqueCount < selectedIds.length) {
-    alert('⚠️ Mohon pastikan setiap posisi diisi oleh pemain yang berbeda (tidak ada pemain ganda).');
+  const startingIds = activeTacticalFormation.startingSeven.filter(Boolean);
+  const uniqueCount = new Set(startingIds).size;
+  if (uniqueCount < 7) {
+    alert('⚠️ Mohon pastikan 7 posisi formasi terisi oleh 7 pemain yang berbeda (tidak ada pemain ganda).');
     return;
   }
 
-  team.formationScheme = scheme;
-  team.startingSeven = selectedIds;
+  team.formationScheme = activeTacticalFormation.scheme;
+  team.startingSeven = [...startingIds];
   team.formationApproved = true;
 
   saveState();
   closeModal();
   renderApp();
-  alert(`✅ Formasi 7v7 (${scheme}) untuk tim "${team.name}" berhasil diapprove & dipublikasikan ke Live Score!`);
+  alert(`✅ Formasi 7v7 (${team.formationScheme}) untuk tim "${team.name}" berhasil diapprove & dipublikasikan ke Live Score!`);
 }
 window.handleSaveFormationSubmitDirect = handleSaveFormationSubmitDirect;
 
@@ -2815,16 +2938,21 @@ function deleteTeam(teamId) {
 function deleteSuratTugas(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
-  const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.teamId === teamId);
-  if (!isEditable) return;
 
-  if (confirm(`Hapus file Surat Tugas untuk tim "${team.name}"?`)) {
+  const isEditable = authState.isLoggedIn && (authState.role === 'ADMIN' || authState.role === 'MANAGER' || authState.teamId === teamId);
+  if (!isEditable) {
+    alert('⚠️ Mohon login terlebih dahulu sebagai Super Admin atau Manajer tim ini untuk menghapus Surat Tugas.');
+    return;
+  }
+
+  if (confirm(`🗑️ HAPUS SURAT TUGAS?\n\nYakin ingin menghapus berkas Surat Tugas untuk tim "${team.name}"?`)) {
     team.suratTugasName = null;
     saveState();
     renderApp();
-    alert(`✅ File Surat Tugas tim "${team.name}" berhasil dihapus.`);
+    alert(`✅ Berkas Surat Tugas tim "${team.name}" berhasil dihapus.`);
   }
 }
+window.deleteSuratTugas = deleteSuratTugas;
 
 function deleteAllPlayers(teamId) {
   if (authState.role !== 'ADMIN') return;
