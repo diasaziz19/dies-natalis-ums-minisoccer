@@ -2945,7 +2945,7 @@ function openAddPlayerModal(teamId) {
         </div>
 
         <div class="flex gap-3 pt-3">
-          <button type="button" onclick="handleAddPlayerSubmitDirect('${teamId}')" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+          <button id="submitAddPlayerBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
             💾 Simpan Pemain
           </button>
           <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
@@ -2953,6 +2953,11 @@ function openAddPlayerModal(teamId) {
       </div>
     </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitAddPlayerBtn');
+    if (btn) btn.onclick = () => handleAddPlayerSubmitDirect(teamId);
+  }, 10);
 }
 
 function handleAddPlayerSubmitDirect(teamId) {
@@ -2995,6 +3000,7 @@ function handleAddPlayerSubmitDirect(teamId) {
   renderApp();
   alert(`✅ Pemain "${fullName}" (${position}) berhasil ditambahkan ke tim ${team ? '"' + team.name + '"' : ''}!`);
 }
+window.handleAddPlayerSubmitDirect = handleAddPlayerSubmitDirect;
 
 function deletePlayer(playerId) {
   const p = players.find(player => player.id === playerId);
@@ -3005,6 +3011,7 @@ function deletePlayer(playerId) {
     alert(`✅ Pemain berhasil dihapus.`);
   }
 }
+window.deletePlayer = deletePlayer;
 
 function openAddOfficialModal(teamId) {
   const team = teams.find(t => t.id === teamId);
@@ -3031,7 +3038,7 @@ function openAddOfficialModal(teamId) {
         </div>
 
         <div class="flex gap-3 pt-3">
-          <button type="button" onclick="handleAddOfficialSubmitDirect('${teamId}')" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+          <button id="submitAddOfficialBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
             💾 Simpan Official
           </button>
           <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
@@ -3039,6 +3046,11 @@ function openAddOfficialModal(teamId) {
       </div>
     </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitAddOfficialBtn');
+    if (btn) btn.onclick = () => handleAddOfficialSubmitDirect(teamId);
+  }, 10);
 }
 
 function handleAddOfficialSubmitDirect(teamId) {
@@ -3074,6 +3086,7 @@ function handleAddOfficialSubmitDirect(teamId) {
   renderApp();
   alert(`✅ ${role === 'HEAD_COACH' ? 'Head Coach' : 'Official Tim'} "${fullName}" berhasil ditambahkan ke tim ${team ? '"' + team.name + '"' : ''}!`);
 }
+window.handleAddOfficialSubmitDirect = handleAddOfficialSubmitDirect;
 
 function deleteOfficial(officialId) {
   const o = officials.find(off => off.id === officialId);
