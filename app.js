@@ -2650,7 +2650,6 @@ function advanceWinner(match) {
     }
   }
 }
-}
 
 function openEditScoreModal(matchId) {
   const match = matches.find(m => m.id === matchId);
