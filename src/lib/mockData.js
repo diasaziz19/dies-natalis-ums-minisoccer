@@ -88,12 +88,69 @@ export const INITIAL_TEAMS = [
 ];
 
 export const INITIAL_PLAYERS = [
-  { id: 'p1', teamId: 'team-1', fullName: 'Bagus Setyawan', identityNumber: '3372010101950001', usia: 29, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=BagusSetyawan' },
-  { id: 'p2', teamId: 'team-1', fullName: 'Rian Hidayat', identityNumber: '3372010202960002', usia: 28, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=RianHidayat' },
-  { id: 'p3', teamId: 'team-1', fullName: 'Doni Pratama', identityNumber: '3372010303970003', usia: 27, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=DoniPratama' },
-  { id: 'p4', teamId: 'team-1', fullName: 'Kiper Utama', identityNumber: '3372010404980004', usia: 26, position: 'GOALKEEPER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=KiperUtama' },
-  { id: 'p5', teamId: 'team-2', fullName: 'Ahmad Syukri', identityNumber: '3372020101950001', usia: 29, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=AhmadSyukri' },
-  { id: 'p6', teamId: 'team-2', fullName: 'Rahmat Hidayatullah', identityNumber: '3372020202960002', usia: 28, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=RahmatHidayatullah' }
+  // Team 1: POR FKIP
+  { id: 'p1-1', teamId: 'team-1', fullName: 'Bagus Setyawan', identityNumber: '3372010101950001', usia: 29, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=BagusSetyawan' },
+  { id: 'p1-2', teamId: 'team-1', fullName: 'Rian Hidayat', identityNumber: '3372010202960002', usia: 28, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=RianHidayat' },
+  { id: 'p1-3', teamId: 'team-1', fullName: 'Doni Pratama', identityNumber: '3372010303970003', usia: 27, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=DoniPratama' },
+  { id: 'p1-4', teamId: 'team-1', fullName: 'Kiper Utama POR', identityNumber: '3372010404980004', usia: 26, position: 'GOALKEEPER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=KiperPOR' },
+  { id: 'p1-5', teamId: 'team-1', fullName: 'Fajar Nugroho', identityNumber: '3372010505990005', usia: 25, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=FajarNugroho' },
+  { id: 'p1-6', teamId: 'team-1', fullName: 'Galih Permana', identityNumber: '3372010606000006', usia: 24, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=GalihPermana' },
+  { id: 'p1-7', teamId: 'team-1', fullName: 'Hendy Wijaya', identityNumber: '3372010707010007', usia: 23, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=HendyWijaya' },
+  { id: 'p1-8', teamId: 'team-1', fullName: 'Irfan Bachdim', identityNumber: '3372010808020008', usia: 22, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=IrfanPOR' },
+
+  // Team 2: Pend. Matematika
+  { id: 'p2-1', teamId: 'team-2', fullName: 'Ahmad Syukri', identityNumber: '3372020101950001', usia: 29, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=AhmadSyukri' },
+  { id: 'p2-2', teamId: 'team-2', fullName: 'Rahmat Hidayatullah', identityNumber: '3372020202960002', usia: 28, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=RahmatH' },
+  { id: 'p2-3', teamId: 'team-2', fullName: 'Suryo Utomo', identityNumber: '3372020303970003', usia: 27, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=SuryoUtomo' },
+  { id: 'p2-4', teamId: 'team-2', fullName: 'Taufik Hidayat', identityNumber: '3372020404980004', usia: 26, position: 'GOALKEEPER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=TaufikH' },
+  { id: 'p2-5', teamId: 'team-2', fullName: 'Utomo Prasetyo', identityNumber: '3372020505990005', usia: 25, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=UtomoP' },
+  { id: 'p2-6', teamId: 'team-2', fullName: 'Vicky Nitinegoro', identityNumber: '3372020606000006', usia: 24, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=VickyN' },
+  { id: 'p2-7', teamId: 'team-2', fullName: 'Wawan Febrianto', identityNumber: '3372020707010007', usia: 23, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=WawanF' },
+  { id: 'p2-8', teamId: 'team-2', fullName: 'Yusuf Mansur', identityNumber: '3372020808020008', usia: 22, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=YusufM' },
+
+  // Team 3: PTI FKIP
+  { id: 'p3-1', teamId: 'team-3', fullName: 'Andi Wijaya', identityNumber: '3372030101950001', usia: 28, position: 'GOALKEEPER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=AndiPTI' },
+  { id: 'p3-2', teamId: 'team-3', fullName: 'Bima Sakti', identityNumber: '3372030202960002', usia: 27, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=BimaPTI' },
+  { id: 'p3-3', teamId: 'team-3', fullName: 'Candra Wijaya', identityNumber: '3372030303970003', usia: 26, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=CandraPTI' },
+  { id: 'p3-4', teamId: 'team-3', fullName: 'Dedi Kusnandar', identityNumber: '3372030404980004', usia: 25, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=DediPTI' },
+  { id: 'p3-5', teamId: 'team-3', fullName: 'Evan Dimas', identityNumber: '3372030505990005', usia: 24, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=EvanPTI' },
+  { id: 'p3-6', teamId: 'team-3', fullName: 'Febri Hariyadi', identityNumber: '3372030606000006', usia: 23, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=FebriPTI' },
+  { id: 'p3-7', teamId: 'team-3', fullName: 'Guruh Soekarno', identityNumber: '3372030707010007', usia: 22, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=GuruhPTI' },
+
+  // Team 4: DEE English PBI
+  { id: 'p4-1', teamId: 'team-4', fullName: 'Hendra Setiawan', identityNumber: '3372040101950001', usia: 29, position: 'GOALKEEPER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=HendraPBI' },
+  { id: 'p4-2', teamId: 'team-4', fullName: 'Irfan Jaya', identityNumber: '3372040202960002', usia: 28, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=IrfanPBI' },
+  { id: 'p4-3', teamId: 'team-4', fullName: 'Jajang Sukmara', identityNumber: '3372040303970003', usia: 27, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=JajangPBI' },
+  { id: 'p4-4', teamId: 'team-4', fullName: 'Kurnia Meiga', identityNumber: '3372040404980004', usia: 26, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=KurniaPBI' },
+  { id: 'p4-5', teamId: 'team-4', fullName: 'Luthfi Kamal', identityNumber: '3372040505990005', usia: 25, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=LuthfiPBI' },
+  { id: 'p4-6', teamId: 'team-4', fullName: 'Marc Klok', identityNumber: '3372040606000006', usia: 24, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=KlokPBI' },
+  { id: 'p4-7', teamId: 'team-4', fullName: 'Nadeo Argawinata', identityNumber: '3372040707010007', usia: 23, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=NadeoPBI' },
+
+  // Team 5: PGSD FC
+  { id: 'p5-1', teamId: 'team-5', fullName: 'Oktovianus Maniani', identityNumber: '3372050101950001', usia: 29, position: 'GOALKEEPER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=OktoPGSD' },
+  { id: 'p5-2', teamId: 'team-5', fullName: 'Pratama Arhan', identityNumber: '3372050202960002', usia: 28, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=ArhanPGSD' },
+  { id: 'p5-3', teamId: 'team-5', fullName: 'Qischil Gandrum', identityNumber: '3372050303970003', usia: 27, position: 'DEFENDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=QischilPGSD' },
+  { id: 'p5-4', teamId: 'team-5', fullName: 'Rachmat Irianto', identityNumber: '3372050404980004', usia: 26, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=IriantoPGSD' },
+  { id: 'p5-5', teamId: 'team-5', fullName: 'Saddil Ramdani', identityNumber: '3372050505990005', usia: 25, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=SaddilPGSD' },
+  { id: 'p5-6', teamId: 'team-5', fullName: 'Terens Puhiri', identityNumber: '3372050606000006', usia: 24, position: 'MIDFIELDER', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=TerensPGSD' },
+  { id: 'p5-7', teamId: 'team-5', fullName: 'Utam Rusdiana', identityNumber: '3372050707010007', usia: 23, position: 'FORWARD', photoProfileUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=UtamPGSD' },
+
+  // Team 6-16 Auto-Generators for complete dataset
+  ...Array.from({ length: 11 }, (_, tIdx) => {
+    const tNum = tIdx + 6;
+    const teamId = `team-${tNum}`;
+    const roles = ['GOALKEEPER', 'DEFENDER', 'DEFENDER', 'MIDFIELDER', 'MIDFIELDER', 'MIDFIELDER', 'FORWARD'];
+    const names = ['Agung', 'Budi', 'Cahyo', 'Dharma', 'Erwin', 'Faris', 'Giri'];
+    return roles.map((pos, pIdx) => ({
+      id: `p${tNum}-${pIdx + 1}`,
+      teamId,
+      fullName: `${names[pIdx]} ${teamId.toUpperCase()}`,
+      identityNumber: `3372${tNum.toString().padStart(2, '0')}010${pIdx + 1}950001`,
+      usia: 22 + pIdx,
+      position: pos,
+      photoProfileUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${names[pIdx]}${teamId}`
+    }));
+  }).flat()
 ];
 
 export const INITIAL_OFFICIALS = [

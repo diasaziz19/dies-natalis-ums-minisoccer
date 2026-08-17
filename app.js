@@ -2456,20 +2456,32 @@ function renderAdminManagePanel() {
   container.innerHTML = teams.map(t => `
     <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex justify-between items-center flex-wrap gap-3">
       <div class="flex items-center gap-3">
-        <img src="${t.logoUrl}" style="width: 40px; height: 40px; border-radius: 50%; background: #000;">
+        <img src="${t.logoUrl}" style="width: 44px; height: 44px; border-radius: 50%; background: #000; border: 2px solid var(--ucl-cyan);">
         <div>
           <span class="font-bold text-white text-base block">${t.name}</span>
-          <span class="text-xs text-cyan-400">${t.facultyUnit} | Surat Tugas: ${t.suratTugasName ? '✅' : '❌'}</span>
+          <div class="text-xs text-cyan-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <span>${t.facultyUnit}</span>
+            <span>•</span>
+            <span>Surat Tugas:</span>
+            ${t.suratTugasName ? `
+              <span class="text-emerald-400 font-bold">📄 ${t.suratTugasName}</span>
+              <button onclick="deleteSuratTugas('${t.id}')" class="text-rose-400 font-bold hover:underline ml-1" title="Hapus Berkas Surat Tugas">🗑️ Hapus</button>
+            ` : `
+              <span class="text-amber-400 italic">❌ Belum upload</span>
+              <button onclick="openUploadSuratTugasModal('${t.id}')" class="text-cyan-400 font-bold hover:underline ml-1">📤 Upload</button>
+            `}
+          </div>
         </div>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
         <span class="badge-${t.status === 'APPROVED' ? 'gold' : t.status === 'REJECTED' ? 'danger' : 'cyan'}">${t.status}</span>
-        <button onclick="openSetFormationModal('${t.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(16,185,129,0.5); background:rgba(16,185,129,0.15); color:#34d399; cursor:pointer;" title="Atur Formasi 7v7 Taktikal">📋 Formasi 7v7 ${t.formationApproved ? '✅' : ''}</button>
+        <button onclick="openSetFormationModal('${t.id}')" style="padding: 5px 12px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(16,185,129,0.5); background:rgba(16,185,129,0.15); color:#34d399; cursor:pointer;" title="Atur Formasi 7v7 Taktikal">📋 Formasi 7v7 ${t.formationApproved ? '✅' : ''}</button>
+        <button onclick="openEditTeamModal('${t.id}')" style="padding: 5px 10px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(34,211,238,0.4); background:rgba(34,211,238,0.08); color:#22d3ee; cursor:pointer;">✏️ Edit</button>
         ${t.status === 'PENDING' ? `
-          <button onclick="approveTeam('${t.id}')" class="btn-ucl-primary" style="padding: 4px 10px; font-size: 11px;">Approve</button>
-          <button onclick="rejectTeam('${t.id}')" class="btn-danger" style="padding: 4px 10px; font-size: 11px;">Reject</button>
+          <button onclick="approveTeam('${t.id}')" class="btn-ucl-primary" style="padding: 5px 12px; font-size: 11px;">Approve</button>
+          <button onclick="rejectTeam('${t.id}')" class="btn-danger" style="padding: 5px 12px; font-size: 11px;">Reject</button>
         ` : ''}
-        <button onclick="deleteTeam('${t.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.15); color:#f87171; cursor:pointer;" title="👑 Super Admin: Hapus Tim & Skuad Permanen">🗑️ Hapus Tim</button>
+        <button onclick="deleteTeam('${t.id}')" style="padding: 5px 10px; font-size: 11px; font-weight:700; border-radius:6px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.15); color:#f87171; cursor:pointer;" title="👑 Super Admin: Hapus Tim & Skuad Permanen">🗑️ Hapus Tim</button>
       </div>
     </div>
   `).join('');
