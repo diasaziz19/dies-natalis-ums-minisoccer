@@ -92,6 +92,8 @@ window.openEditRuleModal = openEditRuleModal;
 window.deleteRule = deleteRule;
 window.resetRulesToDefault = resetRulesToDefault;
 window.openEditNavbarModal = openEditNavbarModal;
+window.openPublicMatchDetailModal = openPublicMatchDetailModal;
+window.switchMatchDetailModalTab = switchMatchDetailModalTab;
 
 // Super Admin Team & File Deletion Bindings
 window.deleteTeam = deleteTeam;
@@ -943,7 +945,7 @@ function renderBracketCardHTML(m, customLabel = null, allowDrag = false) {
   const awayDragAttrs = isAdmin ? `draggable="true" ondragstart="handleTeamDragStart(event, '${m.id}', 'away')" ondragover="handleTeamDragOver(event)" ondragleave="handleTeamDragLeave(event)" ondrop="handleTeamDrop(event, '${m.id}', 'away')" title="👑 Super Admin: Tarik (drag) untuk menukar posisi tim ini"` : '';
 
   return `
-    <div class="bracket-card ${isLive ? 'is-live' : isFinished ? 'is-finished' : ''}">
+    <div class="bracket-card ${isLive ? 'is-live' : isFinished ? 'is-finished' : ''} cursor-pointer" onclick="openPublicMatchDetailModal('${m.id}')" title="Klik untuk melihat Detail Pertandingan &amp; Line-Up Skuad">
       <div class="bracket-card-header">
         <span>${customLabel || `Match #${m.matchNumber}`}</span>
         <span style="font-weight:700; color: ${isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#94a3b8'};">
@@ -988,6 +990,9 @@ function renderLiveScore() {
     const homeGoalsSummary = getMatchGoalEventsSummary(m, m.homeTeamId);
     const awayGoalsSummary = getMatchGoalEventsSummary(m, m.awayTeamId);
 
+    const homeCount = players.filter(p => p.teamId === m.homeTeamId).length;
+    const awayCount = players.filter(p => p.teamId === m.awayTeamId).length;
+
     // Calculate real-time timer
     let timerText = m.kickoffTime;
     if (isLive && m.startedAt) {
@@ -1000,7 +1005,7 @@ function renderLiveScore() {
     }
 
     return `
-      <div class="glass-panel p-5" style="${isLive ? 'border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 0 20px rgba(34,197,94,0.1);' : ''}">
+      <div class="glass-panel p-5 cursor-pointer glass-panel-hover" onclick="openPublicMatchDetailModal('${m.id}')" style="${isLive ? 'border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 0 20px rgba(34,197,94,0.1);' : ''}">
         <div class="flex justify-between items-center mb-2 flex-wrap gap-1">
           <span class="text-xs font-bold text-cyan-400">Match #${m.matchNumber} | ${m.stage.replace(/_/g, ' ')}</span>
           <span style="font-size:11px; font-weight:700; color:${statusColor}; background:${statusColor}22; padding:2px 8px; border-radius:999px; border:1px solid ${statusColor}55;">${statusLabel}</span>
@@ -1030,6 +1035,13 @@ function renderLiveScore() {
             <div class="text-[11px] text-cyan-300 space-y-0.5">${awayGoalsSummary}</div>
           </div>
         </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800/80 flex justify-between items-center text-xs flex-wrap gap-2">
+          <span class="text-slate-400">👕 Line-Up: <strong class="text-white">${homeCount} vs ${awayCount} Pemain</strong></span>
+          <button onclick="event.stopPropagation(); openPublicMatchDetailModal('${m.id}')" class="btn-ucl-secondary" style="padding: 4px 12px; font-size: 11px; color: #22d3ee; border-color: rgba(34,211,238,0.4);">
+            🔍 Lihat Detail &amp; Line-Up Skuad
+          </button>
+        </div>
       </div>
     `;
   }).join('');
@@ -1049,13 +1061,14 @@ function renderVisitorMatches() {
     const awayGoalsSummary = getMatchGoalEventsSummary(m, m.awayTeamId);
 
     return `
-      <div class="glass-panel p-5">
+      <div class="glass-panel p-5 cursor-pointer glass-panel-hover" onclick="openPublicMatchDetailModal('${m.id}')">
         <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
           <span class="badge-cyan text-xs">Match #${m.matchNumber} | ${m.stage.replace(/_/g, ' ')}</span>
           <div class="flex items-center gap-2">
             <span style="font-size:11px; font-weight:700; color:${statusColor};">${m.status}</span>
+            <button onclick="event.stopPropagation(); openPublicMatchDetailModal('${m.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius: 6px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.1); color: #22d3ee; cursor: pointer;">🔍 Detail &amp; Line-Up</button>
             ${isAdmin ? `
-              <button onclick="openEditScheduleModal('${m.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius: 6px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.1); color: #ffd700; cursor: pointer;">📅 Edit Jadwal</button>
+              <button onclick="event.stopPropagation(); openEditScheduleModal('${m.id}')" style="padding: 4px 10px; font-size: 11px; font-weight:700; border-radius: 6px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.1); color: #ffd700; cursor: pointer;">📅 Edit Jadwal</button>
             ` : ''}
           </div>
         </div>
@@ -1078,6 +1091,186 @@ function renderVisitorMatches() {
     `;
   }).join('');
 }
+
+// ========== PUBLIC MATCH DETAIL & LINE-UP MODAL ==========
+function openPublicMatchDetailModal(matchId) {
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+
+  const homeTeam = teams.find(t => t.id === match.homeTeamId);
+  const awayTeam = teams.find(t => t.id === match.awayTeamId);
+
+  const homePlayers = match.homeTeamId ? players.filter(p => p.teamId === match.homeTeamId) : [];
+  const awayPlayers = match.awayTeamId ? players.filter(p => p.teamId === match.awayTeamId) : [];
+
+  const homeOfficials = match.homeTeamId ? officials.filter(o => o.teamId === match.homeTeamId) : [];
+  const awayOfficials = match.awayTeamId ? officials.filter(o => o.teamId === match.awayTeamId) : [];
+
+  const homeCoach = homeOfficials.find(o => o.role === 'HEAD_COACH');
+  const homeOfficial = homeOfficials.find(o => o.role === 'OFFICIAL');
+
+  const awayCoach = awayOfficials.find(o => o.role === 'HEAD_COACH');
+  const awayOfficial = awayOfficials.find(o => o.role === 'OFFICIAL');
+
+  const isLive = match.status === 'LIVE';
+  const isFinished = match.status === 'FINISHED';
+  const statusColor = isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#64748b';
+  const statusLabel = isLive ? '🔴 LIVE MATCH' : isFinished ? '✅ SELESAI' : '⏳ SCHEDULED';
+
+  const homeGoalsSummary = getMatchGoalEventsSummary(match, match.homeTeamId);
+  const awayGoalsSummary = getMatchGoalEventsSummary(match, match.awayTeamId);
+
+  let timerText = match.kickoffTime;
+  if (isLive && match.startedAt) {
+    const elapsedSec = Math.floor((Date.now() - match.startedAt) / 1000);
+    const mins = Math.floor(elapsedSec / 60);
+    const secs = elapsedSec % 60;
+    const timeFormatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const currentMinute = Math.max(1, Math.min(25, mins + 1));
+    timerText = `⏱️ ${timeFormatted} (Menit ke-${currentMinute}')`;
+  }
+
+  const renderPlayerRowHTML = (p) => {
+    const posBg = p.position === 'GOALKEEPER' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
+                  p.position === 'DEFENDER' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :
+                  p.position === 'MIDFIELDER' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+    return `
+      <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center text-xs">
+        <div class="flex items-center gap-2.5">
+          <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#000;">
+          <div>
+            <span class="font-bold text-white block">${p.fullName}</span>
+            <span class="text-[10px] text-slate-400">Usia: ${p.usia || '-'} th</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${posBg}">${p.position}</span>
+          ${p.isSuspended ? `<span class="px-1.5 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold" title="${p.suspensionReason}">⛔ Suspend</span>` : ''}
+        </div>
+      </div>
+    `;
+  };
+
+  openModal(`
+    <div class="p-1">
+      <!-- Header Info -->
+      <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-800 flex-wrap gap-2">
+        <div>
+          <span class="badge-cyan text-xs">Match #${match.matchNumber} | ${match.stage.replace(/_/g, ' ')}</span>
+          <h2 class="text-lg font-bold text-white mt-1">Detail Pertandingan &amp; Line-Up Skuad</h2>
+        </div>
+        <span style="font-size:11px; font-weight:700; color:${statusColor}; background:${statusColor}22; padding:3px 10px; border-radius:999px; border:1px solid ${statusColor}55;">${statusLabel}</span>
+      </div>
+
+      <!-- Schedule Banner -->
+      <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 flex justify-between items-center flex-wrap gap-2 mb-4">
+        <span>📅 ${match.matchDate || 'Sabtu, 14 Maret 2026'} | 🕐 ${match.kickoffTime}</span>
+        <span class="text-cyan-400 font-bold">📍 ${match.pitchLocation}</span>
+      </div>
+
+      <!-- Scoreboard Center -->
+      <div class="flex justify-between items-center gap-4 my-4 p-4 rounded-2xl" style="background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(15,23,42,0.95)); border: 1px solid rgba(0,240,255,0.2);">
+        <div class="text-center flex-1">
+          <img src="${match.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(match.homeTeamName)}" style="width:48px;height:48px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
+          <span class="font-bold text-white text-xs block mb-1">${match.homeTeamName}</span>
+          <div class="text-[11px] text-cyan-300 space-y-0.5">${homeGoalsSummary}</div>
+        </div>
+
+        <div class="text-center px-4">
+          <span class="font-black text-3xl font-mono text-cyan-400">${match.homeScore} - ${match.awayScore}</span>
+          <span class="block text-xs font-bold mt-1 text-emerald-400 font-mono">${timerText}</span>
+        </div>
+
+        <div class="text-center flex-1">
+          <img src="${match.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(match.awayTeamName)}" style="width:48px;height:48px;border-radius:50%;margin:0 auto 6px;background:#111;border:2px solid #334155;">
+          <span class="font-bold text-white text-xs block mb-1">${match.awayTeamName}</span>
+          <div class="text-[11px] text-cyan-300 space-y-0.5">${awayGoalsSummary}</div>
+        </div>
+      </div>
+
+      <!-- Detail Tab Controls -->
+      <div class="flex border-b border-slate-800 mb-4 gap-2">
+        <button id="modalTabBtn-lineup" class="tab-btn active text-xs py-1.5" onclick="switchMatchDetailModalTab('lineup')">👕 Line-Up Skuad (${homePlayers.length} vs ${awayPlayers.length})</button>
+        <button id="modalTabBtn-events" class="tab-btn text-xs py-1.5" onclick="switchMatchDetailModalTab('events')">📋 Event &amp; Timeline (${(match.events || []).length})</button>
+      </div>
+
+      <!-- Tab 1: Line-Up Skuad -->
+      <div id="modalTabContent-lineup" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Home Team Roster -->
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <div class="flex items-center gap-2 pb-2 mb-3 border-b border-slate-800">
+              <img src="${match.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(match.homeTeamName)}" style="width:20px;height:20px;border-radius:50%;">
+              <h4 class="font-bold text-white text-xs">${match.homeTeamName}</h4>
+              <span class="text-[10px] text-slate-400 ml-auto">(${homePlayers.length} Pemain)</span>
+            </div>
+
+            <div class="text-[11px] text-slate-400 mb-3 pb-2 border-b border-slate-800/60 space-y-0.5">
+              <div>👨‍💼 Head Coach: <strong class="text-white">${homeCoach?.fullName || 'Belum terdaftar'}</strong></div>
+              <div>📋 Official: <strong class="text-white">${homeOfficial?.fullName || 'Belum terdaftar'}</strong></div>
+            </div>
+
+            <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+              ${homePlayers.length === 0 ? '<p class="text-xs text-slate-500 py-4 text-center">Belum ada pemain diinput manajer tim.</p>' : homePlayers.map(renderPlayerRowHTML).join('')}
+            </div>
+          </div>
+
+          <!-- Away Team Roster -->
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <div class="flex items-center gap-2 pb-2 mb-3 border-b border-slate-800">
+              <img src="${match.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(match.awayTeamName)}" style="width:20px;height:20px;border-radius:50%;">
+              <h4 class="font-bold text-white text-xs">${match.awayTeamName}</h4>
+              <span class="text-[10px] text-slate-400 ml-auto">(${awayPlayers.length} Pemain)</span>
+            </div>
+
+            <div class="text-[11px] text-slate-400 mb-3 pb-2 border-b border-slate-800/60 space-y-0.5">
+              <div>👨‍💼 Head Coach: <strong class="text-white">${awayCoach?.fullName || 'Belum terdaftar'}</strong></div>
+              <div>📋 Official: <strong class="text-white">${awayOfficial?.fullName || 'Belum terdaftar'}</strong></div>
+            </div>
+
+            <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+              ${awayPlayers.length === 0 ? '<p class="text-xs text-slate-500 py-4 text-center">Belum ada pemain diinput manajer tim.</p>' : awayPlayers.map(renderPlayerRowHTML).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Event Timeline -->
+      <div id="modalTabContent-events" class="hidden">
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+          <h4 class="font-bold text-white text-xs mb-3">Timeline Kejadian Pertandingan</h4>
+          <div class="space-y-2 max-h-72 overflow-y-auto">
+            ${(match.events || []).length === 0
+              ? '<p class="text-xs text-slate-400 py-6 text-center">Belum ada kejadian tercatat.</p>'
+              : (match.events || []).slice().sort((a,b) => (a.minute||0)-(b.minute||0)).map(e => `
+                <div class="p-2.5 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(51,65,85,0.5);">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono font-bold text-cyan-400" style="min-width:30px;">${e.minute}'</span>
+                    <span class="font-bold text-white">${e.eventType === 'GOAL' ? '⚽ GOL' : e.eventType === 'PENALTY_GOAL' ? '⚽ GOL PENALTI' : e.eventType === 'OWN_GOAL' ? '⚽ GOL BUNUH DIRI' : e.eventType === 'ASSIST' ? '🎯 ASSIST' : e.eventType === 'YELLOW_CARD' ? '🟨 KUNING' : e.eventType === 'RED_CARD' ? '🟥 MERAH' : '🟨🟥 MERAH'} ${e.playerFullName || '-'}</span>
+                  </div>
+                  <span class="text-slate-400 text-[11px]">${e.teamId === match.homeTeamId ? match.homeTeamName : match.awayTeamName}</span>
+                </div>
+              `).join('')
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+        <button onclick="closeModal()" class="btn-ucl-secondary" style="padding: 8px 18px; font-size: 12px;">Tutup</button>
+      </div>
+    </div>
+  `);
+}
+
+window.switchMatchDetailModalTab = function(tab) {
+  ['lineup', 'events'].forEach(t => {
+    const btn = document.getElementById(`modalTabBtn-${t}`);
+    const content = document.getElementById(`modalTabContent-${t}`);
+    if (btn) btn.classList.toggle('active', t === tab);
+    if (content) content.classList.toggle('hidden', t !== tab);
+  });
+};
 
 function renderVisitorStats() {
   // Top Scorers
