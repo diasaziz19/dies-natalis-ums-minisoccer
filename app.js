@@ -609,72 +609,91 @@ function renderHomepageHero() {
 
 function openEditHomepageModal() {
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Teks &amp; Banner Beranda</h3>
-    <p class="text-sm text-slate-400 mb-5">Ubah informasi judul, subtitle, total hadiah, dan pengumuman di Beranda.</p>
-    
-    <form onsubmit="handleHomepageEditSubmit(event)" class="space-y-4">
-      <div>
-        <label class="form-label">Badge Atas <span class="text-rose-400">*</span></label>
-        <input type="text" id="hpBadge" class="form-input" value="${homepageContent.heroBadge}" required>
-      </div>
-      <div>
-        <label class="form-label">Judul Utama Turnamen <span class="text-rose-400">*</span></label>
-        <input type="text" id="hpTitle" class="form-input" value="${homepageContent.heroTitle}" required>
-      </div>
-      <div>
-        <label class="form-label">Deskripsi / Subtitle Beranda <span class="text-rose-400">*</span></label>
-        <textarea id="hpSubtitle" class="form-input" rows="3" required>${homepageContent.heroSubtitle}</textarea>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
+    <div class="p-1">
+      <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Teks &amp; Banner Beranda</h3>
+      <p class="text-sm text-slate-400 mb-5">Ubah informasi judul, subtitle, total hadiah, dan pengumuman di Beranda.</p>
+      
+      <div class="space-y-4">
         <div>
-          <label class="form-label">Total Hadiah</label>
-          <input type="text" id="hpPrize" class="form-input" value="${homepageContent.totalPrize}" required>
+          <label class="form-label">Badge Atas <span class="text-rose-400">*</span></label>
+          <input type="text" id="hpBadge" class="form-input" value="${homepageContent.heroBadge}">
         </div>
         <div>
-          <label class="form-label">Keterangan Hadiah</label>
-          <input type="text" id="hpPrizeSub" class="form-input" value="${homepageContent.prizeSub}" required>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="form-label">Format Turnamen</label>
-          <input type="text" id="hpFormat" class="form-input" value="${homepageContent.tournamentFormat}" required>
+          <label class="form-label">Judul Utama Turnamen <span class="text-rose-400">*</span></label>
+          <input type="text" id="hpTitle" class="form-input" value="${homepageContent.heroTitle}">
         </div>
         <div>
-          <label class="form-label">Lokasi Lapangan</label>
-          <input type="text" id="hpPitch" class="form-input" value="${homepageContent.pitchLocation}" required>
+          <label class="form-label">Deskripsi / Subtitle Beranda <span class="text-rose-400">*</span></label>
+          <textarea id="hpSubtitle" class="form-input" rows="3">${homepageContent.heroSubtitle}</textarea>
         </div>
-      </div>
-      <div>
-        <label class="form-label">Teks Pengumuman Terbaru (Opsional)</label>
-        <input type="text" id="hpAnnouncement" class="form-input" value="${homepageContent.announcementText || ''}" placeholder="misal: 📢 Pendaftaran dibuka sampai 12 Maret!">
-      </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Total Hadiah</label>
+            <input type="text" id="hpPrize" class="form-input" value="${homepageContent.totalPrize}">
+          </div>
+          <div>
+            <label class="form-label">Keterangan Hadiah</label>
+            <input type="text" id="hpPrizeSub" class="form-input" value="${homepageContent.prizeSub}">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Format Turnamen</label>
+            <input type="text" id="hpFormat" class="form-input" value="${homepageContent.tournamentFormat}">
+          </div>
+          <div>
+            <label class="form-label">Lokasi Lapangan</label>
+            <input type="text" id="hpPitch" class="form-input" value="${homepageContent.pitchLocation}">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Teks Pengumuman Terbaru (Opsional)</label>
+          <input type="text" id="hpAnnouncement" class="form-input" value="${homepageContent.announcementText || ''}" placeholder="misal: 📢 Pendaftaran dibuka sampai 12 Maret!">
+        </div>
 
-      <div class="flex gap-3 pt-2">
-        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Beranda</button>
-        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        <div class="flex gap-3 pt-2">
+          <button id="submitEditHomepageBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            💾 Simpan Beranda
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        </div>
       </div>
-    </form>
+    </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitEditHomepageBtn');
+    if (btn) btn.onclick = () => handleHomepageEditSubmitDirect();
+  }, 10);
 }
 
-window.handleHomepageEditSubmit = function(e) {
-  e.preventDefault();
+function handleHomepageEditSubmitDirect() {
+  const badgeEl = document.getElementById('hpBadge');
+  const titleEl = document.getElementById('hpTitle');
+  const subEl = document.getElementById('hpSubtitle');
+  const prizeEl = document.getElementById('hpPrize');
+  const prizeSubEl = document.getElementById('hpPrizeSub');
+  const formatEl = document.getElementById('hpFormat');
+  const pitchEl = document.getElementById('hpPitch');
+  const annEl = document.getElementById('hpAnnouncement');
+
   homepageContent = {
-    heroBadge: document.getElementById('hpBadge').value.trim(),
-    heroTitle: document.getElementById('hpTitle').value.trim(),
-    heroSubtitle: document.getElementById('hpSubtitle').value.trim(),
-    totalPrize: document.getElementById('hpPrize').value.trim(),
-    prizeSub: document.getElementById('hpPrizeSub').value.trim(),
-    tournamentFormat: document.getElementById('hpFormat').value.trim(),
-    pitchLocation: document.getElementById('hpPitch').value.trim(),
-    announcementText: document.getElementById('hpAnnouncement').value.trim()
+    heroBadge: badgeEl ? badgeEl.value.trim() : homepageContent.heroBadge,
+    heroTitle: titleEl ? titleEl.value.trim() : homepageContent.heroTitle,
+    heroSubtitle: subEl ? subEl.value.trim() : homepageContent.heroSubtitle,
+    totalPrize: prizeEl ? prizeEl.value.trim() : homepageContent.totalPrize,
+    prizeSub: prizeSubEl ? prizeSubEl.value.trim() : homepageContent.prizeSub,
+    tournamentFormat: formatEl ? formatEl.value.trim() : homepageContent.tournamentFormat,
+    pitchLocation: pitchEl ? pitchEl.value.trim() : homepageContent.pitchLocation,
+    announcementText: annEl ? annEl.value.trim() : homepageContent.announcementText
   };
+
   saveState();
   closeModal();
   renderApp();
   alert('✅ Teks dan Banner Beranda berhasil diperbarui!');
-};
+}
+window.handleHomepageEditSubmitDirect = handleHomepageEditSubmitDirect;
 
 // ========== DYNAMIC RULES SECTION & SUPER ADMIN CRUD ==========
 function renderRulesSection() {
@@ -749,43 +768,52 @@ function renderRulesSection() {
 
 function openAddRuleModal() {
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-1">+ Tambah Kategori Peraturan Baru</h3>
-    <p class="text-sm text-slate-400 mb-5">Tambahkan kelompok peraturan baru beserta poin-poin ketentuannya.</p>
+    <div class="p-1">
+      <h3 class="text-xl font-bold text-white mb-1">+ Tambah Kategori Peraturan Baru</h3>
+      <p class="text-sm text-slate-400 mb-5">Tambahkan kelompok peraturan baru beserta poin-poin ketentuannya.</p>
 
-    <form onsubmit="handleRuleSubmit(event)" class="space-y-4">
-      <div>
-        <label class="form-label">Judul Kategori Peraturan <span class="text-rose-400">*</span></label>
-        <input type="text" id="ruleTitle" class="form-input" placeholder="misal: 5. Ketentuan Jersey &amp; Aksesoris" required>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
+      <div class="space-y-4">
         <div>
-          <label class="form-label">Icon / Emoji</label>
-          <input type="text" id="ruleIcon" class="form-input" value="📜" placeholder="misal: 👕" required>
+          <label class="form-label">Judul Kategori Peraturan <span class="text-rose-400">*</span></label>
+          <input type="text" id="ruleTitle" class="form-input" placeholder="misal: 5. Ketentuan Jersey &amp; Aksesoris">
         </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Icon / Emoji</label>
+            <input type="text" id="ruleIcon" class="form-input" value="📜" placeholder="misal: 👕">
+          </div>
+          <div>
+            <label class="form-label">Warna Judul</label>
+            <select id="ruleColor" class="form-input">
+              <option value="text-amber-400">🟡 Amber (Kuning)</option>
+              <option value="text-cyan-400" selected>🔷 Cyan (Biru Muda)</option>
+              <option value="text-emerald-400">🟢 Emerald (Hijau)</option>
+              <option value="text-rose-400">🔴 Rose (Merah)</option>
+              <option value="text-purple-400">🟣 Purple (Ungu)</option>
+            </select>
+          </div>
+        </div>
+
         <div>
-          <label class="form-label">Warna Judul</label>
-          <select id="ruleColor" class="form-input">
-            <option value="text-amber-400">🟡 Amber (Kuning)</option>
-            <option value="text-cyan-400">🔷 Cyan (Biru Muda)</option>
-            <option value="text-emerald-400">🟢 Emerald (Hijau)</option>
-            <option value="text-rose-400">🔴 Rose (Merah)</option>
-            <option value="text-purple-400">🟣 Purple (Ungu)</option>
-          </select>
+          <label class="form-label">Poin-Poin Peraturan (1 Poin Per Baris) <span class="text-rose-400">*</span></label>
+          <textarea id="ruleItemsText" class="form-input" rows="5" placeholder="Poin 1: Wajib memakai jersey bernomor dada&#10;Poin 2: Dilarang memakai perhiasan saat bertanding"></textarea>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button id="submitAddRuleBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            💾 Simpan Peraturan
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
         </div>
       </div>
-
-      <div>
-        <label class="form-label">Poin-Poin Peraturan (1 Poin Per Baris) <span class="text-rose-400">*</span></label>
-        <textarea id="ruleItemsText" class="form-input" rows="5" placeholder="Poin 1: Wajib memakai jersey bernomor dada&#10;Poin 2: Dilarang memakai perhiasan saat bertanding" required></textarea>
-      </div>
-
-      <div class="flex gap-3 pt-2">
-        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Peraturan</button>
-        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
-      </div>
-    </form>
+    </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitAddRuleBtn');
+    if (btn) btn.onclick = () => handleRuleSubmitDirect();
+  }, 10);
 }
 
 function openEditRuleModal(ruleId) {
@@ -795,52 +823,77 @@ function openEditRuleModal(ruleId) {
   const itemsText = (rule.items || []).join('\n');
 
   openModal(`
-    <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Kategori Peraturan</h3>
-    <p class="text-sm text-slate-400 mb-5">Perbarui judul, icon, dan poin-poin peraturan.</p>
+    <div class="p-1">
+      <h3 class="text-xl font-bold text-white mb-1">✏️ Edit Kategori Peraturan</h3>
+      <p class="text-sm text-slate-400 mb-5">Perbarui judul, icon, dan poin-poin peraturan.</p>
 
-    <form onsubmit="handleRuleSubmit(event, '${ruleId}')" class="space-y-4">
-      <div>
-        <label class="form-label">Judul Kategori Peraturan <span class="text-rose-400">*</span></label>
-        <input type="text" id="ruleTitle" class="form-input" value="${rule.title}" required>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
+      <div class="space-y-4">
         <div>
-          <label class="form-label">Icon / Emoji</label>
-          <input type="text" id="ruleIcon" class="form-input" value="${rule.icon || '📜'}" required>
+          <label class="form-label">Judul Kategori Peraturan <span class="text-rose-400">*</span></label>
+          <input type="text" id="ruleTitle" class="form-input" value="${rule.title}">
         </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Icon / Emoji</label>
+            <input type="text" id="ruleIcon" class="form-input" value="${rule.icon || '📜'}">
+          </div>
+          <div>
+            <label class="form-label">Warna Judul</label>
+            <select id="ruleColor" class="form-input">
+              <option value="text-amber-400" ${rule.colorClass === 'text-amber-400' ? 'selected' : ''}>🟡 Amber (Kuning)</option>
+              <option value="text-cyan-400" ${rule.colorClass === 'text-cyan-400' ? 'selected' : ''}>🔷 Cyan (Biru Muda)</option>
+              <option value="text-emerald-400" ${rule.colorClass === 'text-emerald-400' ? 'selected' : ''}>🟢 Emerald (Hijau)</option>
+              <option value="text-rose-400" ${rule.colorClass === 'text-rose-400' ? 'selected' : ''}>🔴 Rose (Merah)</option>
+              <option value="text-purple-400" ${rule.colorClass === 'text-purple-400' ? 'selected' : ''}>🟣 Purple (Ungu)</option>
+            </select>
+          </div>
+        </div>
+
         <div>
-          <label class="form-label">Warna Judul</label>
-          <select id="ruleColor" class="form-input">
-            <option value="text-amber-400" ${rule.colorClass === 'text-amber-400' ? 'selected' : ''}>🟡 Amber (Kuning)</option>
-            <option value="text-cyan-400" ${rule.colorClass === 'text-cyan-400' ? 'selected' : ''}>🔷 Cyan (Biru Muda)</option>
-            <option value="text-emerald-400" ${rule.colorClass === 'text-emerald-400' ? 'selected' : ''}>🟢 Emerald (Hijau)</option>
-            <option value="text-rose-400" ${rule.colorClass === 'text-rose-400' ? 'selected' : ''}>🔴 Rose (Merah)</option>
-            <option value="text-purple-400" ${rule.colorClass === 'text-purple-400' ? 'selected' : ''}>🟣 Purple (Ungu)</option>
-          </select>
+          <label class="form-label">Poin-Poin Peraturan (1 Poin Per Baris) <span class="text-rose-400">*</span></label>
+          <textarea id="ruleItemsText" class="form-input" rows="5">${itemsText}</textarea>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button id="submitEditRuleBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            💾 Simpan Peraturan
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
         </div>
       </div>
-
-      <div>
-        <label class="form-label">Poin-Poin Peraturan (1 Poin Per Baris) <span class="text-rose-400">*</span></label>
-        <textarea id="ruleItemsText" class="form-input" rows="5" required>${itemsText}</textarea>
-      </div>
-
-      <div class="flex gap-3 pt-2">
-        <button type="submit" class="btn-ucl-primary flex-1" style="justify-content: center;">💾 Simpan Peraturan</button>
-        <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
-      </div>
-    </form>
+    </div>
   `);
+
+  setTimeout(() => {
+    const btn = document.getElementById('submitEditRuleBtn');
+    if (btn) btn.onclick = () => handleRuleSubmitDirect(ruleId);
+  }, 10);
 }
 
-window.handleRuleSubmit = function(e, ruleId = null) {
-  e.preventDefault();
-  const title = document.getElementById('ruleTitle').value.trim();
-  const icon = document.getElementById('ruleIcon').value.trim() || '📜';
-  const colorClass = document.getElementById('ruleColor').value;
-  const itemsText = document.getElementById('ruleItemsText').value.trim();
+function handleRuleSubmitDirect(ruleId = null) {
+  const titleEl = document.getElementById('ruleTitle');
+  const iconEl = document.getElementById('ruleIcon');
+  const colorEl = document.getElementById('ruleColor');
+  const itemsTextEl = document.getElementById('ruleItemsText');
+
+  const title = titleEl ? titleEl.value.trim() : '';
+  const icon = iconEl ? iconEl.value.trim() : '📜';
+  const colorClass = colorEl ? colorEl.value : 'text-cyan-400';
+  const itemsText = itemsTextEl ? itemsTextEl.value.trim() : '';
   const items = itemsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+  if (!title) {
+    alert('⚠️ Mohon isi Judul Kategori Peraturan.');
+    if (titleEl) titleEl.focus();
+    return;
+  }
+
+  if (items.length === 0) {
+    alert('⚠️ Mohon isi minimal 1 poin peraturan.');
+    if (itemsTextEl) itemsTextEl.focus();
+    return;
+  }
 
   if (ruleId) {
     const rule = tournamentRules.find(r => r.id === ruleId);
@@ -863,8 +916,9 @@ window.handleRuleSubmit = function(e, ruleId = null) {
   saveState();
   closeModal();
   renderApp();
-  alert(`✅ Peraturan "${title}" berhasil disimpan!`);
-};
+  alert(`✅ Kategori Peraturan "${title}" berhasil disimpan!`);
+}
+window.handleRuleSubmitDirect = handleRuleSubmitDirect;
 
 function deleteRule(ruleId) {
   const rule = tournamentRules.find(r => r.id === ruleId);
@@ -1568,11 +1622,11 @@ function openSetFormationModal(teamId) {
         <img src="${team.logoUrl}" style="width:36px;height:36px;border-radius:50%;background:#000;border:2px solid var(--ucl-cyan);">
       </div>
 
-      <form onsubmit="handleSaveFormationSubmit(event, '${team.id}')" class="space-y-4">
+      <div class="space-y-4">
         <!-- Scheme Select -->
         <div>
           <label class="form-label">Skema Taktikal Formasi 7v7 <span class="text-rose-400">*</span></label>
-          <select id="formationSchemeSelect" class="form-input font-bold text-cyan-300" onchange="updateFormationPreview('${team.id}')" required>
+          <select id="formationSchemeSelect" class="form-input font-bold text-cyan-300" onchange="updateFormationPreview('${team.id}')">
             <option value="2-3-1" ${currentScheme === '2-3-1' ? 'selected' : ''}>⚽ 2 - 3 - 1 (Standar Minisoccer: 2 Belakang, 3 Tengah, 1 Depan)</option>
             <option value="3-2-1" ${currentScheme === '3-2-1' ? 'selected' : ''}>🛡️ 3 - 2 - 1 (Bertahan / Counter: 3 Belakang, 2 Tengah, 1 Depan)</option>
             <option value="2-2-2" ${currentScheme === '2-2-2' ? 'selected' : ''}>⚖️ 2 - 2 - 2 (Seimbang Grid: 2 Belakang, 2 Tengah, 2 Depan)</option>
@@ -1588,49 +1642,49 @@ function openSetFormationModal(teamId) {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label class="form-label text-[11px] text-amber-300">1. Penjaga Gawang (GK)</label>
-              <select id="posGK" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+              <select id="posGK" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
                 ${buildSelectOptions(gkPlayer?.id)}
               </select>
             </div>
 
             <div>
               <label class="form-label text-[11px] text-blue-300">2. Pemain Belakang (DF 1)</label>
-              <select id="posDF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+              <select id="posDF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
                 ${buildSelectOptions(df1Player?.id)}
               </select>
             </div>
 
             <div>
               <label class="form-label text-[11px] text-blue-300">3. Pemain Belakang (DF 2)</label>
-              <select id="posDF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+              <select id="posDF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
                 ${buildSelectOptions(df2Player?.id)}
               </select>
             </div>
 
             <div>
               <label class="form-label text-[11px] text-emerald-300">4. Gelandang (MF 1)</label>
-              <select id="posMF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+              <select id="posMF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
                 ${buildSelectOptions(mf1Player?.id)}
               </select>
             </div>
 
             <div>
               <label class="form-label text-[11px] text-emerald-300">5. Gelandang (MF 2)</label>
-              <select id="posMF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+              <select id="posMF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
                 ${buildSelectOptions(mf2Player?.id)}
               </select>
             </div>
 
             <div>
               <label class="form-label text-[11px] text-emerald-300">6. Gelandang / Sayap (MF 3)</label>
-              <select id="posMF3" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+              <select id="posMF3" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
                 ${buildSelectOptions(mf3Player?.id)}
               </select>
             </div>
 
             <div class="md:col-span-2">
               <label class="form-label text-[11px] text-rose-300">7. Penyerang / Striker Utama (FW)</label>
-              <select id="posFW1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+              <select id="posFW1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')">
                 ${buildSelectOptions(fw1Player?.id)}
               </select>
             </div>
@@ -1643,16 +1697,20 @@ function openSetFormationModal(teamId) {
         </div>
 
         <div class="flex gap-3 pt-2">
-          <button type="submit" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+          <button id="submitSaveFormationBtn" type="button" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
             ✅ Approve &amp; Publikasikan Formasi ke Live Score
           </button>
           <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
         </div>
-      </form>
+      </div>
     </div>
   `);
 
-  setTimeout(() => updateFormationPreview(teamId), 50);
+  setTimeout(() => {
+    updateFormationPreview(teamId);
+    const btn = document.getElementById('submitSaveFormationBtn');
+    if (btn) btn.onclick = () => handleSaveFormationSubmitDirect(teamId);
+  }, 20);
 }
 
 function updateFormationPreview(teamId) {
@@ -1726,8 +1784,7 @@ function buildSingleTeamPitchHTML(team, squadList, scheme = '2-3-1') {
   `;
 }
 
-function handleSaveFormationSubmit(e, teamId) {
-  e.preventDefault();
+function handleSaveFormationSubmitDirect(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
 
@@ -1758,6 +1815,7 @@ function handleSaveFormationSubmit(e, teamId) {
   renderApp();
   alert(`✅ Formasi 7v7 (${scheme}) untuk tim "${team.name}" berhasil diapprove & dipublikasikan ke Live Score!`);
 }
+window.handleSaveFormationSubmitDirect = handleSaveFormationSubmitDirect;
 
 // ========== 2. MANAJEMEN TIM (PUBLIC READ-ONLY + EDITABLE FOR AUTH USERS) ==========
 function renderTeamManagerPortal() {
