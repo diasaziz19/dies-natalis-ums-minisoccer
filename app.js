@@ -95,6 +95,11 @@ window.openEditNavbarModal = openEditNavbarModal;
 window.openPublicMatchDetailModal = openPublicMatchDetailModal;
 window.switchMatchDetailModalTab = switchMatchDetailModalTab;
 
+// Manager Tactical Formation Setter Bindings
+window.openSetFormationModal = openSetFormationModal;
+window.updateFormationPreview = updateFormationPreview;
+window.handleSaveFormationSubmit = handleSaveFormationSubmit;
+
 // Super Admin Team & File Deletion Bindings
 window.deleteTeam = deleteTeam;
 window.deleteSuratTugas = deleteSuratTugas;
@@ -1094,18 +1099,35 @@ function renderVisitorMatches() {
 
 // ========== PUBLIC MATCH DETAIL & LINE-UP MODAL ==========
 function buildTacticalPitchHTML(homeTeam, awayTeam, homePlayers, awayPlayers) {
-  const categorizeSquad = (playersList) => {
-    const gk = playersList.filter(p => p.position === 'GOALKEEPER');
-    const df = playersList.filter(p => p.position === 'DEFENDER');
-    const mf = playersList.filter(p => p.position === 'MIDFIELDER');
-    const fw = playersList.filter(p => p.position === 'FORWARD');
-    return { gk, df, mf, fw };
+  const getStartingSquad = (teamObj, squadList) => {
+    if (teamObj?.formationApproved && teamObj?.startingSeven && teamObj.startingSeven.length >= 7) {
+      const startingP = teamObj.startingSeven.map(id => squadList.find(p => p.id === id)).filter(Boolean);
+      if (startingP.length >= 7) {
+        return {
+          isCustom: true,
+          scheme: teamObj.formationScheme || '2-3-1',
+          gk: [startingP[0]],
+          df: startingP.slice(1, 3),
+          mf: startingP.slice(3, 6),
+          fw: startingP.slice(6, 7)
+        };
+      }
+    }
+    return {
+      isCustom: false,
+      scheme: 'Auto 7v7',
+      gk: squadList.filter(p => p.position === 'GOALKEEPER'),
+      df: squadList.filter(p => p.position === 'DEFENDER'),
+      mf: squadList.filter(p => p.position === 'MIDFIELDER'),
+      fw: squadList.filter(p => p.position === 'FORWARD')
+    };
   };
 
-  const homeCat = categorizeSquad(homePlayers);
-  const awayCat = categorizeSquad(awayPlayers);
+  const homeCat = getStartingSquad(homeTeam, homePlayers);
+  const awayCat = getStartingSquad(awayTeam, awayPlayers);
 
   const renderPitchNode = (p, teamType) => {
+    if (!p) return '';
     const isHome = teamType === 'home';
     const borderCol = isHome ? '#00f0ff' : '#ffd700';
     const bgBadge = isHome ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40' : 'bg-amber-500/20 text-amber-300 border-amber-400/40';
@@ -1140,9 +1162,9 @@ function buildTacticalPitchHTML(homeTeam, awayTeam, homePlayers, awayPlayers) {
       <div class="relative z-10 space-y-4 py-2">
         <!-- HOME TEAM HALF (Top Side) -->
         <div>
-          <div class="flex items-center gap-2 mb-3 justify-center">
+          <div class="flex items-center gap-2 mb-3 justify-center flex-wrap">
             <img src="${homeTeam?.logoUrl || ''}" style="width:18px;height:18px;border-radius:50%;background:#000;">
-            <span class="text-xs font-bold text-cyan-300">${homeTeam?.name || 'Tim Home'} (Formasi Lapangan 7v7)</span>
+            <span class="text-xs font-bold text-cyan-300">${homeTeam?.name || 'Tim Home'} [Formasi: ${homeCat.scheme}] ${homeCat.isCustom ? '✅ Approved' : ''}</span>
           </div>
 
           <!-- GK Zone -->
@@ -1182,9 +1204,9 @@ function buildTacticalPitchHTML(homeTeam, awayTeam, homePlayers, awayPlayers) {
             ${awayCat.gk.length > 0 ? awayCat.gk.map(p => renderPitchNode(p, 'away')).join('') : '<span class="text-[10px] text-amber-300/60 font-semibold italic">Kiper (GK)</span>'}
           </div>
 
-          <div class="flex items-center gap-2 justify-center">
+          <div class="flex items-center gap-2 justify-center flex-wrap">
             <img src="${awayTeam?.logoUrl || ''}" style="width:18px;height:18px;border-radius:50%;background:#000;">
-            <span class="text-xs font-bold text-amber-300">${awayTeam?.name || 'Tim Away'} (Formasi Lapangan 7v7)</span>
+            <span class="text-xs font-bold text-amber-300">${awayTeam?.name || 'Tim Away'} [Formasi: ${awayCat.scheme}] ${awayCat.isCustom ? '✅ Approved' : ''}</span>
           </div>
         </div>
       </div>
@@ -1488,6 +1510,239 @@ function renderPublicTeamsGrid() {
   }).join('');
 }
 
+// ========== TEAM MANAGER TACTICAL FORMATION SETTER ==========
+function openSetFormationModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  const teamPlayers = players.filter(p => p.teamId === teamId);
+  if (teamPlayers.length < 7) {
+    alert(`⚠️ Skuad tim "${team.name}" baru memiliki ${teamPlayers.length} pemain. Minimal daftarkan 7 pemain untuk dapat menyusun formasi 7v7.`);
+    return;
+  }
+
+  const currentScheme = team.formationScheme || '2-3-1';
+  const savedStarting = team.startingSeven || [];
+
+  const gkPlayer = teamPlayers.find(p => p.id === savedStarting[0]) || teamPlayers.find(p => p.position === 'GOALKEEPER') || teamPlayers[0];
+  const df1Player = teamPlayers.find(p => p.id === savedStarting[1]) || teamPlayers.find(p => p.position === 'DEFENDER' && p.id !== gkPlayer?.id) || teamPlayers[1];
+  const df2Player = teamPlayers.find(p => p.id === savedStarting[2]) || teamPlayers.find(p => p.position === 'DEFENDER' && p.id !== gkPlayer?.id && p.id !== df1Player?.id) || teamPlayers[2];
+  const mf1Player = teamPlayers.find(p => p.id === savedStarting[3]) || teamPlayers.find(p => p.position === 'MIDFIELDER' && ![gkPlayer?.id, df1Player?.id, df2Player?.id].includes(p.id)) || teamPlayers[3];
+  const mf2Player = teamPlayers.find(p => p.id === savedStarting[4]) || teamPlayers.find(p => p.position === 'MIDFIELDER' && ![gkPlayer?.id, df1Player?.id, df2Player?.id, mf1Player?.id].includes(p.id)) || teamPlayers[4];
+  const mf3Player = teamPlayers.find(p => p.id === savedStarting[5]) || teamPlayers.find(p => ![gkPlayer?.id, df1Player?.id, df2Player?.id, mf1Player?.id, mf2Player?.id].includes(p.id)) || teamPlayers[5];
+  const fw1Player = teamPlayers.find(p => p.id === savedStarting[6]) || teamPlayers.find(p => p.position === 'FORWARD' && ![gkPlayer?.id, df1Player?.id, df2Player?.id, mf1Player?.id, mf2Player?.id, mf3Player?.id].includes(p.id)) || teamPlayers[6];
+
+  const buildSelectOptions = (selectedId) => {
+    return teamPlayers.map(p => `
+      <option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>
+        ${p.fullName} (${p.position})${p.isSuspended ? ' [SUSPENDED]' : ''}
+      </option>
+    `).join('');
+  };
+
+  openModal(`
+    <div class="p-1">
+      <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-800">
+        <div>
+          <h3 class="text-xl font-bold text-white flex items-center gap-2">
+            <span>📋 Atur Visual Formasi 7v7 Skuad</span>
+          </h3>
+          <p class="text-xs text-cyan-400 mt-0.5">Pilih 7 pemain utama (Starting VII) &amp; skema taktikal tim <strong>"${team.name}"</strong></p>
+        </div>
+        <img src="${team.logoUrl}" style="width:36px;height:36px;border-radius:50%;background:#000;border:2px solid var(--ucl-cyan);">
+      </div>
+
+      <form onsubmit="handleSaveFormationSubmit(event, '${team.id}')" class="space-y-4">
+        <!-- Scheme Select -->
+        <div>
+          <label class="form-label">Skema Taktikal Formasi 7v7 <span class="text-rose-400">*</span></label>
+          <select id="formationSchemeSelect" class="form-input font-bold text-cyan-300" onchange="updateFormationPreview('${team.id}')" required>
+            <option value="2-3-1" ${currentScheme === '2-3-1' ? 'selected' : ''}>⚽ 2 - 3 - 1 (Standar Minisoccer: 2 Belakang, 3 Tengah, 1 Depan)</option>
+            <option value="3-2-1" ${currentScheme === '3-2-1' ? 'selected' : ''}>🛡️ 3 - 2 - 1 (Bertahan / Counter: 3 Belakang, 2 Tengah, 1 Depan)</option>
+            <option value="2-2-2" ${currentScheme === '2-2-2' ? 'selected' : ''}>⚖️ 2 - 2 - 2 (Seimbang Grid: 2 Belakang, 2 Tengah, 2 Depan)</option>
+            <option value="1-4-1" ${currentScheme === '1-4-1' ? 'selected' : ''}>🎯 1 - 4 - 1 (Penguasaan Bola: 1 Belakang, 4 Tengah, 1 Depan)</option>
+            <option value="3-1-2" ${currentScheme === '3-1-2' ? 'selected' : ''}>⚡ 3 - 1 - 2 (Sayap Serang: 3 Belakang, 1 Tengah, 2 Depan)</option>
+          </select>
+        </div>
+
+        <!-- 7 Starting Players Select Grid -->
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider block">Pilih 7 Pemain Utama (Starting VII):</span>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="form-label text-[11px] text-amber-300">1. Penjaga Gawang (GK)</label>
+              <select id="posGK" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+                ${buildSelectOptions(gkPlayer?.id)}
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label text-[11px] text-blue-300">2. Pemain Belakang (DF 1)</label>
+              <select id="posDF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+                ${buildSelectOptions(df1Player?.id)}
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label text-[11px] text-blue-300">3. Pemain Belakang (DF 2)</label>
+              <select id="posDF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+                ${buildSelectOptions(df2Player?.id)}
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label text-[11px] text-emerald-300">4. Gelandang (MF 1)</label>
+              <select id="posMF1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+                ${buildSelectOptions(mf1Player?.id)}
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label text-[11px] text-emerald-300">5. Gelandang (MF 2)</label>
+              <select id="posMF2" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+                ${buildSelectOptions(mf2Player?.id)}
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label text-[11px] text-emerald-300">6. Gelandang / Sayap (MF 3)</label>
+              <select id="posMF3" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+                ${buildSelectOptions(mf3Player?.id)}
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="form-label text-[11px] text-rose-300">7. Penyerang / Striker Utama (FW)</label>
+              <select id="posFW1" class="form-input text-xs" onchange="updateFormationPreview('${team.id}')" required>
+                ${buildSelectOptions(fw1Player?.id)}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Container -->
+        <div id="formationPreviewPitchContainer">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="btn-ucl-primary flex-1 justify-center" style="padding: 10px 16px;">
+            ✅ Approve &amp; Publikasikan Formasi ke Live Score
+          </button>
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary" style="padding: 10px 16px;">Batal</button>
+        </div>
+      </form>
+    </div>
+  `);
+
+  setTimeout(() => updateFormationPreview(teamId), 50);
+}
+
+function updateFormationPreview(teamId) {
+  const container = document.getElementById('formationPreviewPitchContainer');
+  if (!container) return;
+
+  const team = teams.find(t => t.id === teamId);
+  const scheme = document.getElementById('formationSchemeSelect')?.value || '2-3-1';
+
+  const getP = (id) => players.find(p => p.id === id);
+
+  const selectedIds = [
+    document.getElementById('posGK')?.value,
+    document.getElementById('posDF1')?.value,
+    document.getElementById('posDF2')?.value,
+    document.getElementById('posMF1')?.value,
+    document.getElementById('posMF2')?.value,
+    document.getElementById('posMF3')?.value,
+    document.getElementById('posFW1')?.value,
+  ].filter(Boolean);
+
+  const startingPlayers = selectedIds.map(id => getP(id)).filter(Boolean);
+
+  container.innerHTML = `
+    <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-bold text-emerald-400">🏟️ Live Preview Formasi Lapangan (${scheme})</span>
+        <span class="text-[11px] text-slate-400">${startingPlayers.length} Pemain Dipilih</span>
+      </div>
+      ${buildSingleTeamPitchHTML(team, startingPlayers, scheme)}
+    </div>
+  `;
+}
+
+function buildSingleTeamPitchHTML(team, squadList, scheme = '2-3-1') {
+  const renderNode = (p) => {
+    if (!p) return '<div class="w-8 h-8 rounded-full border border-dashed border-white/30"></div>';
+    const posShort = p.position === 'GOALKEEPER' ? 'GK' : p.position === 'DEFENDER' ? 'DF' : p.position === 'MIDFIELDER' ? 'MF' : 'FW';
+    return `
+      <div class="flex flex-col items-center text-center my-1">
+        <div class="relative">
+          <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#000;border:2px solid #00f0ff;box-shadow:0 0 8px rgba(0,240,255,0.6);">
+          <span class="absolute -bottom-1 -right-1 text-[8px] font-extrabold px-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">${posShort}</span>
+        </div>
+        <span class="text-[9px] font-bold text-white mt-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700/60 max-w-[80px] truncate">${p.fullName.split(' ')[0]}</span>
+      </div>
+    `;
+  };
+
+  const gk = squadList[0];
+  const defs = squadList.slice(1, 3);
+  const mfs = squadList.slice(3, 6);
+  const fws = squadList.slice(6, 7);
+
+  return `
+    <div class="tactical-pitch p-4 rounded-xl relative overflow-hidden" style="background: linear-gradient(180deg, #094721 0%, #063518 100%); border: 2px solid #10b981;">
+      <div class="text-center mb-3">
+        <span class="text-xs font-bold text-cyan-300">${team?.name || 'Tim'} [Formasi: ${scheme}]</span>
+      </div>
+      <div class="space-y-3">
+        <!-- GK -->
+        <div class="flex justify-center">${renderNode(gk)}</div>
+        <!-- DF -->
+        <div class="flex justify-around px-4">${defs.map(renderNode).join('')}</div>
+        <!-- MF -->
+        <div class="flex justify-around px-6">${mfs.map(renderNode).join('')}</div>
+        <!-- FW -->
+        <div class="flex justify-center">${renderNode(fws[0])}</div>
+      </div>
+    </div>
+  `;
+}
+
+function handleSaveFormationSubmit(e, teamId) {
+  e.preventDefault();
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  const scheme = document.getElementById('formationSchemeSelect')?.value || '2-3-1';
+  const selectedIds = [
+    document.getElementById('posGK')?.value,
+    document.getElementById('posDF1')?.value,
+    document.getElementById('posDF2')?.value,
+    document.getElementById('posMF1')?.value,
+    document.getElementById('posMF2')?.value,
+    document.getElementById('posMF3')?.value,
+    document.getElementById('posFW1')?.value,
+  ].filter(Boolean);
+
+  // Check unique players selection
+  const uniqueCount = new Set(selectedIds).size;
+  if (uniqueCount < selectedIds.length) {
+    alert('⚠️ Mohon pastikan setiap posisi diisi oleh pemain yang berbeda (tidak ada pemain ganda).');
+    return;
+  }
+
+  team.formationScheme = scheme;
+  team.startingSeven = selectedIds;
+  team.formationApproved = true;
+
+  saveState();
+  closeModal();
+  renderApp();
+  alert(`✅ Formasi 7v7 (${scheme}) untuk tim "${team.name}" berhasil diapprove & dipublikasikan ke Live Score!`);
+}
+
 // ========== 2. MANAJEMEN TIM (PUBLIC READ-ONLY + EDITABLE FOR AUTH USERS) ==========
 function renderTeamManagerPortal() {
   const container = document.getElementById('managerTeamsContainer');
@@ -1551,6 +1806,9 @@ function renderTeamManagerPortal() {
           
           ${isEditable ? `
             <div class="flex gap-2 flex-wrap">
+              <button onclick="openSetFormationModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(16,185,129,0.5); background: rgba(16,185,129,0.15); color: #34d399; cursor: pointer;">
+                📋 Set Formasi 7v7 ${team.formationApproved ? '✅' : ''}
+              </button>
               <button onclick="openEditTeamModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(34,211,238,0.4); background: rgba(34,211,238,0.08); color: #22d3ee; cursor: pointer;">✏️ Edit Info Tim</button>
               <button onclick="openUploadSuratTugasModal('${team.id}')" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,215,0,0.4); background: rgba(255,215,0,0.08); color: #ffd700; cursor: pointer;">📄 Upload Surat Tugas</button>
               ${authState.role === 'ADMIN' ? `
