@@ -369,8 +369,30 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
 }
 
+.pool-team-badge {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: grab;
+  transition: all 0.15s ease;
+}
+
+.pool-team-badge:hover {
+  transform: translateY(-1px);
+  border-color: rgba(34, 211, 238, 0.6);
+  background: rgba(30, 41, 59, 0.9);
+}
+
 .pool-team-badge:active {
   cursor: grabbing;
+  transform: scale(0.97);
+}
+
+.pool-team-badge img,
+.pool-team-badge span {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .drawing-slot-dropzone {

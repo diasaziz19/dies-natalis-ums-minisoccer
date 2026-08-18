@@ -212,6 +212,8 @@ window.handleTeamDrop = handleTeamDrop;
 
 // Drag & Drop Window Bindings (Pool to Slot Seeding)
 window.handlePoolTeamDragStart = handlePoolTeamDragStart;
+window.handlePoolTeamDragEnd = handlePoolTeamDragEnd;
+window.handlePoolTeamClick = handlePoolTeamClick;
 window.handleSlotDragOver = handleSlotDragOver;
 window.handleSlotDragLeave = handleSlotDragLeave;
 window.handleSlotDrop = handleSlotDrop;
@@ -386,36 +388,46 @@ function handleTeamDrop(e, targetMatchId, targetTeamType) {
 
 // ========== DRAG & DROP FROM POOL TO DRAWING SLOT (MANUAL SEEDING) ==========
 function handlePoolTeamDragStart(e, teamId) {
-  if (authState.role !== 'ADMIN') return;
   draggedPoolTeamId = teamId;
-  e.dataTransfer.setData('text/plain', teamId);
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', teamId);
+  }
   e.currentTarget.style.opacity = '0.4';
 }
 
+function handlePoolTeamDragEnd(e) {
+  e.currentTarget.style.opacity = '1';
+}
+
 function handleSlotDragOver(e) {
-  if (authState.role !== 'ADMIN') return;
   e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = 'move';
+  }
   e.currentTarget.classList.add('slot-drag-over');
 }
 
 function handleSlotDragLeave(e) {
-  if (authState.role !== 'ADMIN') return;
   e.currentTarget.classList.remove('slot-drag-over');
 }
 
 function handleSlotDrop(e, matchNumber, teamType) {
-  if (authState.role !== 'ADMIN') return;
   e.preventDefault();
   e.currentTarget.classList.remove('slot-drag-over');
 
-  if (!draggedPoolTeamId) return;
+  let teamId = draggedPoolTeamId;
+  if (!teamId && e.dataTransfer) {
+    teamId = e.dataTransfer.getData('text/plain');
+  }
 
-  const teamObj = teams.find(t => t.id === draggedPoolTeamId);
+  if (!teamId) return;
+
+  const teamObj = teams.find(t => String(t.id) === String(teamId));
   if (!teamObj) return;
 
   // 1. Remove any existing assignment for this dragged team
-  drawnSlots = drawnSlots.filter(s => s.teamId !== draggedPoolTeamId);
+  drawnSlots = drawnSlots.filter(s => String(s.teamId) !== String(teamId));
 
   // 2. Remove any existing assignment for this target slot
   drawnSlots = drawnSlots.filter(s => !(s.matchNumber === matchNumber && s.teamType === teamType));
@@ -424,10 +436,52 @@ function handleSlotDrop(e, matchNumber, teamType) {
   drawnSlots.push({
     matchNumber,
     teamType,
-    teamId: draggedPoolTeamId
+    teamId: teamObj.id
   });
 
   draggedPoolTeamId = null;
+  saveState();
+  renderApp();
+}
+
+function handlePoolTeamClick(teamId) {
+  const teamObj = teams.find(t => String(t.id) === String(teamId));
+  if (!teamObj) return;
+
+  const allSlots = [];
+  for (let i = 1; i <= 8; i++) {
+    allSlots.push({ matchNumber: i, teamType: 'home' });
+    allSlots.push({ matchNumber: i, teamType: 'away' });
+  }
+
+  let target = selectedTargetSlot;
+  if (!target || drawnSlots.some(s => s.matchNumber === target.matchNumber && s.teamType === target.teamType)) {
+    const emptySlot = allSlots.find(slot => !drawnSlots.some(s => s.matchNumber === slot.matchNumber && s.teamType === slot.teamType));
+    if (emptySlot) {
+      target = emptySlot;
+      selectedTargetSlot = emptySlot;
+    }
+  }
+
+  if (!target) {
+    alert('Semua slot Match #1 - #8 sudah terisi!');
+    return;
+  }
+
+  drawnSlots = drawnSlots.filter(s => String(s.teamId) !== String(teamId));
+  drawnSlots = drawnSlots.filter(s => !(s.matchNumber === target.matchNumber && s.teamType === target.teamType));
+
+  drawnSlots.push({
+    matchNumber: target.matchNumber,
+    teamType: target.teamType,
+    teamId: teamObj.id
+  });
+
+  const nextEmpty = allSlots.find(slot => !drawnSlots.some(s => s.matchNumber === slot.matchNumber && s.teamType === slot.teamType));
+  if (nextEmpty) {
+    selectedTargetSlot = nextEmpty;
+  }
+
   saveState();
   renderApp();
 }
@@ -2301,8 +2355,13 @@ function renderDrawingPoolAndSlots() {
     poolGrid.innerHTML = remainingTeams.length === 0
       ? '<p class="text-xs text-emerald-400 py-2 w-full text-center font-bold">🎉 Semua 16 Tim telah diundi ke dalam slot!</p>'
       : remainingTeams.map(t => `
-        <div class="pool-team-badge px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-2 text-xs font-bold text-white cursor-grab" ${isAdmin ? `draggable="true" ondragstart="handlePoolTeamDragStart(event, '${t.id}')" title="👑 Super Admin: Tarik (drag) tim ini langsung ke slot Match di bawah untuk Seeding"` : ''}>
-          ${isAdmin ? '<span class="text-xs text-cyan-400">⋮⋮</span>' : ''}
+        <div class="pool-team-badge px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-2 text-xs font-bold text-white cursor-grab hover:border-cyan-400" 
+             draggable="true" 
+             ondragstart="handlePoolTeamDragStart(event, '${t.id}')" 
+             ondragend="handlePoolTeamDragEnd(event)"
+             onclick="handlePoolTeamClick('${t.id}')" 
+             title="👆 Klik untuk isi slot yang dipilih, atau 🖐️ Tarik (Drag & Drop) langsung ke slot Match di bawah">
+          <span class="text-xs text-cyan-400 font-bold">⋮⋮</span>
           <img src="${t.logoUrl}" style="width:18px;height:18px;border-radius:50%;">
           <span>${t.name}</span>
         </div>
@@ -2314,7 +2373,6 @@ function renderDrawingPoolAndSlots() {
   if (!slotsTable) return;
 
   const totalR16Slots = 16;
-  const isAdmin = authState.role === 'ADMIN';
   let html = '';
 
   for (let i = 0; i < totalR16Slots; i++) {
@@ -2325,22 +2383,29 @@ function renderDrawingPoolAndSlots() {
     const drawnItem = drawnSlots.find(s => s.matchNumber === mNum && s.teamType === tType);
     const teamObj = drawnItem ? teams.find(t => t.id === drawnItem.teamId) : null;
 
-    const dropAttrs = isAdmin ? `ondragover="handleSlotDragOver(event)" ondragleave="handleSlotDragLeave(event)" ondrop="handleSlotDrop(event, ${mNum}, '${tType}')" title="👑 Super Admin: Lepaskan (drop) tim di sini"` : '';
+    const isSelectedTarget = selectedTargetSlot && selectedTargetSlot.matchNumber === mNum && selectedTargetSlot.teamType === tType;
+
+    const dropAttrs = `ondragover="handleSlotDragOver(event)" ondragleave="handleSlotDragLeave(event)" ondrop="handleSlotDrop(event, ${mNum}, '${tType}')" title="🖐️ Lepaskan (drop) tim di sini atau klik tim di atas untuk mengisi"`;
 
     html += `
-      <div class="drawing-slot-dropzone p-2.5 rounded-lg flex justify-between items-center text-xs" style="background: rgba(15,23,42,0.8); border: 1px solid ${teamObj ? 'rgba(0,240,255,0.4)' : 'rgba(51,65,85,0.4)'}" ${dropAttrs}>
+      <div class="drawing-slot-dropzone p-2.5 rounded-lg flex justify-between items-center text-xs transition-all" 
+           style="background: ${isSelectedTarget ? 'rgba(0, 240, 255, 0.12)' : 'rgba(15,23,42,0.8)'}; border: 1.5px solid ${isSelectedTarget ? '#00f0ff' : teamObj ? 'rgba(0,240,255,0.4)' : 'rgba(51,65,85,0.5)'}; box-shadow: ${isSelectedTarget ? '0 0 12px rgba(0,240,255,0.2)' : 'none'}; cursor: pointer;" 
+           onclick="selectedTargetSlot = { matchNumber: ${mNum}, teamType: '${tType}' }; renderApp();"
+           ${dropAttrs}>
         <div class="flex items-center gap-3">
-          <span class="font-mono font-bold text-cyan-400" style="min-width: 100px;">Match #${mNum} (${tTypeLabel})</span>
+          <span class="font-mono font-bold ${isSelectedTarget ? 'text-cyan-300 underline' : 'text-cyan-400'}" style="min-width: 100px;">
+            ${isSelectedTarget ? '🎯 ' : ''}Match #${mNum} (${tTypeLabel})
+          </span>
           ${teamObj ? `
             <div class="flex items-center gap-2 font-bold text-white">
               <img src="${teamObj.logoUrl}" style="width:20px;height:20px;border-radius:50%;">
               <span>${teamObj.name}</span>
             </div>
-          ` : `<span class="text-slate-500 italic">⏳ Drop Tim / Spin Wheel</span>`}
+          ` : `<span class="text-slate-500 italic">⏳ Drop Tim / Klik Tim di Pool / Spin Wheel</span>`}
         </div>
         ${teamObj ? `
-          <button onclick="removeDrawnTeam('${teamObj.id}')" class="text-rose-400 font-bold hover:underline" title="Hapus tim dari slot (kembali ke Spin Wheel)">🗑️ Hapus</button>
-        ` : ''}
+          <button onclick="event.stopPropagation(); removeDrawnTeam('${teamObj.id}')" class="text-rose-400 font-bold hover:underline px-2 py-1 rounded bg-rose-500/10 border border-rose-500/20" title="Hapus tim dari slot (kembali ke Pool Tim)">🗑️ Hapus</button>
+        ` : isSelectedTarget ? `<span class="text-[10px] font-bold text-cyan-300 bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-400/40">Target Aktif</span>` : ''}
       </div>
     `;
   }
