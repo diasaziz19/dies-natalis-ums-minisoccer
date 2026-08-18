@@ -22,7 +22,7 @@
       <button id="navEditHeaderBtn" onclick="openEditNavbarModal()" class="hidden text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-1 rounded hover:bg-amber-500/20 ml-2" title="👑 Super Admin: Edit Top Navbar &amp; Header">
         ⚙️ Edit Header
       </button>
-      <div id="cloudSyncStatusBadge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ml-2" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4); color: #34d399;" title="Status Sinkronisasi Cloud Firestore Realtime">
+      <div id="cloudSyncStatusBadge" onclick="manualCloudSync()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ml-2 cursor-pointer hover:opacity-80 active:scale-95" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4); color: #34d399;" title="Klik untuk sinkronisasi manual langsung ke Cloud Firestore">
         <span id="cloudSyncDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span id="cloudSyncStatusText">Cloud Syncing...</span>
       </div>

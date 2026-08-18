@@ -5,7 +5,7 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { 
-  getFirestore, 
+  initializeFirestore, 
   doc, 
   setDoc, 
   getDoc, 
@@ -29,9 +29,13 @@ let saveTimeout = null;
 
 try {
   app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
+  // Configure Firestore with long polling to ensure 100% compatibility across Safari, Chrome, and Mobile
+  db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+    useFetchStreams: false
+  });
   isFirestoreInitialized = true;
-  console.log('🔥 Firebase App & Firestore initialized successfully.');
+  console.log('🔥 Firebase App & Firestore initialized with long-polling compatibility.');
 } catch (error) {
   console.error('⚠️ Failed to initialize Firebase:', error);
 }
@@ -40,10 +44,14 @@ const TOURNAMENT_COLLECTION = 'tournament_data';
 const MAIN_DOCUMENT = 'main';
 
 /**
+ * Sanitize JS objects to ensure no undefined values are sent to Firestore
+ */
+function sanitizeForFirestore(obj) {
+  return JSON.parse(JSON.stringify(obj, (k, v) => (v === undefined ? null : v)));
+}
+
+/**
  * Start real-time Firestore listener
- * @param {Function} onDataUpdated Callback when remote Firestore data changes
- * @param {Function} onStatusChanged Callback for cloud sync status (online/offline/syncing)
- * @param {Object} defaultInitialData Initial mock data if cloud document is empty
  */
 export function initFirestoreRealtimeSync(onDataUpdated, onStatusChanged, defaultInitialData) {
   if (!isFirestoreInitialized || !db) {
@@ -59,15 +67,16 @@ export function initFirestoreRealtimeSync(onDataUpdated, onStatusChanged, defaul
   onSnapshot(docRef, async (docSnap) => {
     if (docSnap.exists()) {
       const data = docSnap.data();
-      console.log('📥 Realtime update received from Firestore at', new Date().toLocaleTimeString());
+      console.log('📥 Realtime update received from Firestore:', data);
       if (onStatusChanged) onStatusChanged('online', 'Tersinkronisasi Realtime');
       if (onDataUpdated) onDataUpdated(data);
     } else {
       console.log('🆕 Firestore document does not exist yet. Initializing with default tournament data...');
       if (onStatusChanged) onStatusChanged('syncing', 'Menginisialisasi data awal cloud...');
       try {
+        const cleanInitialData = sanitizeForFirestore(defaultInitialData);
         await setDoc(docRef, {
-          ...defaultInitialData,
+          ...cleanInitialData,
           updatedAt: serverTimestamp(),
           version: 1
         });
@@ -85,9 +94,24 @@ export function initFirestoreRealtimeSync(onDataUpdated, onStatusChanged, defaul
 }
 
 /**
+ * Fetch latest data from Firestore immediately (One-time pull)
+ */
+export async function fetchLatestFirestoreData() {
+  if (!isFirestoreInitialized || !db) return null;
+  try {
+    const docRef = doc(db, TOURNAMENT_COLLECTION, MAIN_DOCUMENT);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data();
+    }
+  } catch (e) {
+    console.error('⚠️ Error fetching document:', e);
+  }
+  return null;
+}
+
+/**
  * Save current tournament state to Cloud Firestore (Real-time broadcast)
- * @param {Object} stateData Tournament data payload
- * @param {Function} onStatusChanged Callback for status
  */
 export function saveStateToFirestore(stateData, onStatusChanged) {
   if (!isFirestoreInitialized || !db) return;
@@ -99,7 +123,7 @@ export function saveStateToFirestore(stateData, onStatusChanged) {
   saveTimeout = setTimeout(async () => {
     try {
       const docRef = doc(db, TOURNAMENT_COLLECTION, MAIN_DOCUMENT);
-      await setDoc(docRef, {
+      const cleanPayload = sanitizeForFirestore({
         teams: stateData.teams || [],
         players: stateData.players || [],
         officials: stateData.officials || [],
@@ -108,8 +132,12 @@ export function saveStateToFirestore(stateData, onStatusChanged) {
         homepageContent: stateData.homepageContent || {},
         tournamentRules: stateData.tournamentRules || [],
         navbarConfig: stateData.navbarConfig || {},
-        updatedAt: serverTimestamp(),
         lastUpdatedBy: stateData.updatedBy || 'Super Admin'
+      });
+
+      await setDoc(docRef, {
+        ...cleanPayload,
+        updatedAt: serverTimestamp()
       }, { merge: true });
 
       console.log('☁️ State successfully synced to Cloud Firestore!');
@@ -118,5 +146,5 @@ export function saveStateToFirestore(stateData, onStatusChanged) {
       console.error('⚠️ Failed to save state to Firestore:', err);
       if (onStatusChanged) onStatusChanged('error', 'Gagal simpan ke cloud: ' + err.message);
     }
-  }, 250); // 250ms debounce
+  }, 200); // 200ms debounce
 }

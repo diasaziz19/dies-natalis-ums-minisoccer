@@ -6,7 +6,7 @@
 import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES, INITIAL_HOMEPAGE, INITIAL_RULES, INITIAL_NAVBAR, ADMIN_CREDENTIALS, MANAGER_CREDENTIALS } from './src/lib/mockData.js';
 import { execute16TeamKnockoutDraw } from './src/lib/drawingEngine.js';
 import { evaluatePlayerSuspensions } from './src/lib/cardAccumulation.js';
-import { initFirestoreRealtimeSync, saveStateToFirestore } from './src/lib/firebase.js';
+import { initFirestoreRealtimeSync, saveStateToFirestore, fetchLatestFirestoreData } from './src/lib/firebase.js';
 
 // ========== STATE ==========
 let currentRole = 'VISITOR';
@@ -75,6 +75,30 @@ function updateCloudSyncBadge(status, message) {
   }
 }
 window.updateCloudSyncBadge = updateCloudSyncBadge;
+
+async function manualCloudSync() {
+  updateCloudSyncBadge('syncing', 'Menarik data cloud...');
+  const cloudData = await fetchLatestFirestoreData();
+  if (cloudData) {
+    if (cloudData.teams && Array.isArray(cloudData.teams)) teams = cloudData.teams;
+    if (cloudData.players && Array.isArray(cloudData.players)) players = cloudData.players;
+    if (cloudData.officials && Array.isArray(cloudData.officials)) officials = cloudData.officials;
+    if (cloudData.matches && Array.isArray(cloudData.matches)) matches = cloudData.matches;
+    if (cloudData.drawnSlots && Array.isArray(cloudData.drawnSlots)) drawnSlots = cloudData.drawnSlots;
+    if (cloudData.homepageContent && typeof cloudData.homepageContent === 'object') homepageContent = cloudData.homepageContent;
+    if (cloudData.tournamentRules && Array.isArray(cloudData.tournamentRules)) tournamentRules = cloudData.tournamentRules;
+    if (cloudData.navbarConfig && typeof cloudData.navbarConfig === 'object') navbarConfig = cloudData.navbarConfig;
+
+    saveState(true);
+    renderApp();
+    updateCloudSyncBadge('online', 'Tersinkronisasi');
+    alert('✅ Data turnamen berhasil disinkronkan langsung dari Cloud Firestore!');
+  } else {
+    saveState(false);
+    alert('☁️ Mengirim data lokal Anda ke Cloud Firestore...');
+  }
+}
+window.manualCloudSync = manualCloudSync;
 
 function saveState(skipCloudPush = false) {
   localStorage.setItem('ums_teams', JSON.stringify(teams));
