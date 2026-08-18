@@ -6,6 +6,7 @@
 import { INITIAL_TEAMS, INITIAL_PLAYERS, INITIAL_OFFICIALS, INITIAL_MATCHES, INITIAL_HOMEPAGE, INITIAL_RULES, INITIAL_NAVBAR, ADMIN_CREDENTIALS, MANAGER_CREDENTIALS } from './src/lib/mockData.js';
 import { execute16TeamKnockoutDraw } from './src/lib/drawingEngine.js';
 import { evaluatePlayerSuspensions } from './src/lib/cardAccumulation.js';
+import { initFirestoreRealtimeSync, saveStateToFirestore } from './src/lib/firebase.js';
 
 // ========== STATE ==========
 let currentRole = 'VISITOR';
@@ -41,7 +42,41 @@ let players = JSON.parse(localStorage.getItem('ums_players')) || INITIAL_PLAYERS
 let officials = JSON.parse(localStorage.getItem('ums_officials')) || INITIAL_OFFICIALS;
 let matches = JSON.parse(localStorage.getItem('ums_matches')) || INITIAL_MATCHES;
 
-function saveState() {
+function updateCloudSyncBadge(status, message) {
+  const badge = document.getElementById('cloudSyncStatusBadge');
+  const dot = document.getElementById('cloudSyncDot');
+  const text = document.getElementById('cloudSyncStatusText');
+  if (!badge || !dot || !text) return;
+
+  if (status === 'online') {
+    badge.style.background = 'rgba(16, 185, 129, 0.12)';
+    badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+    badge.style.color = '#34d399';
+    dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+    text.textContent = '🟢 Cloud Live';
+  } else if (status === 'syncing') {
+    badge.style.background = 'rgba(245, 158, 11, 0.12)';
+    badge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+    badge.style.color = '#fbbf24';
+    dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+    text.textContent = '🟡 Cloud Sync...';
+  } else if (status === 'connecting') {
+    badge.style.background = 'rgba(6, 182, 212, 0.12)';
+    badge.style.borderColor = 'rgba(6, 182, 212, 0.4)';
+    badge.style.color = '#22d3ee';
+    dot.className = 'w-2 h-2 rounded-full bg-cyan-400 animate-pulse';
+    text.textContent = '🔵 Connecting...';
+  } else {
+    badge.style.background = 'rgba(239, 68, 68, 0.12)';
+    badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+    badge.style.color = '#f87171';
+    dot.className = 'w-2 h-2 rounded-full bg-rose-400';
+    text.textContent = '🔴 Offline';
+  }
+}
+window.updateCloudSyncBadge = updateCloudSyncBadge;
+
+function saveState(skipCloudPush = false) {
   localStorage.setItem('ums_teams', JSON.stringify(teams));
   localStorage.setItem('ums_players', JSON.stringify(players));
   localStorage.setItem('ums_officials', JSON.stringify(officials));
@@ -51,6 +86,21 @@ function saveState() {
   localStorage.setItem('ums_homepage', JSON.stringify(homepageContent));
   localStorage.setItem('ums_rules', JSON.stringify(tournamentRules));
   localStorage.setItem('ums_navbar', JSON.stringify(navbarConfig));
+
+  // Sync to Cloud Firestore across all devices in real-time
+  if (!skipCloudPush) {
+    saveStateToFirestore({
+      teams,
+      players,
+      officials,
+      matches,
+      drawnSlots,
+      homepageContent,
+      tournamentRules,
+      navbarConfig,
+      updatedBy: authState.displayName || (authState.role === 'ADMIN' ? 'Super Admin' : 'Manager')
+    }, updateCloudSyncBadge);
+  }
 }
 
 // ========== WINDOW BINDINGS ==========
@@ -155,6 +205,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   switchRole(currentRole);
   startGlobalTimerLoop();
+
+  // Initialize Real-time Firestore Cloud Synchronization
+  initFirestoreRealtimeSync(
+    (cloudData) => {
+      if (!cloudData) return;
+      if (cloudData.teams && Array.isArray(cloudData.teams)) teams = cloudData.teams;
+      if (cloudData.players && Array.isArray(cloudData.players)) players = cloudData.players;
+      if (cloudData.officials && Array.isArray(cloudData.officials)) officials = cloudData.officials;
+      if (cloudData.matches && Array.isArray(cloudData.matches)) matches = cloudData.matches;
+      if (cloudData.drawnSlots && Array.isArray(cloudData.drawnSlots)) drawnSlots = cloudData.drawnSlots;
+      if (cloudData.homepageContent && typeof cloudData.homepageContent === 'object') homepageContent = cloudData.homepageContent;
+      if (cloudData.tournamentRules && Array.isArray(cloudData.tournamentRules)) tournamentRules = cloudData.tournamentRules;
+      if (cloudData.navbarConfig && typeof cloudData.navbarConfig === 'object') navbarConfig = cloudData.navbarConfig;
+
+      // Save to local cache without pushing back to cloud
+      saveState(true);
+      renderApp();
+    },
+    (status, msg) => {
+      updateCloudSyncBadge(status, msg);
+    },
+    {
+      teams,
+      players,
+      officials,
+      matches,
+      drawnSlots,
+      homepageContent,
+      tournamentRules,
+      navbarConfig
+    }
+  );
 });
 
 // Global Timer Loop to tick active stopwatch timers
