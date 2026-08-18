@@ -42,6 +42,15 @@ let players = JSON.parse(localStorage.getItem('ums_players')) || INITIAL_PLAYERS
 let officials = JSON.parse(localStorage.getItem('ums_officials')) || INITIAL_OFFICIALS;
 let matches = JSON.parse(localStorage.getItem('ums_matches')) || INITIAL_MATCHES;
 
+// Auto-migrate legacy mock team names to new official 17 teams
+if (teams.length > 0 && (teams[0].name === 'Pendidikan Olahraga (POR FKIP)' || teams.length < 17)) {
+  teams = INITIAL_TEAMS;
+  players = INITIAL_PLAYERS;
+  officials = INITIAL_OFFICIALS;
+  matches = INITIAL_MATCHES;
+  saveState();
+}
+
 function updateCloudSyncBadge(status, message) {
   const badge = document.getElementById('cloudSyncStatusBadge');
   const dot = document.getElementById('cloudSyncDot');
@@ -2083,6 +2092,7 @@ function renderTeamManagerPortal() {
     if (authState.isLoggedIn) {
       actionsEl.innerHTML = `
         <button class="btn-ucl-primary" onclick="openRegisterTeamModal()">+ Daftarkan Tim Baru</button>
+        ${authState.role === 'ADMIN' ? `<button onclick="applyInitialOfficialTeams()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(0,240,255,0.5); background: rgba(0,240,255,0.15); color: #22d3ee; cursor: pointer;" title="Terapkan 17 Tim Resmi Dies Natalis UMS">⚡ Terapkan 17 Tim Resmi</button>` : ''}
         <button onclick="resetAllSuratTugas()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(245,158,11,0.5); background: rgba(245,158,11,0.15); color: #fbbf24; cursor: pointer;" title="Kosongkan Berkas Surat Tugas Seluruh Tim">🔄 Reset Surat Tugas (0)</button>
         <button onclick="handleLogout()" style="padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer;">🚪 Logout</button>
       `;
@@ -3114,10 +3124,29 @@ function trigger16TeamDrawingUI() {
   if (vis) vis.innerHTML = `<div class="p-4 rounded-xl bg-slate-900 border border-cyan-400/40"><span class="text-xs font-bold text-emerald-400 block mb-2">🎉 ${res.message}</span><p class="text-xs text-slate-300">16 Tim telah diundi. Periksa bagan di Beranda.</p></div>`;
 }
 
+function applyInitialOfficialTeams() {
+  if (confirm('🔄 Terapkan 17 Tim Resmi Dies Natalis UMS 2026?\n\nDaftar tim akan diperbarui ke 17 tim resmi (Parkir, Satpam, FKIP, Geo+Hukum, FKI Teknik, Kedokteran+Pasma, RSGM+GIGI, KAU+BAA+BAU+MAWA, Psikologi+Farmasi+Pasca, FIK, FAI+Sobron, FEB, LPPIK+Perpus+LP3A, DAREN+BPH+Rektorat, PALMASI+MANAD, BPI+AMAS, BKU).\n\nData akan langsung disinkronkan ke Cloud Firestore!')) {
+    teams = JSON.parse(JSON.stringify(INITIAL_TEAMS));
+    players = JSON.parse(JSON.stringify(INITIAL_PLAYERS));
+    officials = JSON.parse(JSON.stringify(INITIAL_OFFICIALS));
+    matches = JSON.parse(JSON.stringify(INITIAL_MATCHES));
+    drawnSlots = [];
+    saveState();
+    renderApp();
+    alert('✅ Berhasil menerapkan 17 Tim Resmi Dies Natalis UMS 2026 dan menyelaraskannya ke Cloud Firestore!');
+  }
+}
+window.applyInitialOfficialTeams = applyInitialOfficialTeams;
+
 function resetTournamentData() {
   if (confirm('Reset semua data pertandingan?\nSemua skor kembali 0-0, status SCHEDULED, dan bagan kembali ke Tim 1 s.d Tim 16.')) {
-    localStorage.clear();
-    location.reload(true);
+    teams = JSON.parse(JSON.stringify(INITIAL_TEAMS));
+    players = JSON.parse(JSON.stringify(INITIAL_PLAYERS));
+    officials = JSON.parse(JSON.stringify(INITIAL_OFFICIALS));
+    matches = JSON.parse(JSON.stringify(INITIAL_MATCHES));
+    drawnSlots = [];
+    saveState();
+    renderApp();
   }
 }
 
