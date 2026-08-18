@@ -146,5 +146,5 @@ export function saveStateToFirestore(stateData, onStatusChanged) {
       console.error('⚠️ Failed to save state to Firestore:', err);
       if (onStatusChanged) onStatusChanged('error', 'Gagal simpan ke cloud: ' + err.message);
     }
-  }, 200); // 200ms debounce
+  }, 50); // 50ms fast response
 }
