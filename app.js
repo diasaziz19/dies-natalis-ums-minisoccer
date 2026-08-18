@@ -192,16 +192,19 @@ window.applyDrawingToBracket = applyDrawingToBracket;
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
-  // Restore initial view based on persisted login session
-  if (authState.isLoggedIn) {
-    if (authState.role === 'ADMIN') {
-      currentRole = 'ADMIN';
-    } else if (authState.role === 'MANAGER') {
-      currentRole = 'TEAM_MANAGER';
-    }
-  } else {
-    currentRole = 'VISITOR';
+  // Restore persisted active role and visitor tab
+  let savedRole = localStorage.getItem('ums_active_role') || 'VISITOR';
+  let savedVisitorTab = localStorage.getItem('ums_active_visitor_tab') || 'bracket';
+
+  if ((savedRole === 'ADMIN' || savedRole === 'MATCH_CENTER' || savedRole === 'DRAWING') && authState.role !== 'ADMIN') {
+    savedRole = 'VISITOR';
   }
+  if (savedRole === 'TEAM_MANAGER' && !authState.isLoggedIn) {
+    savedRole = 'VISITOR';
+  }
+
+  currentRole = savedRole;
+  currentVisitorTab = savedVisitorTab;
 
   switchRole(currentRole);
   startGlobalTimerLoop();
@@ -210,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFirestoreRealtimeSync(
     (cloudData) => {
       if (!cloudData) return;
+      console.log('🔄 Applying remote Firestore update to local state...');
       if (cloudData.teams && Array.isArray(cloudData.teams)) teams = cloudData.teams;
       if (cloudData.players && Array.isArray(cloudData.players)) players = cloudData.players;
       if (cloudData.officials && Array.isArray(cloudData.officials)) officials = cloudData.officials;
@@ -219,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (cloudData.tournamentRules && Array.isArray(cloudData.tournamentRules)) tournamentRules = cloudData.tournamentRules;
       if (cloudData.navbarConfig && typeof cloudData.navbarConfig === 'object') navbarConfig = cloudData.navbarConfig;
 
-      // Save to local cache without pushing back to cloud
+      // Save to local cache without triggering a circular cloud push
       saveState(true);
       renderApp();
     },
@@ -463,6 +467,7 @@ function switchRole(role) {
   }
 
   currentRole = role;
+  localStorage.setItem('ums_active_role', role);
 
   // Update Nav selector badges
   document.querySelectorAll('#roleSelectorContainer .role-badge').forEach(el => {
@@ -497,6 +502,7 @@ function switchRole(role) {
 
 function switchVisitorTab(tabName) {
   currentVisitorTab = tabName;
+  localStorage.setItem('ums_active_visitor_tab', tabName);
   document.querySelectorAll('#view-VISITOR .tab-btn').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('#view-VISITOR .vtab-content').forEach(el => el.classList.add('hidden'));
   
@@ -523,7 +529,6 @@ function switchAdminTab(tabName) {
 // ========== RENDER APP ==========
 function renderApp() {
   players = evaluatePlayerSuspensions(players, matches);
-  saveState();
   renderNavbarDOM();
 
   if (currentRole === 'VISITOR') {
