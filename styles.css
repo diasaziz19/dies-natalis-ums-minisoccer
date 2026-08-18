@@ -406,11 +406,22 @@ h1, h2, h3, h4, h5, h6 {
 
 .drawing-slot-dropzone {
   transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.drawing-slot-dropzone * {
+  pointer-events: none;
+}
+
+.drawing-slot-dropzone button {
+  pointer-events: auto !important;
 }
 
 .drawing-slot-dropzone.slot-drag-over {
   border: 2px dashed #22c55e !important;
-  background: rgba(34, 197, 94, 0.25) !important;
+  background: rgba(34, 197, 94, 0.3) !important;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4) !important;
 }
 
 #wheelCanvas {
