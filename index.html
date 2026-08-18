@@ -172,6 +172,7 @@
             <p class="text-sm text-slate-400">Putar Roda Keberuntungan atau Acak Kartu Flip-Flop untuk mengundi slot 16 Besar secara live!</p>
           </div>
           <div class="flex gap-2 flex-wrap">
+            <button class="btn-ucl-secondary" onclick="autoShuffleAll16Teams()" style="border-color: rgba(34,211,238,0.5); background: rgba(34,211,238,0.1); color: #22d3ee;" title="Undi dan acak seluruh 16 tim ke dalam bagan secara otomatis">⚡ Acak Otomatis 16 Tim</button>
             <button class="btn-ucl-secondary" onclick="resetDrawingState()" style="border-color: rgba(239,68,68,0.4); color: #f87171;">🔄 Reset Hasil Undian</button>
             <button class="btn-ucl-primary" onclick="applyDrawingToBracket()">✅ Terapkan Hasil ke Bagan Utama</button>
           </div>
@@ -203,6 +204,9 @@
           <div class="space-y-2">
             <button class="btn-ucl-primary w-full" id="spinWheelBtn" onclick="spinDrawingWheel()" style="justify-content: center; padding: 12px; font-size: 15px;">
               🎡 SPIN WHEEL (PUTAR UNDIAN)
+            </button>
+            <button class="btn-ucl-secondary w-full" onclick="autoShuffleAll16Teams()" style="justify-content: center; padding: 10px; font-size: 13px; border-color: rgba(34,211,238,0.4); color: #22d3ee;">
+              ⚡ ACAK SEMUA 16 TIM SEKALIGUS
             </button>
           </div>
         </div>

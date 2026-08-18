@@ -222,6 +222,8 @@ window.handleSlotDrop = handleSlotDrop;
 // Drawing Wheel Window Bindings
 window.spinDrawingWheel = spinDrawingWheel;
 window.handleTargetSlotChange = handleTargetSlotChange;
+window.handleDirectSlotSelect = handleDirectSlotSelect;
+window.autoShuffleAll16Teams = autoShuffleAll16Teams;
 window.resetDrawingState = resetDrawingState;
 window.removeDrawnTeam = removeDrawnTeam;
 window.applyDrawingToBracket = applyDrawingToBracket;
@@ -2382,6 +2384,67 @@ function handleTargetSlotChange() {
   }
 }
 
+function handleDirectSlotSelect(teamId, matchNumber, teamType) {
+  if (!teamId) {
+    drawnSlots = drawnSlots.filter(s => !(s.matchNumber === matchNumber && s.teamType === teamType));
+  } else {
+    drawnSlots = drawnSlots.filter(s => String(s.teamId) !== String(teamId));
+    drawnSlots = drawnSlots.filter(s => !(s.matchNumber === matchNumber && s.teamType === teamType));
+    drawnSlots.push({
+      matchNumber,
+      teamType,
+      teamId: String(teamId)
+    });
+  }
+
+  // Advance selectedTargetSlot to next empty slot
+  const allSlots = [];
+  for (let i = 1; i <= 8; i++) {
+    allSlots.push({ matchNumber: i, teamType: 'home' });
+    allSlots.push({ matchNumber: i, teamType: 'away' });
+  }
+  const nextEmpty = allSlots.find(slot => !drawnSlots.some(s => s.matchNumber === slot.matchNumber && s.teamType === slot.teamType));
+  selectedTargetSlot = nextEmpty || null;
+
+  syncDrawnSlotsToMatches();
+  saveState();
+  renderApp();
+}
+window.handleDirectSlotSelect = handleDirectSlotSelect;
+
+function autoShuffleAll16Teams() {
+  if (confirm('⚡ Acak Otomatis 16 Tim ke dalam Bagan Knockout?\n\nSistem akan mengundi 16 tim secara acak dan langsung menempatkannya ke Match #1 s.d #8.')) {
+    const shuffled = [...teams].sort(() => Math.random() - 0.5);
+    const selected16 = shuffled.slice(0, 16);
+
+    drawnSlots = [];
+    selected16.forEach((team, idx) => {
+      const matchNumber = Math.floor(idx / 2) + 1;
+      const teamType = idx % 2 === 0 ? 'home' : 'away';
+      drawnSlots.push({
+        matchNumber,
+        teamType,
+        teamId: team.id
+      });
+    });
+
+    selectedTargetSlot = null;
+    syncDrawnSlotsToMatches();
+    saveState();
+    renderApp();
+
+    openModal(`
+      <div class="text-center p-4">
+        <div style="font-size: 48px; margin-bottom: 8px;">🎉</div>
+        <h2 class="text-2xl font-bold text-white mb-2">Undian 16 Besar Berhasil Diacak!</h2>
+        <p class="text-sm text-slate-300 mb-6">Seluruh 16 slot pertandingan telah terisi dan langsung disinkronkan ke Bagan Utama Turnamen serta Cloud Firestore.</p>
+        <button onclick="closeModal()" class="btn-ucl-primary" style="justify-content: center; width:100%;">Lihat Bagan Turnamen ➡️</button>
+      </div>
+    `);
+  }
+}
+window.autoShuffleAll16Teams = autoShuffleAll16Teams;
+
 function renderDrawingPoolAndSlots() {
   const availableSlots = getAvailableSlotsList();
   const selectEl = document.getElementById('targetSlotSelect');
@@ -2412,7 +2475,6 @@ function renderDrawingPoolAndSlots() {
   if (countBadge) countBadge.textContent = `${remainingTeams.length} Tim Tersisa`;
 
   if (poolGrid) {
-    const isAdmin = authState.role === 'ADMIN';
     poolGrid.innerHTML = remainingTeams.length === 0
       ? '<p class="text-xs text-emerald-400 py-2 w-full text-center font-bold">🎉 Semua 16 Tim telah diundi ke dalam slot!</p>'
       : remainingTeams.map(t => `
@@ -2421,7 +2483,7 @@ function renderDrawingPoolAndSlots() {
              ondragstart="handlePoolTeamDragStart(event, '${t.id}')" 
              ondragend="handlePoolTeamDragEnd(event)"
              onclick="handlePoolTeamClick('${t.id}')" 
-             title="👆 Klik untuk isi slot yang dipilih, atau 🖐️ Tarik (Drag & Drop) langsung ke slot Match di bawah">
+             title="👆 Klik untuk isi slot yang dipilih (${selectedTargetSlot ? 'Match #' + selectedTargetSlot.matchNumber + ' ' + selectedTargetSlot.teamType : 'pilih slot'}), atau 🖐️ Tarik (Drag) ke slot di bawah">
           <span class="text-xs text-cyan-400 font-bold">⋮⋮</span>
           <img src="${t.logoUrl}" style="width:18px;height:18px;border-radius:50%;">
           <span>${t.name}</span>
@@ -2442,30 +2504,41 @@ function renderDrawingPoolAndSlots() {
     const tTypeLabel = i % 2 === 0 ? 'Home' : 'Away';
 
     const drawnItem = drawnSlots.find(s => s.matchNumber === mNum && s.teamType === tType);
-    const teamObj = drawnItem ? teams.find(t => t.id === drawnItem.teamId) : null;
+    const teamObj = drawnItem ? teams.find(t => String(t.id) === String(drawnItem.teamId)) : null;
 
     const isSelectedTarget = selectedTargetSlot && selectedTargetSlot.matchNumber === mNum && selectedTargetSlot.teamType === tType;
 
-    const dropAttrs = `ondragenter="handleSlotDragEnter(event)" ondragover="handleSlotDragOver(event)" ondragleave="handleSlotDragLeave(event)" ondrop="handleSlotDrop(event, ${mNum}, '${tType}')" title="🖐️ Lepaskan (drop) tim di sini atau klik tim di atas untuk mengisi"`;
+    const dropAttrs = `ondragenter="handleSlotDragEnter(event)" ondragover="handleSlotDragOver(event)" ondragleave="handleSlotDragLeave(event)" ondrop="handleSlotDrop(event, ${mNum}, '${tType}')" title="🖐️ Lepaskan (drop) tim di sini atau pilih tim dari dropdown"`;
 
     html += `
-      <div class="drawing-slot-dropzone p-2.5 rounded-lg flex justify-between items-center text-xs transition-all" 
-           style="background: ${isSelectedTarget ? 'rgba(0, 240, 255, 0.12)' : 'rgba(15,23,42,0.8)'}; border: 1.5px solid ${isSelectedTarget ? '#00f0ff' : teamObj ? 'rgba(0,240,255,0.4)' : 'rgba(51,65,85,0.5)'}; box-shadow: ${isSelectedTarget ? '0 0 12px rgba(0,240,255,0.2)' : 'none'};" 
+      <div class="drawing-slot-dropzone p-3 rounded-lg flex justify-between items-center text-xs transition-all gap-2" 
+           style="background: ${isSelectedTarget ? 'rgba(0, 240, 255, 0.12)' : 'rgba(15,23,42,0.85)'}; border: 1.5px solid ${isSelectedTarget ? '#00f0ff' : teamObj ? 'rgba(0,240,255,0.4)' : 'rgba(51,65,85,0.6)'};" 
            ${dropAttrs}>
-        <div class="flex items-center gap-3" style="pointer-events: none;">
-          <span class="font-mono font-bold ${isSelectedTarget ? 'text-cyan-300 underline' : 'text-cyan-400'}" style="min-width: 100px;">
+        <div class="flex items-center gap-3 flex-1 min-w-0" style="pointer-events: none;">
+          <span class="font-mono font-bold ${isSelectedTarget ? 'text-cyan-300 underline' : 'text-cyan-400'}" style="min-width: 95px;">
             ${isSelectedTarget ? '🎯 ' : ''}Match #${mNum} (${tTypeLabel})
           </span>
           ${teamObj ? `
-            <div class="flex items-center gap-2 font-bold text-white">
-              <img src="${teamObj.logoUrl}" style="width:20px;height:20px;border-radius:50%;">
-              <span>${teamObj.name}</span>
+            <div class="flex items-center gap-2 font-bold text-white truncate">
+              <img src="${teamObj.logoUrl}" style="width:20px;height:20px;border-radius:50%;flex-shrink:0;">
+              <span class="truncate">${teamObj.name}</span>
             </div>
-          ` : `<span class="text-slate-500 italic">⏳ Drop Tim / Klik Tim di Pool / Spin Wheel</span>`}
+          ` : `
+            <span class="text-slate-500 italic truncate">Belum Terisi</span>
+          `}
         </div>
-        ${teamObj ? `
-          <button onclick="event.stopPropagation(); removeDrawnTeam('${teamObj.id}')" class="text-rose-400 font-bold hover:underline px-2 py-1 rounded bg-rose-500/10 border border-rose-500/20" title="Hapus tim dari slot (kembali ke Pool Tim)">🗑️ Hapus</button>
-        ` : isSelectedTarget ? `<span class="text-[10px] font-bold text-cyan-300 bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-400/40">Target Aktif</span>` : `<button onclick="selectedTargetSlot = { matchNumber: ${mNum}, teamType: '${tType}' }; renderApp();" class="text-[10px] text-slate-400 hover:text-cyan-300 px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/60" title="Jadikan slot ini sebagai target berikutnya">Pilih</button>`}
+
+        <div class="flex items-center gap-2" style="pointer-events: auto;">
+          ${teamObj ? `
+            <button onclick="event.stopPropagation(); removeDrawnTeam('${teamObj.id}')" class="text-rose-400 font-bold hover:underline px-2.5 py-1 rounded bg-rose-500/10 border border-rose-500/20 text-xs" title="Hapus tim dari slot">🗑️ Hapus</button>
+          ` : `
+            <select onchange="handleDirectSlotSelect(this.value, ${mNum}, '${tType}')" class="form-input text-xs py-1 px-2 text-cyan-300 font-bold bg-slate-900 border-cyan-500/40" style="max-width: 170px;">
+              <option value="">➕ Pilih Tim...</option>
+              ${remainingTeams.map(rt => `<option value="${rt.id}">${rt.name}</option>`).join('')}
+            </select>
+            ${isSelectedTarget ? `<span class="text-[10px] font-bold text-cyan-300 bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-400/40">Target</span>` : `<button onclick="selectedTargetSlot = { matchNumber: ${mNum}, teamType: '${tType}' }; renderApp();" class="text-[10px] text-slate-400 hover:text-cyan-300 px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/60" title="Jadikan slot ini sebagai target berikutnya">Pilih</button>`}
+          `}
+        </div>
       </div>
     `;
   }
@@ -2597,6 +2670,7 @@ function spinDrawingWheel() {
       });
 
       selectedTargetSlot = null;
+      syncDrawnSlotsToMatches();
       saveState();
       renderApp();
 
