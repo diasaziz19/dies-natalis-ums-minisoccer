@@ -340,6 +340,15 @@ h1, h2, h3, h4, h5, h6 {
 .bracket-team-slot.is-draggable {
   cursor: grab;
   border: 1px dashed rgba(0, 240, 255, 0.4);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.bracket-team-slot.is-draggable img,
+.bracket-team-slot.is-draggable span {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .bracket-team-slot.is-draggable:hover {

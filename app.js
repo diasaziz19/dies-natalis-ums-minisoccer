@@ -314,28 +314,67 @@ function updateLiveTimersInDOM() {
   });
 }
 
+// ========== SYNC DRAWN SLOTS DIRECTLY TO ROUND OF 16 MATCHES ==========
+function syncDrawnSlotsToMatches() {
+  for (let i = 1; i <= 8; i++) {
+    const match = matches.find(m => m.matchNumber === i && m.stage === 'ROUND_OF_16');
+    if (!match) continue;
+
+    const homeSlot = drawnSlots.find(s => s.matchNumber === i && s.teamType === 'home');
+    const awaySlot = drawnSlots.find(s => s.matchNumber === i && s.teamType === 'away');
+
+    const homeTeam = homeSlot ? teams.find(t => String(t.id) === String(homeSlot.teamId)) : null;
+    const awayTeam = awaySlot ? teams.find(t => String(t.id) === String(awaySlot.teamId)) : null;
+
+    const homeNum = (i * 2) - 1;
+    const awayNum = i * 2;
+
+    if (homeTeam) {
+      match.homeTeamId = homeTeam.id;
+      match.homeTeamName = homeTeam.name;
+      match.homeTeamLogo = homeTeam.logoUrl;
+    } else {
+      match.homeTeamId = `t${homeNum}`;
+      match.homeTeamName = `Tim ${homeNum}`;
+      match.homeTeamLogo = `https://api.dicebear.com/7.x/identicon/svg?seed=Tim${homeNum}`;
+    }
+
+    if (awayTeam) {
+      match.awayTeamId = awayTeam.id;
+      match.awayTeamName = awayTeam.name;
+      match.awayTeamLogo = awayTeam.logoUrl;
+    } else {
+      match.awayTeamId = `t${awayNum}`;
+      match.awayTeamName = `Tim ${awayNum}`;
+      match.awayTeamLogo = `https://api.dicebear.com/7.x/identicon/svg?seed=Tim${awayNum}`;
+    }
+  }
+}
+window.syncDrawnSlotsToMatches = syncDrawnSlotsToMatches;
+
 // ========== DRAG & DROP FOR ROUND OF 16 BRACKET TREE ==========
 function handleTeamDragStart(e, matchId, teamType) {
-  if (authState.role !== 'ADMIN') return;
   draggedTeamInfo = { matchId, teamType };
-  e.dataTransfer.setData('text/plain', JSON.stringify({ matchId, teamType }));
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', JSON.stringify({ matchId, teamType }));
+  }
   e.currentTarget.style.opacity = '0.4';
 }
 
 function handleTeamDragOver(e) {
-  if (authState.role !== 'ADMIN') return;
   e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = 'move';
+  }
   e.currentTarget.classList.add('drag-over');
 }
 
 function handleTeamDragLeave(e) {
-  if (authState.role !== 'ADMIN') return;
   e.currentTarget.classList.remove('drag-over');
 }
 
 function handleTeamDrop(e, targetMatchId, targetTeamType) {
-  if (authState.role !== 'ADMIN') return;
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
 
@@ -440,6 +479,7 @@ function handleSlotDrop(e, matchNumber, teamType) {
   });
 
   draggedPoolTeamId = null;
+  syncDrawnSlotsToMatches();
   saveState();
   renderApp();
 }
@@ -482,6 +522,7 @@ function handlePoolTeamClick(teamId) {
     selectedTargetSlot = nextEmpty;
   }
 
+  syncDrawnSlotsToMatches();
   saveState();
   renderApp();
 }
@@ -1194,16 +1235,19 @@ function renderBracketCardHTML(m, customLabel = null, allowDrag = false) {
   const awayDragAttrs = isAdmin ? `draggable="true" ondragstart="handleTeamDragStart(event, '${m.id}', 'away')" ondragover="handleTeamDragOver(event)" ondragleave="handleTeamDragLeave(event)" ondrop="handleTeamDrop(event, '${m.id}', 'away')" title="👑 Super Admin: Tarik (drag) untuk menukar posisi tim ini"` : '';
 
   return `
-    <div class="bracket-card ${isLive ? 'is-live' : isFinished ? 'is-finished' : ''} cursor-pointer" onclick="openPublicMatchDetailModal('${m.id}')" title="Klik untuk melihat Detail Pertandingan &amp; Line-Up Skuad">
-      <div class="bracket-card-header">
+    <div class="bracket-card ${isLive ? 'is-live' : isFinished ? 'is-finished' : ''}">
+      <div class="bracket-card-header flex justify-between items-center">
         <span>${customLabel || `Match #${m.matchNumber}`}</span>
-        <span style="font-weight:700; color: ${isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#94a3b8'};">
-          ${isLive ? '🔴 LIVE' : isFinished ? 'SELESAI' : 'SCHEDULED'}
-        </span>
+        <div class="flex items-center gap-1.5">
+          <span style="font-weight:700; color: ${isLive ? '#22c55e' : isFinished ? '#f59e0b' : '#94a3b8'}; font-size: 11px;">
+            ${isLive ? '🔴 LIVE' : isFinished ? 'SELESAI' : 'SCHEDULED'}
+          </span>
+          <button onclick="openPublicMatchDetailModal('${m.id}')" class="text-[10px] text-cyan-400 font-bold hover:underline bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700" title="Lihat Detail & Line-Up">🔍</button>
+        </div>
       </div>
       
       <!-- Home Team Slot -->
-      <div class="bracket-team-slot ${homeWinner ? 'is-winner' : ''} ${isAdmin ? 'is-draggable' : ''}" ${homeDragAttrs}>
+      <div class="bracket-team-slot ${homeWinner ? 'is-winner' : ''} ${isAdmin ? 'is-draggable cursor-grab' : ''}" ${homeDragAttrs}>
         <div class="bracket-team-name">
           ${isAdmin ? '<span class="text-xs text-cyan-400">⋮⋮</span>' : ''}
           <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;">
@@ -1213,7 +1257,7 @@ function renderBracketCardHTML(m, customLabel = null, allowDrag = false) {
       </div>
 
       <!-- Away Team Slot -->
-      <div class="bracket-team-slot ${awayWinner ? 'is-winner' : ''} ${isAdmin ? 'is-draggable' : ''}" ${awayDragAttrs}>
+      <div class="bracket-team-slot ${awayWinner ? 'is-winner' : ''} ${isAdmin ? 'is-draggable cursor-grab' : ''}" ${awayDragAttrs}>
         <div class="bracket-team-name">
           ${isAdmin ? '<span class="text-xs text-cyan-400">⋮⋮</span>' : ''}
           <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;">
