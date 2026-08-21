@@ -306,6 +306,9 @@ window.openEditNavbarModal = openEditNavbarModal;
 window.saveNavbarConfig = saveNavbarConfig;
 window.openEditHeroModal = openEditHeroModal;
 window.saveHeroContent = saveHeroContent;
+window.openEditRulesModal = openEditRulesModal;
+window.saveTournamentRules = saveTournamentRules;
+window.resetRulesToDefault = resetRulesToDefault;
 window.renderVisitorMatches = renderVisitorMatches;
 window.renderPublicTeams = renderPublicTeams;
 
@@ -1919,22 +1922,44 @@ function renderRulesSection() {
   const container = document.getElementById('rulesViewContainer');
   if (!container) return;
 
+  const isAdmin = authState.role === 'ADMIN';
+
   container.innerHTML = `
-    <div class="glass-panel p-6 sm:p-8 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="text-3xl">📜</span>
-        <div>
-          <h2 class="text-2xl font-bold text-white">Peraturan &amp; Petunjuk Teknis Turnamen</h2>
-          <p class="text-sm text-cyan-300">Minisoccer Champions League Dies Natalis UMS 2026</p>
+    <div class="glass-panel p-6 sm:p-8 mb-6 relative">
+      <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-800 flex-wrap gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">📜</span>
+          <div>
+            <h2 class="text-2xl font-bold text-white">Peraturan &amp; Petunjuk Teknis Turnamen</h2>
+            <p class="text-sm text-cyan-300">Minisoccer Champions League Dies Natalis UMS 2026</p>
+          </div>
         </div>
+
+        ${isAdmin ? `
+          <div class="flex gap-2">
+            <button onclick="openEditRulesModal()" class="btn-ucl-primary text-xs font-bold" style="padding: 8px 16px;">
+              ✏️ Edit Peraturan &amp; Petunjuk Teknis
+            </button>
+            <button onclick="resetRulesToDefault()" class="btn-ucl-secondary text-xs" style="padding: 8px 12px;">
+              🔄 Reset Default
+            </button>
+          </div>
+        ` : ''}
       </div>
 
       <div class="space-y-6">
-        ${tournamentRules.map(r => `
-          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800">
-            <h3 class="text-base font-bold text-amber-400 mb-3 flex items-center gap-2">
-              <span>📌</span> ${r.category}
-            </h3>
+        ${tournamentRules.map((r, idx) => `
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800 relative group">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-base font-bold text-amber-400 flex items-center gap-2">
+                <span>📌</span> ${r.category}
+              </h3>
+              ${isAdmin ? `
+                <button onclick="openEditRulesModal(${idx})" class="text-xs text-cyan-400 font-bold hover:underline">
+                  ✏️ Edit Kategori Ini
+                </button>
+              ` : ''}
+            </div>
             <ul class="space-y-2 text-xs sm:text-sm text-slate-300 list-disc list-inside">
               ${r.items.map(item => `<li class="leading-relaxed">${item}</li>`).join('')}
             </ul>
@@ -1943,6 +1968,89 @@ function renderRulesSection() {
       </div>
     </div>
   `;
+}
+
+function openEditRulesModal(targetIndex = null) {
+  if (authState.role !== 'ADMIN') {
+    alert('Hanya Super Admin yang dapat mengedit peraturan turnamen.');
+    return;
+  }
+
+  openModal(`
+    <form onsubmit="saveTournamentRules(event)" class="space-y-5 text-left text-xs">
+      <div class="pb-3 border-b border-slate-800 flex justify-between items-center">
+        <div>
+          <span class="badge-gold text-[10px] font-bold">👑 SUPER ADMIN</span>
+          <h2 class="text-lg font-bold text-white mt-1">Edit Peraturan &amp; Petunjuk Teknis Turnamen</h2>
+        </div>
+      </div>
+
+      <div id="rulesEditListContainer" class="space-y-4 max-h-96 overflow-y-auto pr-1">
+        ${tournamentRules.map((rule, catIdx) => `
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+            <div>
+              <label class="form-label font-bold text-amber-300 text-xs">Judul Kategori #${catIdx + 1}</label>
+              <input type="text" class="form-input text-xs font-bold rule-category-input" value="${rule.category}" required>
+            </div>
+
+            <div>
+              <label class="form-label text-slate-400 text-[11px]">Poin-Poin Peraturan (Pisahkan tiap poin dengan baris baru / Enter):</label>
+              <textarea class="form-input text-xs leading-relaxed rule-items-input" rows="5" required>${rule.items.join('\n')}</textarea>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="flex justify-between items-center pt-3 border-t border-slate-800 flex-wrap gap-2">
+        <button type="button" onclick="resetRulesToDefault()" class="text-xs text-amber-400 hover:underline font-bold">
+          🔄 Kembalikan ke Standar Resmi
+        </button>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary text-xs">Batal</button>
+          <button type="submit" class="btn-ucl-primary text-xs font-bold">💾 Simpan Peraturan</button>
+        </div>
+      </div>
+    </form>
+  `);
+}
+
+function saveTournamentRules(event) {
+  if (event) event.preventDefault();
+
+  const categoryInputs = document.querySelectorAll('.rule-category-input');
+  const itemsInputs = document.querySelectorAll('.rule-items-input');
+
+  const updatedRules = [];
+  for (let i = 0; i < categoryInputs.length; i++) {
+    const cat = categoryInputs[i].value.trim();
+    const itemsRaw = itemsInputs[i].value.trim();
+    const itemsArr = itemsRaw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+
+    if (cat && itemsArr.length > 0) {
+      updatedRules.push({
+        category: cat,
+        items: itemsArr
+      });
+    }
+  }
+
+  if (updatedRules.length > 0) {
+    tournamentRules = updatedRules;
+    saveState();
+    renderApp();
+    closeModal();
+    alert('✅ Peraturan & Petunjuk Teknis turnamen berhasil diperbarui dan disinkronkan ke Cloud!');
+  }
+}
+
+function resetRulesToDefault() {
+  if (confirm('🔄 Kembalikan peraturan ke susunan draf standar resmi Dies Natalis UMS 2026?')) {
+    tournamentRules = INITIAL_RULES;
+    saveState();
+    renderApp();
+    closeModal();
+    alert('✅ Peraturan turnamen berhasil dikembalikan ke standar resmi!');
+  }
 }
 
 // ========== 13. AUTHENTICATION & MODERN SOCIAL-STYLE LOGIN ==========
