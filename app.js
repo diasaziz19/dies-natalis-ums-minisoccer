@@ -268,6 +268,8 @@ window.togglePasswordVisibility = togglePasswordVisibility;
 // Match Score & Results
 window.openInputScoreModal = openInputScoreModal;
 window.saveMatchScore = saveMatchScore;
+window.addGoalEventRow = addGoalEventRow;
+window.removeGoalEventRow = removeGoalEventRow;
 window.openPublicMatchDetailModal = openPublicMatchDetailModal;
 
 // Team Management
@@ -584,7 +586,7 @@ function renderBracketCardHTML(m, customLabel = null) {
   `;
 }
 
-// ========== 2. JADWAL & HASIL PERTANDINGAN (PUBLIC) ==========
+// ========== 2. JADWAL & HASIL PERTANDINGAN (DENGAN PENCETAK GOL) ==========
 function renderVisitorMatches() {
   const container = document.getElementById('matchesListContainer');
   if (!container) return;
@@ -604,56 +606,90 @@ function renderVisitorMatches() {
   container.innerHTML = filtered.map(m => {
     const isFinished = m.status === 'FINISHED';
     const canUpdate = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && (authState.teamId === m.homeTeamId || authState.teamId === m.awayTeamId));
+    const events = m.goalEvents || [];
+
+    const homeGoals = events.filter(e => e.teamId === m.homeTeamId);
+    const awayGoals = events.filter(e => e.teamId === m.awayTeamId);
 
     return `
-      <div class="glass-panel p-5 rounded-xl border border-slate-800 hover:border-cyan-400/40 transition-all">
-        <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800/80 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="badge-cyan font-bold">Match #${m.matchNumber}</span>
-            <span class="text-slate-400 font-semibold">${m.stage.replace(/_/g, ' ')}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="font-bold ${isFinished ? 'text-amber-400' : 'text-slate-400'}">
-              ${isFinished ? '✅ SELESAI' : '⏳ SCHEDULED'}
-            </span>
-            ${canUpdate ? `
-              <button onclick="openInputScoreModal('${m.id}')" class="text-xs text-cyan-300 font-bold bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-400/30 hover:bg-cyan-500/30">✏️ Input Skor</button>
-            ` : ''}
-          </div>
-        </div>
-
-        <div class="grid grid-cols-5 items-center gap-2 my-4">
-          <!-- Home Team -->
-          <div class="col-span-2 text-right">
-            <div class="flex items-center justify-end gap-2">
-              <span class="font-bold text-sm text-white truncate" title="${m.homeTeamName}">${m.homeTeamName}</span>
-              <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;">
+      <div class="glass-panel p-5 rounded-xl border border-slate-800 hover:border-cyan-400/40 transition-all flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800/80 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="badge-cyan font-bold font-mono">Match #${m.matchNumber}</span>
+              <span class="text-slate-400 font-semibold">${m.stage.replace(/_/g, ' ')}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold ${isFinished ? 'text-amber-400' : 'text-slate-400'}">
+                ${isFinished ? '✅ SELESAI' : '⏳ SCHEDULED'}
+              </span>
+              ${canUpdate ? `
+                <button onclick="openInputScoreModal('${m.id}')" class="text-xs text-cyan-300 font-bold bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-400/30 hover:bg-cyan-500/30">✏️ Input Skor</button>
+              ` : ''}
             </div>
           </div>
 
-          <!-- Score Box -->
-          <div class="col-span-1 text-center">
-            ${isFinished ? `
-              <div class="text-lg font-extrabold font-mono text-cyan-300 bg-slate-900/90 py-1.5 px-3 rounded-lg border border-cyan-500/30 inline-block shadow-inner">
-                ${m.homeScore} : ${m.awayScore}
+          <div class="grid grid-cols-5 items-center gap-2 my-4">
+            <!-- Home Team -->
+            <div class="col-span-2 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <span class="font-bold text-sm text-white truncate" title="${m.homeTeamName}">${m.homeTeamName}</span>
+                <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;">
               </div>
-            ` : `
-              <div class="text-xs font-bold text-slate-500 bg-slate-900/60 py-1.5 px-2 rounded border border-slate-800 inline-block">
-                VS
-              </div>
-            `}
-          </div>
+            </div>
 
-          <!-- Away Team -->
-          <div class="col-span-2 text-left">
-            <div class="flex items-center justify-start gap-2">
-              <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;">
-              <span class="font-bold text-sm text-white truncate" title="${m.awayTeamName}">${m.awayTeamName}</span>
+            <!-- Score Box -->
+            <div class="col-span-1 text-center">
+              ${isFinished ? `
+                <div class="text-lg font-extrabold font-mono text-cyan-300 bg-slate-900/90 py-1.5 px-3 rounded-lg border border-cyan-500/30 inline-block shadow-inner">
+                  ${m.homeScore} : ${m.awayScore}
+                </div>
+              ` : `
+                <div class="text-xs font-bold text-slate-500 bg-slate-900/60 py-1.5 px-2 rounded border border-slate-800 inline-block">
+                  VS
+                </div>
+              `}
+            </div>
+
+            <!-- Away Team -->
+            <div class="col-span-2 text-left">
+              <div class="flex items-center justify-start gap-2">
+                <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;">
+                <span class="font-bold text-sm text-white truncate" title="${m.awayTeamName}">${m.awayTeamName}</span>
+              </div>
             </div>
           </div>
+
+          <!-- Goal Scorers List on Match Card -->
+          ${events.length > 0 ? `
+            <div class="my-3 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 text-[11px] space-y-1.5">
+              <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">⚽ Pencetak Gol &amp; Assist:</span>
+              <div class="grid grid-cols-2 gap-2">
+                <!-- Home Scorers -->
+                <div class="space-y-1 text-left">
+                  ${homeGoals.map(g => `
+                    <div class="text-slate-300 leading-tight">
+                      <span class="font-bold text-white">⚽ ${g.scorerName}</span> <span class="font-mono text-slate-400">(${g.minute}')</span>
+                      ${g.assistName ? `<span class="text-cyan-400 text-[10px] block">↳ Assist: ${g.assistName}</span>` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+
+                <!-- Away Scorers -->
+                <div class="space-y-1 text-right">
+                  ${awayGoals.map(g => `
+                    <div class="text-slate-300 leading-tight">
+                      <span class="font-bold text-white">${g.scorerName} ⚽</span> <span class="font-mono text-slate-400">(${g.minute}')</span>
+                      ${g.assistName ? `<span class="text-cyan-400 text-[10px] block">Assist: ${g.assistName} ↲</span>` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          ` : ''}
         </div>
 
-        <div class="flex justify-between items-center pt-3 border-t border-slate-800/80 text-xs text-slate-400 flex-wrap gap-2">
+        <div class="flex justify-between items-center pt-3 border-t border-slate-800/80 text-xs text-slate-400 flex-wrap gap-2 mt-2">
           <div class="flex items-center gap-3">
             <span>📅 ${m.matchDate || '14 Maret 2026'}</span>
             <span>⏰ ${m.kickoffTime || '08:00 WIB'}</span>
@@ -666,54 +702,94 @@ function renderVisitorMatches() {
   }).join('');
 }
 
-// ========== 3. TOP SCORER & STATS ==========
+// ========== 3. TOP SCORER & TOP ASSIST (AUTO-CALCULATED FROM MATCH GOAL EVENTS) ==========
 function renderVisitorStats() {
   const scorersList = document.getElementById('topScorersList');
   const assistsList = document.getElementById('topAssistsList');
   if (!scorersList || !assistsList) return;
 
-  scorersList.innerHTML = `
+  // Aggregate goals and assists across all finished matches
+  const goalsMap = {};
+  const assistsMap = {};
+
+  matches.forEach(m => {
+    if (m.goalEvents && Array.isArray(m.goalEvents)) {
+      m.goalEvents.forEach(ev => {
+        // Scorer
+        if (ev.scorerId && ev.scorerName) {
+          const key = ev.scorerId;
+          if (!goalsMap[key]) {
+            const team = teams.find(t => t.id === ev.teamId);
+            goalsMap[key] = {
+              playerId: ev.scorerId,
+              playerName: ev.scorerName,
+              teamName: ev.teamName || (team ? team.name : 'Tim'),
+              goals: 0
+            };
+          }
+          goalsMap[key].goals += 1;
+        }
+
+        // Assist
+        if (ev.assistId && ev.assistName) {
+          const key = ev.assistId;
+          if (!assistsMap[key]) {
+            const team = teams.find(t => t.id === ev.teamId);
+            assistsMap[key] = {
+              playerId: ev.assistId,
+              playerName: ev.assistName,
+              teamName: ev.teamName || (team ? team.name : 'Tim'),
+              assists: 0
+            };
+          }
+          assistsMap[key].assists += 1;
+        }
+      });
+    }
+  });
+
+  const sortedScorers = Object.values(goalsMap).sort((a, b) => b.goals - a.goals);
+  const sortedAssists = Object.values(assistsMap).sort((a, b) => b.assists - a.assists);
+
+  scorersList.innerHTML = sortedScorers.length === 0 ? `
+    <div class="p-6 rounded-lg bg-slate-900/60 border border-slate-800 text-center text-xs text-slate-400">
+      Belum ada data gol yang dicatatkan dari hasil pertandingan.
+    </div>
+  ` : `
     <div class="space-y-2">
-      <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <span class="font-mono font-bold text-amber-400 text-sm">#1</span>
-          <span class="font-bold text-white text-xs">Bagus Setyawan (Parkir)</span>
+      ${sortedScorers.map((s, idx) => `
+        <div class="flex justify-between items-center p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-amber-400/30 transition-all">
+          <div class="flex items-center gap-3">
+            <span class="font-mono font-bold ${idx === 0 ? 'text-amber-400 text-base' : 'text-slate-400 text-sm'} w-6">#${idx + 1}</span>
+            <div>
+              <strong class="text-white text-xs block">${s.playerName}</strong>
+              <span class="text-[10px] text-slate-400">${s.teamName}</span>
+            </div>
+          </div>
+          <span class="badge-gold text-xs font-bold font-mono px-2.5 py-1">${s.goals} Gol</span>
         </div>
-        <span class="badge-gold text-xs font-bold font-mono">4 Gol</span>
-      </div>
-      <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <span class="font-mono font-bold text-slate-400 text-sm">#2</span>
-          <span class="font-bold text-white text-xs">Ahmad Syukri (Satpam)</span>
-        </div>
-        <span class="badge-cyan text-xs font-bold font-mono">3 Gol</span>
-      </div>
-      <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <span class="font-mono font-bold text-slate-400 text-sm">#3</span>
-          <span class="font-bold text-white text-xs">Guruh Soekarno (FKIP)</span>
-        </div>
-        <span class="badge-cyan text-xs font-bold font-mono">2 Gol</span>
-      </div>
+      `).join('')}
     </div>
   `;
 
-  assistsList.innerHTML = `
+  assistsList.innerHTML = sortedAssists.length === 0 ? `
+    <div class="p-6 rounded-lg bg-slate-900/60 border border-slate-800 text-center text-xs text-slate-400">
+      Belum ada data assist yang dicatatkan dari hasil pertandingan.
+    </div>
+  ` : `
     <div class="space-y-2">
-      <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <span class="font-mono font-bold text-cyan-400 text-sm">#1</span>
-          <span class="font-bold text-white text-xs">Rian Hidayat (Parkir)</span>
+      ${sortedAssists.map((a, idx) => `
+        <div class="flex justify-between items-center p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-400/30 transition-all">
+          <div class="flex items-center gap-3">
+            <span class="font-mono font-bold ${idx === 0 ? 'text-cyan-400 text-base' : 'text-slate-400 text-sm'} w-6">#${idx + 1}</span>
+            <div>
+              <strong class="text-white text-xs block">${a.playerName}</strong>
+              <span class="text-[10px] text-slate-400">${a.teamName}</span>
+            </div>
+          </div>
+          <span class="badge-cyan text-xs font-bold font-mono px-2.5 py-1">${a.assists} Assist</span>
         </div>
-        <span class="badge-cyan text-xs font-bold font-mono">3 Assist</span>
-      </div>
-      <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <span class="font-mono font-bold text-slate-400 text-sm">#2</span>
-          <span class="font-bold text-white text-xs">Febri Hariyadi (FKIP)</span>
-        </div>
-        <span class="badge-cyan text-xs font-bold font-mono">2 Assist</span>
-      </div>
+      `).join('')}
     </div>
   `;
 }
@@ -934,7 +1010,63 @@ function openPublicMatchDetailModal(matchId) {
   `);
 }
 
-// ========== 5. INPUT & UPDATE SKOR MODAL (SUPER ADMIN & MANAJER TIM) ==========
+
+function addGoalEventRow(teamType) {
+  const container = document.getElementById(`${teamType}GoalsContainer`);
+  if (!container) return;
+
+  const matchId = container.getAttribute('data-match-id');
+  const match = matches.find(m => m.id === matchId);
+  if (!match) return;
+
+  const teamId = teamType === 'home' ? match.homeTeamId : match.awayTeamId;
+  const squad = players.filter(p => p.teamId === teamId);
+
+  const rowId = `goal-row-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+  const div = document.createElement('div');
+  div.id = rowId;
+  div.className = 'goal-event-item p-2.5 rounded-lg bg-slate-950 border border-slate-800 grid grid-cols-12 gap-2 items-center text-xs mt-2';
+
+  div.innerHTML = `
+    <!-- Goal Scorer (5 cols) -->
+    <div class="col-span-5">
+      <label class="text-[10px] text-amber-300 font-bold block mb-0.5">⚽ Gol</label>
+      <select class="form-input text-xs font-bold text-white goal-scorer-select" required>
+        <option value="" disabled selected>-- Pilih Pencetak Gol --</option>
+        ${squad.map(p => `<option value="${p.id}" data-name="${p.fullName}">${p.fullName} (${p.position})</option>`).join('')}
+      </select>
+    </div>
+
+    <!-- Assist Provider (4 cols) -->
+    <div class="col-span-4">
+      <label class="text-[10px] text-cyan-300 font-bold block mb-0.5">🎯 Assist</label>
+      <select class="form-input text-xs text-slate-200 goal-assist-select">
+        <option value="">-- Tanpa Assist --</option>
+        ${squad.map(p => `<option value="${p.id}" data-name="${p.fullName}">${p.fullName}</option>`).join('')}
+      </select>
+    </div>
+
+    <!-- Minute (2 cols) -->
+    <div class="col-span-2">
+      <label class="text-[10px] text-slate-400 font-bold block mb-0.5">⏱️ Menit</label>
+      <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" min="1" max="60" placeholder="10" value="10" required>
+    </div>
+
+    <!-- Delete (1 col) -->
+    <div class="col-span-1 text-center pt-3">
+      <button type="button" onclick="removeGoalEventRow('${rowId}')" class="text-rose-400 hover:text-rose-300 font-bold text-sm">✕</button>
+    </div>
+  `;
+
+  container.appendChild(div);
+}
+
+function removeGoalEventRow(rowId) {
+  const row = document.getElementById(rowId);
+  if (row) row.remove();
+}
+
+// ========== 5. INPUT & UPDATE SKOR MODAL (DENGAN PENCETAK GOL & ASSIST) ==========
 function openInputScoreModal(matchId) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
@@ -944,11 +1076,17 @@ function openInputScoreModal(matchId) {
   const isMatchManager = isManager && (authState.teamId === match.homeTeamId || authState.teamId === match.awayTeamId);
 
   if (!isAdmin && !isMatchManager) {
-    alert('Anda hanya dapat memperbarui skor jika login sebagai Super Admin atau Manajer dari salah satu tim yang bertanding.');
+    alert('Anda hanya dapat memperbarui skor jika login sebagai Super Admin atau Manajer dari tim yang bertanding.');
     return;
   }
 
   const isR16 = match.stage === 'ROUND_OF_16';
+  const homeSquad = players.filter(p => p.teamId === match.homeTeamId);
+  const awaySquad = players.filter(p => p.teamId === match.awayTeamId);
+  const matchEvents = match.goalEvents || [];
+
+  const homeGoalEvents = matchEvents.filter(e => e.teamId === match.homeTeamId);
+  const awayGoalEvents = matchEvents.filter(e => e.teamId === match.awayTeamId);
 
   openModal(`
     <form onsubmit="saveMatchScore('${match.id}', event)" class="space-y-4 text-left">
@@ -956,7 +1094,7 @@ function openInputScoreModal(matchId) {
         <span class="badge-${isAdmin ? 'gold' : 'cyan'} text-[10px] font-bold">
           ${isAdmin ? '👑 SUPER ADMIN' : '⚽ MANAJER TIM: ' + authState.displayName}
         </span>
-        <h2 class="text-lg font-bold text-white mt-1">Update Skor &amp; Jadwal: Match #${match.matchNumber} (${match.stage.replace(/_/g, ' ')})</h2>
+        <h2 class="text-lg font-bold text-white mt-1">Input Skor &amp; Detail Gol: Match #${match.matchNumber} (${match.stage.replace(/_/g, ' ')})</h2>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
@@ -987,16 +1125,97 @@ function openInputScoreModal(matchId) {
 
       <!-- Skor Akhir -->
       <div class="p-4 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-center">
-        <label class="form-label text-xs text-cyan-300 font-bold mb-2 block">⚽ SKOR PERTANDINGAN</label>
+        <label class="form-label text-xs text-cyan-300 font-bold mb-2 block">⚽ SKOR AKHIR PERTANDINGAN</label>
         <div class="flex items-center justify-center gap-4">
           <div class="text-center">
             <span class="text-xs text-slate-400 block mb-1">Skor ${match.homeTeamName}</span>
-            <input type="number" id="editHomeScore" class="form-input text-center text-xl font-bold font-mono" style="width: 80px;" value="${match.homeScore}" min="0" required>
+            <input type="number" id="editHomeScore" class="form-input text-center text-xl font-bold font-mono" style="width: 80px;" value="${match.homeScore || 0}" min="0" required>
           </div>
           <span class="text-2xl font-bold text-slate-500 mt-4">:</span>
           <div class="text-center">
             <span class="text-xs text-slate-400 block mb-1">Skor ${match.awayTeamName}</span>
-            <input type="number" id="editAwayScore" class="form-input text-center text-xl font-bold font-mono" style="width: 80px;" value="${match.awayScore}" min="0" required>
+            <input type="number" id="editAwayScore" class="form-input text-center text-xl font-bold font-mono" style="width: 80px;" value="${match.awayScore || 0}" min="0" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pencetak Gol & Assist Sections -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Home Team Goal Events -->
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+          <div class="flex justify-between items-center pb-2 mb-2 border-b border-slate-800">
+            <span class="font-bold text-xs text-white">⚽ Gol &amp; Assist: ${match.homeTeamName}</span>
+            <button type="button" onclick="addGoalEventRow('home')" class="text-xs font-bold text-emerald-400 hover:underline bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              ➕ Tambah Gol
+            </button>
+          </div>
+          <div id="homeGoalsContainer" data-match-id="${match.id}" class="space-y-2 max-h-44 overflow-y-auto">
+            ${homeGoalEvents.map((ev, i) => {
+              const rId = `goal-row-home-${i}`;
+              return `
+                <div id="${rId}" class="goal-event-item p-2.5 rounded-lg bg-slate-950 border border-slate-800 grid grid-cols-12 gap-2 items-center text-xs">
+                  <div class="col-span-5">
+                    <label class="text-[10px] text-amber-300 font-bold block mb-0.5">⚽ Gol</label>
+                    <select class="form-input text-xs font-bold text-white goal-scorer-select" required>
+                      ${homeSquad.map(p => `<option value="${p.id}" data-name="${p.fullName}" ${p.id === ev.scorerId ? 'selected' : ''}>${p.fullName}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div class="col-span-4">
+                    <label class="text-[10px] text-cyan-300 font-bold block mb-0.5">🎯 Assist</label>
+                    <select class="form-input text-xs text-slate-200 goal-assist-select">
+                      <option value="">-- Tanpa Assist --</option>
+                      ${homeSquad.map(p => `<option value="${p.id}" data-name="${p.fullName}" ${p.id === ev.assistId ? 'selected' : ''}>${p.fullName}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div class="col-span-2">
+                    <label class="text-[10px] text-slate-400 font-bold block mb-0.5">⏱️ Menit</label>
+                    <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" min="1" max="60" value="${ev.minute || 10}" required>
+                  </div>
+                  <div class="col-span-1 text-center pt-3">
+                    <button type="button" onclick="removeGoalEventRow('${rId}')" class="text-rose-400 hover:text-rose-300 font-bold text-sm">✕</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Away Team Goal Events -->
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+          <div class="flex justify-between items-center pb-2 mb-2 border-b border-slate-800">
+            <span class="font-bold text-xs text-white">⚽ Gol &amp; Assist: ${match.awayTeamName}</span>
+            <button type="button" onclick="addGoalEventRow('away')" class="text-xs font-bold text-emerald-400 hover:underline bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              ➕ Tambah Gol
+            </button>
+          </div>
+          <div id="awayGoalsContainer" data-match-id="${match.id}" class="space-y-2 max-h-44 overflow-y-auto">
+            ${awayGoalEvents.map((ev, i) => {
+              const rId = `goal-row-away-${i}`;
+              return `
+                <div id="${rId}" class="goal-event-item p-2.5 rounded-lg bg-slate-950 border border-slate-800 grid grid-cols-12 gap-2 items-center text-xs">
+                  <div class="col-span-5">
+                    <label class="text-[10px] text-amber-300 font-bold block mb-0.5">⚽ Gol</label>
+                    <select class="form-input text-xs font-bold text-white goal-scorer-select" required>
+                      ${awaySquad.map(p => `<option value="${p.id}" data-name="${p.fullName}" ${p.id === ev.scorerId ? 'selected' : ''}>${p.fullName}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div class="col-span-4">
+                    <label class="text-[10px] text-cyan-300 font-bold block mb-0.5">🎯 Assist</label>
+                    <select class="form-input text-xs text-slate-200 goal-assist-select">
+                      <option value="">-- Tanpa Assist --</option>
+                      ${awaySquad.map(p => `<option value="${p.id}" data-name="${p.fullName}" ${p.id === ev.assistId ? 'selected' : ''}>${p.fullName}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div class="col-span-2">
+                    <label class="text-[10px] text-slate-400 font-bold block mb-0.5">⏱️ Menit</label>
+                    <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" min="1" max="60" value="${ev.minute || 10}" required>
+                  </div>
+                  <div class="col-span-1 text-center pt-3">
+                    <button type="button" onclick="removeGoalEventRow('${rId}')" class="text-rose-400 hover:text-rose-300 font-bold text-sm">✕</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       </div>
@@ -1026,7 +1245,7 @@ function openInputScoreModal(matchId) {
 
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
         <button type="button" onclick="closeModal()" class="btn-ucl-secondary text-xs">Batal</button>
-        <button type="submit" class="btn-ucl-primary text-xs font-bold">💾 Simpan Skor &amp; Hasil</button>
+        <button type="submit" class="btn-ucl-primary text-xs font-bold">💾 Simpan Skor &amp; Detail Gol</button>
       </div>
     </form>
   `);
@@ -1052,29 +1271,40 @@ function saveMatchScore(matchId, event) {
   const dateVal = dateEl ? dateEl.value : (match.matchDate || 'Sabtu, 14 Maret 2026');
   const timeVal = timeEl ? timeEl.value : (match.kickoffTime || '08:00 WIB');
 
-  if (match.stage === 'ROUND_OF_16' && authState.role === 'ADMIN') {
-    const homeSelect = document.getElementById('editHomeTeamId');
-    const awaySelect = document.getElementById('editAwayTeamId');
-    if (homeSelect && awaySelect) {
-      const homeTeamId = homeSelect.value;
-      const awayTeamId = awaySelect.value;
+  // Collect goal events for Home & Away
+  const goalEvents = [];
 
-      const homeTeam = teams.find(t => t.id === homeTeamId);
-      const awayTeam = teams.find(t => t.id === awayTeamId);
+  const extractGoals = (containerId, teamId, teamName) => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const items = container.querySelectorAll('.goal-event-item');
+    items.forEach(item => {
+      const scorerSelect = item.querySelector('.goal-scorer-select');
+      const assistSelect = item.querySelector('.goal-assist-select');
+      const minInput = item.querySelector('.goal-minute-input');
 
-      if (homeTeam) {
-        match.homeTeamId = homeTeam.id;
-        match.homeTeamName = homeTeam.name;
-        match.homeTeamLogo = homeTeam.logoUrl;
+      if (scorerSelect && scorerSelect.value) {
+        const scorerOption = scorerSelect.options[scorerSelect.selectedIndex];
+        const assistOption = assistSelect && assistSelect.value ? assistSelect.options[assistSelect.selectedIndex] : null;
+
+        goalEvents.push({
+          id: `ev-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+          teamId,
+          teamName,
+          scorerId: scorerSelect.value,
+          scorerName: scorerOption ? scorerOption.getAttribute('data-name') || scorerOption.textContent.split(' (')[0] : 'Pemain',
+          assistId: assistSelect && assistSelect.value ? assistSelect.value : null,
+          assistName: assistOption ? assistOption.getAttribute('data-name') || assistOption.textContent : null,
+          minute: minInput ? parseInt(minInput.value, 10) || 1 : 1
+        });
       }
-      if (awayTeam) {
-        match.awayTeamId = awayTeam.id;
-        match.awayTeamName = awayTeam.name;
-        match.awayTeamLogo = awayTeam.logoUrl;
-      }
-    }
-  }
+    });
+  };
 
+  extractGoals('homeGoalsContainer', match.homeTeamId, match.homeTeamName);
+  extractGoals('awayGoalsContainer', match.awayTeamId, match.awayTeamName);
+
+  match.goalEvents = goalEvents;
   match.homeScore = isNaN(homeScoreVal) ? 0 : homeScoreVal;
   match.awayScore = isNaN(awayScoreVal) ? 0 : awayScoreVal;
   match.status = statusVal;
@@ -1088,7 +1318,7 @@ function saveMatchScore(matchId, event) {
   saveState();
   renderApp();
   closeModal();
-  alert(`✅ Skor Match #${match.matchNumber} (${match.homeTeamName} ${match.homeScore} : ${match.awayScore} ${match.awayTeamName}) berhasil disimpan & bagan diperbarui!`);
+  alert(`✅ Skor & Pencetak Gol Match #${match.matchNumber} berhasil disimpan & Top Scorer diperbarui!`);
 }
 
 // ========== 6. PORTAL MANAJER TIM ==========

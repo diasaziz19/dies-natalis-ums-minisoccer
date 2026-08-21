@@ -51,7 +51,7 @@
       <div class="flex border-b border-slate-800 mb-6 gap-2 flex-wrap">
         <div class="tab-btn active" id="tabBtn-bracket" onclick="switchVisitorTab('bracket')">🌳 Bagan Turnamen 16 Tim</div>
         <div class="tab-btn" id="tabBtn-matches" onclick="switchVisitorTab('matches')">📅 Jadwal &amp; Hasil Pertandingan</div>
-        <div class="tab-btn" id="tabBtn-stats" onclick="switchVisitorTab('stats')">⭐ Top Scorer</div>
+        <div class="tab-btn" id="tabBtn-stats" onclick="switchVisitorTab('stats')">⭐ Top Scorer &amp; Assist (Best Player)</div>
       </div>
 
       <!-- Tab: Knockout Bracket Tree -->
@@ -95,7 +95,8 @@
 
       <!-- Tab: Stats / Top Scorer -->
       <div id="vtab-stats" class="vtab-content hidden">
-        <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-white"><span>⭐</span> Statistik Pemain</h2>
+        <h2 class="text-xl font-bold mb-1 flex items-center gap-2 text-white"><span>⭐</span> Statistik Pemain &amp; Nominasi Pemain Terbaik</h2>
+        <p class="text-xs text-slate-400 mb-4">Akumulasi gol dan assist otomatis dihitung dari hasil pertandingan untuk pertimbangan Pemain Terbaik Turnamen.</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="glass-panel p-5">
             <h3 class="text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">⚽ Top Scorer (Pencetak Gol)</h3>
