@@ -176,9 +176,9 @@ function updateKnockoutProgression(matchesList) {
     const o1 = getOutcome(m1);
     const o2 = getOutcome(m2);
     if (o1.winner) { m9.homeTeamId = o1.winner.id; m9.homeTeamName = o1.winner.name; m9.homeTeamLogo = o1.winner.logo; }
-    else { m9.homeTeamId = null; m9.homeTeamName = 'Pemenang Match #1'; m9.homeTeamLogo = ''; }
+    else if (!m9.homeTeamId) { m9.homeTeamName = 'Pemenang Match #1'; m9.homeTeamLogo = ''; }
     if (o2.winner) { m9.awayTeamId = o2.winner.id; m9.awayTeamName = o2.winner.name; m9.awayTeamLogo = o2.winner.logo; }
-    else { m9.awayTeamId = null; m9.awayTeamName = 'Pemenang Match #2'; m9.awayTeamLogo = ''; }
+    else if (!m9.awayTeamId) { m9.awayTeamName = 'Pemenang Match #2'; m9.awayTeamLogo = ''; }
   }
 
   // QF 2 (Match 10)
@@ -186,9 +186,9 @@ function updateKnockoutProgression(matchesList) {
     const o3 = getOutcome(m3);
     const o4 = getOutcome(m4);
     if (o3.winner) { m10.homeTeamId = o3.winner.id; m10.homeTeamName = o3.winner.name; m10.homeTeamLogo = o3.winner.logo; }
-    else { m10.homeTeamId = null; m10.homeTeamName = 'Pemenang Match #3'; m10.homeTeamLogo = ''; }
+    else if (!m10.homeTeamId) { m10.homeTeamName = 'Pemenang Match #3'; m10.homeTeamLogo = ''; }
     if (o4.winner) { m10.awayTeamId = o4.winner.id; m10.awayTeamName = o4.winner.name; m10.awayTeamLogo = o4.winner.logo; }
-    else { m10.awayTeamId = null; m10.awayTeamName = 'Pemenang Match #4'; m10.awayTeamLogo = ''; }
+    else if (!m10.awayTeamId) { m10.awayTeamName = 'Pemenang Match #4'; m10.awayTeamLogo = ''; }
   }
 
   // QF 3 (Match 11)
@@ -196,9 +196,9 @@ function updateKnockoutProgression(matchesList) {
     const o5 = getOutcome(m5);
     const o6 = getOutcome(m6);
     if (o5.winner) { m11.homeTeamId = o5.winner.id; m11.homeTeamName = o5.winner.name; m11.homeTeamLogo = o5.winner.logo; }
-    else { m11.homeTeamId = null; m11.homeTeamName = 'Pemenang Match #5'; m11.homeTeamLogo = ''; }
+    else if (!m11.homeTeamId) { m11.homeTeamName = 'Pemenang Match #5'; m11.homeTeamLogo = ''; }
     if (o6.winner) { m11.awayTeamId = o6.winner.id; m11.awayTeamName = o6.winner.name; m11.awayTeamLogo = o6.winner.logo; }
-    else { m11.awayTeamId = null; m11.awayTeamName = 'Pemenang Match #6'; m11.awayTeamLogo = ''; }
+    else if (!m11.awayTeamId) { m11.awayTeamName = 'Pemenang Match #6'; m11.awayTeamLogo = ''; }
   }
 
   // QF 4 (Match 12)
@@ -206,9 +206,9 @@ function updateKnockoutProgression(matchesList) {
     const o7 = getOutcome(m7);
     const o8 = getOutcome(m8);
     if (o7.winner) { m12.homeTeamId = o7.winner.id; m12.homeTeamName = o7.winner.name; m12.homeTeamLogo = o7.winner.logo; }
-    else { m12.homeTeamId = null; m12.homeTeamName = 'Pemenang Match #7'; m12.homeTeamLogo = ''; }
+    else if (!m12.homeTeamId) { m12.homeTeamName = 'Pemenang Match #7'; m12.homeTeamLogo = ''; }
     if (o8.winner) { m12.awayTeamId = o8.winner.id; m12.awayTeamName = o8.winner.name; m12.awayTeamLogo = o8.winner.logo; }
-    else { m12.awayTeamId = null; m12.awayTeamName = 'Pemenang Match #8'; m12.awayTeamLogo = ''; }
+    else if (!m12.awayTeamId) { m12.awayTeamName = 'Pemenang Match #8'; m12.awayTeamLogo = ''; }
   }
 
   // SF 1 (Match 13)
@@ -216,9 +216,9 @@ function updateKnockoutProgression(matchesList) {
     const o9 = getOutcome(m9);
     const o10 = getOutcome(m10);
     if (o9.winner) { m13.homeTeamId = o9.winner.id; m13.homeTeamName = o9.winner.name; m13.homeTeamLogo = o9.winner.logo; }
-    else { m13.homeTeamId = null; m13.homeTeamName = 'Pemenang Match #9'; m13.homeTeamLogo = ''; }
+    else if (!m13.homeTeamId) { m13.homeTeamName = 'Pemenang Match #9'; m13.homeTeamLogo = ''; }
     if (o10.winner) { m13.awayTeamId = o10.winner.id; m13.awayTeamName = o10.winner.name; m13.awayTeamLogo = o10.winner.logo; }
-    else { m13.awayTeamId = null; m13.awayTeamName = 'Pemenang Match #10'; m13.awayTeamLogo = ''; }
+    else if (!m13.awayTeamId) { m13.awayTeamName = 'Pemenang Match #10'; m13.awayTeamLogo = ''; }
   }
 
   // SF 2 (Match 14)
@@ -226,9 +226,9 @@ function updateKnockoutProgression(matchesList) {
     const o11 = getOutcome(m11);
     const o12 = getOutcome(m12);
     if (o11.winner) { m14.homeTeamId = o11.winner.id; m14.homeTeamName = o11.winner.name; m14.homeTeamLogo = o11.winner.logo; }
-    else { m14.homeTeamId = null; m14.homeTeamName = 'Pemenang Match #11'; m14.homeTeamLogo = ''; }
+    else if (!m14.homeTeamId) { m14.homeTeamName = 'Pemenang Match #11'; m14.homeTeamLogo = ''; }
     if (o12.winner) { m14.awayTeamId = o12.winner.id; m14.awayTeamName = o12.winner.name; m14.awayTeamLogo = o12.winner.logo; }
-    else { m14.awayTeamId = null; m14.awayTeamName = 'Pemenang Match #12'; m14.awayTeamLogo = ''; }
+    else if (!m14.awayTeamId) { m14.awayTeamName = 'Pemenang Match #12'; m14.awayTeamLogo = ''; }
   }
 
   // Bronze Match (Match 15) & Grand Final (Match 16)
@@ -238,16 +238,16 @@ function updateKnockoutProgression(matchesList) {
 
     if (m15) {
       if (o13.loser) { m15.homeTeamId = o13.loser.id; m15.homeTeamName = o13.loser.name; m15.homeTeamLogo = o13.loser.logo; }
-      else { m15.homeTeamId = null; m15.homeTeamName = 'Kalah Semi Final 1'; m15.homeTeamLogo = ''; }
+      else if (!m15.homeTeamId) { m15.homeTeamName = 'Kalah Semi Final 1'; m15.homeTeamLogo = ''; }
       if (o14.loser) { m15.awayTeamId = o14.loser.id; m15.awayTeamName = o14.loser.name; m15.awayTeamLogo = o14.loser.logo; }
-      else { m15.awayTeamId = null; m15.awayTeamName = 'Kalah Semi Final 2'; m15.awayTeamLogo = ''; }
+      else if (!m15.awayTeamId) { m15.awayTeamName = 'Kalah Semi Final 2'; m15.awayTeamLogo = ''; }
     }
 
     if (m16) {
       if (o13.winner) { m16.homeTeamId = o13.winner.id; m16.homeTeamName = o13.winner.name; m16.homeTeamLogo = o13.winner.logo; }
-      else { m16.homeTeamId = null; m16.homeTeamName = 'Pemenang Semi Final 1'; m16.homeTeamLogo = ''; }
+      else if (!m16.homeTeamId) { m16.homeTeamName = 'Pemenang Semi Final 1'; m16.homeTeamLogo = ''; }
       if (o14.winner) { m16.awayTeamId = o14.winner.id; m16.awayTeamName = o14.winner.name; m16.awayTeamLogo = o14.winner.logo; }
-      else { m16.awayTeamId = null; m16.awayTeamName = 'Pemenang Semi Final 2'; m16.awayTeamLogo = ''; }
+      else if (!m16.awayTeamId) { m16.awayTeamName = 'Pemenang Semi Final 2'; m16.awayTeamLogo = ''; }
     }
   }
 
@@ -297,6 +297,7 @@ window.resetAllSuratTugas = resetAllSuratTugas;
 // Bracket & Admin Control
 window.applyInitialOfficialTeams = applyInitialOfficialTeams;
 window.saveAllRoundOf16BracketMatches = saveAllRoundOf16BracketMatches;
+window.saveAllBracketStagesMatches = saveAllBracketStagesMatches;
 window.autoSetRoundOf16Teams = autoSetRoundOf16Teams;
 window.updateRoundOf16MatchTeams = updateRoundOf16MatchTeams;
 window.resetTournamentData = resetTournamentData;
@@ -1268,32 +1269,40 @@ function renderAdminBracketConfig() {
   if (!container) return;
 
   const r16Matches = matches.filter(m => m.stage === 'ROUND_OF_16');
+  const qfMatches = matches.filter(m => m.stage === 'QUARTER_FINAL');
+  const sfMatches = matches.filter(m => m.stage === 'SEMI_FINAL');
+  const bronzeMatch = matches.find(m => m.stage === 'THIRD_PLACE');
+  const finalMatch = matches.find(m => m.stage === 'FINAL');
 
-  container.innerHTML = `
-    <form onsubmit="saveAllRoundOf16BracketMatches(event)" class="col-span-full space-y-4">
+  const renderStageSection = (title, badgeColor, matchList) => `
+    <div class="col-span-full mt-4 first:mt-0">
+      <div class="flex items-center gap-2 pb-2 mb-3 border-b border-slate-800">
+        <span class="badge-${badgeColor} font-bold text-xs">${title}</span>
+        <span class="text-xs text-slate-400">Pilih tim peserta secara manual atau biarkan otomatis dari hasil babak sebelumnya.</span>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        ${r16Matches.map(m => `
+        ${matchList.map(m => `
           <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 text-xs hover:border-cyan-500/40 transition-all">
             <div class="flex justify-between items-center pb-2 border-b border-slate-800">
               <div class="flex items-center gap-2">
                 <span class="badge-cyan font-bold font-mono">Match #${m.matchNumber}</span>
-                <span class="text-slate-300 font-semibold">${m.kickoffTime || '08:00 WIB'}</span>
+                <span class="text-slate-300 font-semibold">${m.stage.replace(/_/g, ' ')}</span>
               </div>
-              <span class="text-slate-400 text-[11px]">📍 ${m.pitchLocation || 'Edupark UMS'}</span>
+              <span class="text-slate-400 text-[11px]">${m.kickoffTime || '08:00 WIB'} • 📍 ${m.pitchLocation || 'Edupark UMS'}</span>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="form-label text-[11px] text-cyan-300 font-bold mb-1 block">🏠 Tim Home</label>
-                <select id="bracketSelect_home_${m.matchNumber}" class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" required>
-                  <option value="" disabled ${!m.homeTeamId ? 'selected' : ''}>-- Pilih Tim Home --</option>
+                <select id="bracketSelect_home_${m.matchNumber}" class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40">
+                  <option value="">-- ${m.homeTeamName && !m.homeTeamId ? m.homeTeamName : 'Pilih Tim Home'} --</option>
                   ${teams.map(t => `<option value="${t.id}" ${t.id === m.homeTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
                 </select>
               </div>
               <div>
                 <label class="form-label text-[11px] text-cyan-300 font-bold mb-1 block">✈️ Tim Away</label>
-                <select id="bracketSelect_away_${m.matchNumber}" class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" required>
-                  <option value="" disabled ${!m.awayTeamId ? 'selected' : ''}>-- Pilih Tim Away --</option>
+                <select id="bracketSelect_away_${m.matchNumber}" class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40">
+                  <option value="">-- ${m.awayTeamName && !m.awayTeamId ? m.awayTeamName : 'Pilih Tim Away'} --</option>
                   ${teams.map(t => `<option value="${t.id}" ${t.id === m.awayTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
                 </select>
               </div>
@@ -1301,47 +1310,77 @@ function renderAdminBracketConfig() {
           </div>
         `).join('')}
       </div>
+    </div>
+  `;
 
-      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center flex-wrap gap-3">
-        <span class="text-xs text-slate-400">💡 Pilih tim untuk Match #1 s.d #8 lalu klik tombol Simpan di samping.</span>
-        <button type="submit" class="btn-ucl-primary text-xs font-bold shadow-lg shadow-cyan-500/20" style="padding: 10px 24px; font-size: 13px;">
-          💾 Simpan Perubahan Bagan Turnamen
+  container.innerHTML = `
+    <form onsubmit="saveAllBracketStagesMatches(event)" class="col-span-full space-y-4">
+      <!-- 1. Babak 16 Besar -->
+      ${renderStageSection('1. Babak 16 Besar (Match #1 s.d #8)', 'cyan', r16Matches)}
+
+      <!-- 2. Perempat Final -->
+      ${renderStageSection('2. Perempat Final / QF (Match #9 s.d #12)', 'gold', qfMatches)}
+
+      <!-- 3. Semi Final -->
+      ${renderStageSection('3. Semi Final (Match #13 & #14)', 'gold', sfMatches)}
+
+      <!-- 4. Final & Perebutan Juara 3 -->
+      ${renderStageSection('4. Grand Final & Perebutan Juara 3 (Match #15 & #16)', 'cyan', [finalMatch, bronzeMatch].filter(Boolean))}
+
+      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center flex-wrap gap-3 mt-6">
+        <div>
+          <strong class="text-white text-sm block">Konfirmasi Perubahan Seluruh Bagan</strong>
+          <span class="text-xs text-slate-400">Perubahan tim pada babak 16 besar hingga final akan langsung diterapkan ke bagan turnamen utama dan tersinkronkan ke Cloud Firestore.</span>
+        </div>
+        <button type="submit" class="btn-ucl-primary text-xs font-bold shadow-lg shadow-cyan-500/20" style="padding: 12px 28px; font-size: 13px;">
+          💾 Simpan Seluruh Perubahan Bagan Turnamen
         </button>
       </div>
     </form>
   `;
 }
 
-function saveAllRoundOf16BracketMatches(event) {
+function saveAllBracketStagesMatches(event) {
   if (event) event.preventDefault();
 
-  for (let i = 1; i <= 8; i++) {
+  for (let i = 1; i <= 16; i++) {
     const homeSelect = document.getElementById(`bracketSelect_home_${i}`);
     const awaySelect = document.getElementById(`bracketSelect_away_${i}`);
-    const match = matches.find(m => m.matchNumber === i && m.stage === 'ROUND_OF_16');
+    const match = matches.find(m => m.matchNumber === i);
 
     if (match && homeSelect && awaySelect) {
-      const homeTeam = teams.find(t => t.id === homeSelect.value);
-      const awayTeam = teams.find(t => t.id === awaySelect.value);
+      const homeTeamVal = homeSelect.value;
+      const awayTeamVal = awaySelect.value;
 
-      if (homeTeam) {
-        match.homeTeamId = homeTeam.id;
-        match.homeTeamName = homeTeam.name;
-        match.homeTeamLogo = homeTeam.logoUrl;
+      if (homeTeamVal) {
+        const homeTeam = teams.find(t => t.id === homeTeamVal);
+        if (homeTeam) {
+          match.homeTeamId = homeTeam.id;
+          match.homeTeamName = homeTeam.name;
+          match.homeTeamLogo = homeTeam.logoUrl;
+        }
       }
-      if (awayTeam) {
-        match.awayTeamId = awayTeam.id;
-        match.awayTeamName = awayTeam.name;
-        match.awayTeamLogo = awayTeam.logoUrl;
+
+      if (awayTeamVal) {
+        const awayTeam = teams.find(t => t.id === awayTeamVal);
+        if (awayTeam) {
+          match.awayTeamId = awayTeam.id;
+          match.awayTeamName = awayTeam.name;
+          match.awayTeamLogo = awayTeam.logoUrl;
+        }
       }
     }
   }
 
-  // Recalculate bracket advancement for quarter final, semi final, and final
+  // Recalculate progression and persist
   matches = updateKnockoutProgression(matches);
   saveState(false);
   renderApp();
-  alert('✅ Susunan peserta Babak 16 Besar berhasil disimpan & diterapkan langsung ke Bagan Turnamen!');
+  alert('✅ Seluruh susunan tim pada bagan (16 Besar, Perempat Final, Semi Final, & Final) berhasil disimpan dan diperbarui ke bagan utama!');
+}
+
+function saveAllRoundOf16BracketMatches(event) {
+  saveAllBracketStagesMatches(event);
 }
 
 function autoSetRoundOf16Teams() {
