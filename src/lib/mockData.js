@@ -32,7 +32,7 @@ export const INITIAL_RULES = [
   {
     category: 'Persyaratan Pemain & Official',
     items: [
-      'Komposisi Skuad: Minimal 7 pemain, Maksimal 14 pemain per tim.',
+      'Komposisi Tim: Maksimal 14 pemain, 1 manajer, dan 1 official per tim.',
       'Status Pemain: Wajib Dosen Tetap/Tidak Tetap, Tenaga Kependidikan (Tendik), atau Staf Resmi Unit/Fakultas UMS.',
       'Verifikasi: Wajib mengunggah Surat Tugas Resmi dari Pimpinan Unit/Fakultas serta membawa KTP / Kartu Pegawai (NI) asli saat registrasi fisik.',
       'Perlengkapan: Wajib memakai Jersey Bernomor Punggung, Kaos Kaki Panjang, Shin Guard (Pelindung Tulang Kering), dan Sepatu Minisoccer (TF/AG) - Dilarang memakai Pul Besi (SG).'

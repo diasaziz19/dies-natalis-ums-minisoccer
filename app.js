@@ -255,23 +255,43 @@ window.switchVisitorTab = switchVisitorTab;
 window.switchAdminTab = switchAdminTab;
 window.handleUnifiedLogin = handleUnifiedLogin;
 window.handleLogout = handleLogout;
+
+// Match Score & Results
 window.openInputScoreModal = openInputScoreModal;
 window.saveMatchScore = saveMatchScore;
-window.openTeamSquadModal = openTeamSquadModal;
 window.openPublicMatchDetailModal = openPublicMatchDetailModal;
+
+// Team Management
+window.openRegisterTeamModal = openRegisterTeamModal;
+window.openEditTeamModal = openEditTeamModal;
+window.saveTeam = saveTeam;
+window.deleteTeam = deleteTeam;
+window.openTeamSquadModal = openTeamSquadModal;
+
+// Player Management
 window.openAddPlayerModal = openAddPlayerModal;
 window.openEditPlayerModal = openEditPlayerModal;
 window.savePlayer = savePlayer;
 window.deletePlayer = deletePlayer;
+
+// Official & Manager Details
+window.openEditOfficialModal = openEditOfficialModal;
+window.saveOfficial = saveOfficial;
+
+// Surat Tugas
 window.openUploadSuratTugasModal = openUploadSuratTugasModal;
 window.saveSuratTugas = saveSuratTugas;
 window.approveTeam = approveTeam;
 window.rejectTeam = rejectTeam;
 window.resetAllSuratTugas = resetAllSuratTugas;
+
+// Bracket & Admin Control
 window.applyInitialOfficialTeams = applyInitialOfficialTeams;
 window.autoSetRoundOf16Teams = autoSetRoundOf16Teams;
 window.updateRoundOf16MatchTeams = updateRoundOf16MatchTeams;
 window.resetTournamentData = resetTournamentData;
+
+// Modals & Navigation
 window.closeModal = closeModal;
 window.openEditNavbarModal = openEditNavbarModal;
 window.saveNavbarConfig = saveNavbarConfig;
@@ -676,7 +696,7 @@ function renderVisitorStats() {
   `;
 }
 
-// ========== 4. PUBLIC TEAMS & SQUAD MODAL ==========
+// ========== 4. PUBLIC TEAMS & SQUAD VIEW (GUEST VIEW ONLY) ==========
 function renderPublicTeams() {
   const container = document.getElementById('publicTeamsGrid');
   if (!container) return;
@@ -694,6 +714,8 @@ function renderPublicTeams() {
     return;
   }
 
+  const isAdmin = authState.role === 'ADMIN';
+
   container.innerHTML = filtered.map(t => {
     const squad = players.filter(p => p.teamId === t.id);
     const official = officials.find(o => o.teamId === t.id);
@@ -702,12 +724,20 @@ function renderPublicTeams() {
     return `
       <div class="glass-panel p-5 rounded-xl border border-slate-800 hover:border-cyan-400/40 transition-all flex flex-col justify-between">
         <div>
-          <div class="flex items-center gap-3 mb-3">
-            <img src="${t.logoUrl}" alt="${t.name}" style="width:44px;height:44px;border-radius:50%;background:#000;border:2px solid rgba(0,240,255,0.4);" class="flex-shrink-0">
-            <div>
-              <h3 class="font-bold text-base text-white leading-tight">${t.name}</h3>
-              <p class="text-xs text-slate-400">${t.facultyUnit}</p>
+          <div class="flex items-center justify-between gap-3 mb-3">
+            <div class="flex items-center gap-3">
+              <img src="${t.logoUrl}" alt="${t.name}" style="width:44px;height:44px;border-radius:50%;background:#000;border:2px solid rgba(0,240,255,0.4);" class="flex-shrink-0">
+              <div>
+                <h3 class="font-bold text-base text-white leading-tight">${t.name}</h3>
+                <p class="text-xs text-slate-400">${t.facultyUnit}</p>
+              </div>
             </div>
+            ${isAdmin ? `
+              <div class="flex gap-1.5">
+                <button onclick="openEditTeamModal('${t.id}')" class="text-xs text-cyan-300 font-bold bg-cyan-500/20 px-2 py-1 rounded border border-cyan-400/30 hover:bg-cyan-500/30" title="Edit Tim">✏️</button>
+                <button onclick="deleteTeam('${t.id}')" class="text-xs text-rose-300 font-bold bg-rose-500/20 px-2 py-1 rounded border border-rose-400/30 hover:bg-rose-500/30" title="Hapus Tim">🗑️</button>
+              </div>
+            ` : ''}
           </div>
 
           <div class="space-y-1.5 text-xs text-slate-300 my-3 bg-slate-900/60 p-3 rounded-lg border border-slate-800">
@@ -721,7 +751,7 @@ function renderPublicTeams() {
             </div>
             <div class="flex justify-between items-center">
               <span class="text-slate-400">Jumlah Pemain:</span>
-              <span class="badge-cyan font-bold font-mono">${squad.length} Orang</span>
+              <span class="badge-cyan font-bold font-mono">${squad.length} / 14 Pemain</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-slate-400">Surat Tugas:</span>
@@ -747,30 +777,55 @@ function openTeamSquadModal(teamId) {
   const squad = players.filter(p => p.teamId === teamId);
   const official = officials.find(o => o.teamId === teamId);
 
+  const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === teamId);
+
   openModal(`
     <div>
-      <div class="flex items-center gap-3 pb-4 border-b border-slate-800 mb-4">
-        <img src="${team.logoUrl}" style="width:48px;height:48px;border-radius:50%;background:#000;border:2px solid var(--ucl-cyan);">
-        <div>
-          <h2 class="text-xl font-bold text-white">${team.name}</h2>
-          <p class="text-xs text-slate-400">${team.facultyUnit}</p>
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4 flex-wrap gap-2">
+        <div class="flex items-center gap-3">
+          <img src="${team.logoUrl}" style="width:48px;height:48px;border-radius:50%;background:#000;border:2px solid var(--ucl-cyan);">
+          <div>
+            <h2 class="text-xl font-bold text-white">${team.name}</h2>
+            <p class="text-xs text-slate-400">${team.facultyUnit}</p>
+          </div>
         </div>
+        ${canEdit ? `
+          <div class="flex gap-2">
+            <button onclick="openEditTeamModal('${team.id}')" class="btn-ucl-secondary text-xs" style="padding: 6px 12px;">✏️ Edit Tim</button>
+            <button onclick="openAddPlayerModal('${team.id}')" class="btn-ucl-primary text-xs" style="padding: 6px 12px;">➕ Tambah Pemain</button>
+          </div>
+        ` : ''}
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-xs">
-        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
-          <span class="text-slate-400 block mb-0.5">Manajer Tim:</span>
-          <strong class="text-white text-sm">${team.managerName || 'Belum diisi'}</strong>
-          <span class="text-slate-400 block">${team.managerPhone || '-'}</span>
+        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-start">
+          <div>
+            <span class="text-slate-400 block mb-0.5">Manajer Tim (Maks 1):</span>
+            <strong class="text-white text-sm">${team.managerName || 'Belum diisi'}</strong>
+            <span class="text-slate-400 block">${team.managerPhone || '-'}</span>
+          </div>
+          ${canEdit ? `
+            <button onclick="openEditTeamModal('${team.id}')" class="text-cyan-400 text-xs font-bold hover:underline">Edit</button>
+          ` : ''}
         </div>
-        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
-          <span class="text-slate-400 block mb-0.5">Official Tim:</span>
-          <strong class="text-white text-sm">${official ? official.fullName : 'Belum diisi'}</strong>
-          <span class="text-slate-400 block">${official ? official.identityNumber : '-'}</span>
+        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-start">
+          <div>
+            <span class="text-slate-400 block mb-0.5">Official Tim (Maks 1):</span>
+            <strong class="text-white text-sm">${official ? official.fullName : 'Belum diisi'}</strong>
+            <span class="text-slate-400 block">${official ? official.identityNumber || '-' : '-'}</span>
+          </div>
+          ${canEdit ? `
+            <button onclick="openEditOfficialModal('${team.id}')" class="text-cyan-400 text-xs font-bold hover:underline">${official ? 'Edit' : 'Set'}</button>
+          ` : ''}
         </div>
       </div>
 
-      <h3 class="font-bold text-cyan-400 text-sm mb-3">Daftar Skuad Pemain (${squad.length} Pemain)</h3>
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-bold text-cyan-400 text-sm">Daftar Skuad Pemain (${squad.length} / 14 Pemain)</h3>
+        ${canEdit && squad.length < 14 ? `
+          <button onclick="openAddPlayerModal('${team.id}')" class="text-xs text-emerald-400 font-bold hover:underline">➕ Tambah</button>
+        ` : ''}
+      </div>
       
       <div class="space-y-2 max-h-72 overflow-y-auto pr-1">
         ${squad.length === 0 ? '<p class="text-slate-400 text-xs py-4 text-center">Belum ada pemain yang didaftarkan.</p>' : squad.map((p, idx) => `
@@ -780,10 +835,16 @@ function openTeamSquadModal(teamId) {
               <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:24px;height:24px;border-radius:50%;background:#000;">
               <div>
                 <strong class="text-white block">${p.fullName}</strong>
-                <span class="text-[10px] text-slate-400">NI/KTP: ${p.identityNumber || '-'}</span>
+                <span class="text-[10px] text-slate-400">Unit: ${p.unit || team.facultyUnit || '-'} • Umur: ${p.umur ? p.umur + ' thn' : '-'}</span>
               </div>
             </div>
-            <span class="badge-gold text-[10px] uppercase font-bold">${p.position}</span>
+            <div class="flex items-center gap-2">
+              <span class="badge-gold text-[10px] uppercase font-bold">${p.position}</span>
+              ${canEdit ? `
+                <button onclick="openEditPlayerModal('${p.id}')" class="text-cyan-400 font-bold hover:underline text-[11px]">Edit</button>
+                <button onclick="deletePlayer('${p.id}')" class="text-rose-400 font-bold hover:underline text-[11px]">Hapus</button>
+              ` : ''}
+            </div>
           </div>
         `).join('')}
       </div>
@@ -820,7 +881,7 @@ function openPublicMatchDetailModal(matchId) {
           <div class="space-y-1.5 max-h-48 overflow-y-auto text-xs">
             ${homeSquad.length === 0 ? '<p class="text-slate-500 text-[11px]">Skuad belum tersedia</p>' : homeSquad.map((p, i) => `
               <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40">
-                <span class="text-slate-300">${i + 1}. ${p.fullName}</span>
+                <span class="text-slate-300 truncate">${i + 1}. ${p.fullName}</span>
                 <span class="text-slate-500 text-[10px]">${p.position}</span>
               </div>
             `).join('')}
@@ -836,7 +897,7 @@ function openPublicMatchDetailModal(matchId) {
           <div class="space-y-1.5 max-h-48 overflow-y-auto text-xs">
             ${awaySquad.length === 0 ? '<p class="text-slate-500 text-[11px]">Skuad belum tersedia</p>' : awaySquad.map((p, i) => `
               <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40">
-                <span class="text-slate-300">${i + 1}. ${p.fullName}</span>
+                <span class="text-slate-300 truncate">${i + 1}. ${p.fullName}</span>
                 <span class="text-slate-500 text-[10px]">${p.position}</span>
               </div>
             `).join('')}
@@ -1023,13 +1084,19 @@ function renderTeamManagerPortal() {
           <div class="flex items-center gap-3">
             <img src="${team.logoUrl}" alt="${team.name}" style="width:50px;height:50px;border-radius:50%;background:#000;border:2px solid var(--ucl-cyan);">
             <div>
-              <h3 class="text-xl font-bold text-white">${team.name}</h3>
+              <div class="flex items-center gap-2">
+                <h3 class="text-xl font-bold text-white">${team.name}</h3>
+                <button onclick="openEditTeamModal('${team.id}')" class="text-xs text-cyan-400 font-bold hover:underline" title="Edit Nama Tim / Unit">✏️ Edit</button>
+              </div>
               <p class="text-xs text-slate-400">${team.facultyUnit}</p>
               <p class="text-xs text-cyan-400 mt-0.5">Manajer: ${team.managerName || '-'} (${team.managerPhone || '-'})</p>
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openEditTeamModal('${team.id}')" class="btn-ucl-secondary text-xs" style="padding: 7px 12px;">
+              ✏️ Edit Tim &amp; Manajer
+            </button>
             <button onclick="openUploadSuratTugasModal('${team.id}')" class="btn-ucl-secondary text-xs" style="padding: 7px 12px;">
               📄 ${hasSurat ? 'Ganti Surat Tugas' : 'Unggah Surat Tugas'}
             </button>
@@ -1051,43 +1118,56 @@ function renderTeamManagerPortal() {
           </div>
           <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between">
             <div>
-              <span class="text-slate-400 block">Kuota Pemain (Min 7, Maks 14):</span>
+              <span class="text-slate-400 block">Kuota Pemain (Maks 14):</span>
               <strong class="text-cyan-300 text-sm font-bold font-mono">${squad.length} / 14 Pemain</strong>
             </div>
             <span class="badge-${squad.length >= 7 ? 'cyan' : 'gold'} text-[10px] font-bold">
-              ${squad.length >= 7 ? 'Memenuhi Syarat' : 'Kurang ' + (7 - squad.length)}
+              ${squad.length >= 7 ? 'Memenuhi Syarat' : 'Min 7 (Kurang ' + (7 - squad.length) + ')'}
             </span>
           </div>
           <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between">
             <div>
-              <span class="text-slate-400 block">Official Tim:</span>
+              <span class="text-slate-400 block">Official Tim (Maks 1):</span>
               <strong class="text-white text-sm font-bold">${official ? official.fullName : 'Belum Diisi'}</strong>
             </div>
+            <button onclick="openEditOfficialModal('${team.id}')" class="text-xs text-cyan-400 font-bold hover:underline">
+              ${official ? 'Edit' : '➕ Tambah'}
+            </button>
           </div>
         </div>
 
         <!-- Squad Table -->
-        <h4 class="font-bold text-white text-sm mb-3">Susunan Pemain Terdaftar</h4>
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="font-bold text-white text-sm">Susunan Pemain Terdaftar (${squad.length} / 14)</h4>
+          ${squad.length < 14 ? `
+            <button onclick="openAddPlayerModal('${team.id}')" class="text-xs text-emerald-400 font-bold hover:underline">➕ Tambah Pemain</button>
+          ` : `
+            <span class="text-xs text-amber-400 font-bold">⚠️ Kuota Maksimal 14 Pemain Tercapai</span>
+          `}
+        </div>
+
         <div class="overflow-x-auto">
           <table class="w-full text-xs text-left">
             <thead class="text-slate-400 bg-slate-900/80 border-b border-slate-800">
               <tr>
                 <th class="p-2.5">No</th>
-                <th class="p-2.5">Foto &amp; Nama Lengkap</th>
-                <th class="p-2.5">No. Identitas / NI / NIM</th>
+                <th class="p-2.5">Nama Pemain</th>
+                <th class="p-2.5">Unit / Fakultas</th>
+                <th class="p-2.5">Umur</th>
                 <th class="p-2.5">Posisi</th>
                 <th class="p-2.5 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/60">
-              ${squad.length === 0 ? '<tr><td colspan="5" class="p-4 text-center text-slate-500">Belum ada pemain. Klik tombol "Tambah Pemain" di atas.</td></tr>' : squad.map((p, idx) => `
+              ${squad.length === 0 ? '<tr><td colspan="6" class="p-4 text-center text-slate-500">Belum ada pemain. Klik tombol "Tambah Pemain" di atas.</td></tr>' : squad.map((p, idx) => `
                 <tr class="hover:bg-slate-900/40">
                   <td class="p-2.5 font-mono text-cyan-400 font-bold">${idx + 1}</td>
                   <td class="p-2.5 flex items-center gap-2.5">
                     <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:24px;height:24px;border-radius:50%;background:#000;">
                     <strong class="text-white">${p.fullName}</strong>
                   </td>
-                  <td class="p-2.5 text-slate-400">${p.identityNumber || '-'}</td>
+                  <td class="p-2.5 text-slate-300">${p.unit || team.facultyUnit || '-'}</td>
+                  <td class="p-2.5 text-slate-300 font-mono">${p.umur ? p.umur + ' thn' : '-'}</td>
                   <td class="p-2.5"><span class="badge-gold text-[10px] uppercase font-bold">${p.position}</span></td>
                   <td class="p-2.5 text-right space-x-2">
                     <button onclick="openEditPlayerModal('${p.id}')" class="text-cyan-400 font-bold hover:underline">Edit</button>
@@ -1228,37 +1308,45 @@ function renderAdminManagePanel() {
   const pendingCount = teams.filter(t => !t.suratTugasName).length;
   if (badgeEl) badgeEl.textContent = `${pendingCount} Belum Upload`;
 
-  container.innerHTML = teams.map(t => {
-    const squad = players.filter(p => p.teamId === t.id);
-    const hasSurat = Boolean(t.suratTugasName);
+  container.innerHTML = `
+    <div class="col-span-full flex justify-between items-center mb-2">
+      <h4 class="font-bold text-white text-sm">Daftar Seluruh Tim Peserta (${teams.length} Tim)</h4>
+      <button onclick="openRegisterTeamModal()" class="btn-ucl-primary text-xs" style="padding: 6px 14px;">➕ Tambah Tim Baru</button>
+    </div>
+    ${teams.map(t => {
+      const squad = players.filter(p => p.teamId === t.id);
+      const hasSurat = Boolean(t.suratTugasName);
 
-    return `
-      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center text-xs flex-wrap gap-3">
-        <div class="flex items-center gap-3">
-          <img src="${t.logoUrl}" style="width:36px;height:36px;border-radius:50%;">
-          <div>
-            <strong class="text-white text-sm block">${t.name}</strong>
-            <span class="text-slate-400">${t.facultyUnit}</span>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="badge-cyan text-[10px]">${squad.length} Pemain</span>
-              <span class="${hasSurat ? 'text-emerald-400' : 'text-amber-400'} font-bold text-[10px]">
-                ${hasSurat ? '✅ ' + t.suratTugasName : '⏳ Belum Upload'}
-              </span>
+      return `
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center text-xs flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <img src="${t.logoUrl}" style="width:36px;height:36px;border-radius:50%;">
+            <div>
+              <strong class="text-white text-sm block">${t.name}</strong>
+              <span class="text-slate-400">${t.facultyUnit}</span>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="badge-cyan text-[10px]">${squad.length} / 14 Pemain</span>
+                <span class="${hasSurat ? 'text-emerald-400' : 'text-amber-400'} font-bold text-[10px]">
+                  ${hasSurat ? '✅ ' + t.suratTugasName : '⏳ Belum Upload'}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex items-center gap-2">
-          ${hasSurat ? `
-            <button onclick="approveTeam('${t.id}')" class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 hover:bg-emerald-500/30">✅ Verifikasi</button>
-          ` : `
-            <button onclick="openUploadSuratTugasModal('${t.id}')" class="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 hover:bg-cyan-500/30">📄 Upload</button>
-          `}
-          <button onclick="openTeamSquadModal('${t.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-bold hover:bg-slate-700">👥 Skuad</button>
+          <div class="flex items-center gap-2">
+            <button onclick="openEditTeamModal('${t.id}')" class="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 hover:bg-cyan-500/30">✏️ Edit</button>
+            <button onclick="openTeamSquadModal('${t.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-bold hover:bg-slate-700">👥 Skuad</button>
+            ${hasSurat ? `
+              <button onclick="approveTeam('${t.id}')" class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 hover:bg-emerald-500/30">✅</button>
+            ` : `
+              <button onclick="openUploadSuratTugasModal('${t.id}')" class="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 hover:bg-cyan-500/30">📄</button>
+            `}
+            <button onclick="deleteTeam('${t.id}')" class="px-2 py-1 rounded bg-rose-500/20 text-rose-300 font-bold border border-rose-500/30 hover:bg-rose-500/30" title="Hapus Tim">🗑️</button>
+          </div>
         </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('')}
+  `;
 }
 
 function approveTeam(teamId) {
@@ -1311,29 +1399,298 @@ function resetTournamentData() {
   }
 }
 
-// ========== 8. PLAYER CRUD MODALS ==========
-function openAddPlayerModal(teamId) {
-  const team = teams.find(t => t.id === teamId);
-  if (!team) return;
+// ========== 8. TEAM CRUD MODALS ==========
+function openRegisterTeamModal() {
+  if (authState.role !== 'ADMIN') {
+    alert('Hanya Super Admin yang dapat menambahkan tim baru.');
+    return;
+  }
 
   openModal(`
-    <form onsubmit="savePlayer('${teamId}', null, event)" class="space-y-4 text-left text-xs">
+    <form onsubmit="saveTeam(null, event)" class="space-y-4 text-left text-xs">
       <div class="pb-2 border-b border-slate-800">
-        <h2 class="text-lg font-bold text-white">Tambah Pemain: ${team.name}</h2>
+        <h2 class="text-lg font-bold text-white">➕ Tambah Tim Turnamen Baru</h2>
       </div>
 
       <div>
-        <label class="form-label">Nama Lengkap</label>
-        <input type="text" id="playerFullName" class="form-input" placeholder="Nama Lengkap Pemain" required>
+        <label class="form-label">Nama Tim</label>
+        <input type="text" id="teamNameInput" class="form-input" placeholder="contoh: Teknik Elektro" required>
+      </div>
+
+      <div>
+        <label class="form-label">Unit / Fakultas / Lembaga</label>
+        <input type="text" id="teamFacultyInput" class="form-input" placeholder="contoh: Fakultas Teknik UMS" required>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="form-label">Nomor Identitas (NI / NIM / KTP)</label>
-          <input type="text" id="playerIdentityNumber" class="form-input" placeholder="contoh: 337201..." required>
+          <label class="form-label">Nama Manajer Tim (Maks 1)</label>
+          <input type="text" id="teamManagerNameInput" class="form-input" placeholder="Nama Manajer">
         </div>
         <div>
-          <label class="form-label">Posisi</label>
+          <label class="form-label">No. Telp / WhatsApp Manajer</label>
+          <input type="text" id="teamManagerPhoneInput" class="form-input" placeholder="08...">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary">Batal</button>
+        <button type="submit" class="btn-ucl-primary">Simpan Tim Baru</button>
+      </div>
+    </form>
+  `);
+}
+
+function openEditTeamModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === teamId);
+  if (!canEdit) {
+    alert('Anda tidak memiliki izin untuk mengedit tim ini.');
+    return;
+  }
+
+  openModal(`
+    <form onsubmit="saveTeam('${team.id}', event)" class="space-y-4 text-left text-xs">
+      <div class="pb-2 border-b border-slate-800">
+        <h2 class="text-lg font-bold text-white">✏️ Edit Informasi Tim: ${team.name}</h2>
+      </div>
+
+      <div>
+        <label class="form-label">Nama Tim</label>
+        <input type="text" id="teamNameInput" class="form-input" value="${team.name}" required>
+      </div>
+
+      <div>
+        <label class="form-label">Unit / Fakultas / Lembaga</label>
+        <input type="text" id="teamFacultyInput" class="form-input" value="${team.facultyUnit || ''}" required>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Nama Manajer Tim (Maks 1)</label>
+          <input type="text" id="teamManagerNameInput" class="form-input" value="${team.managerName || ''}">
+        </div>
+        <div>
+          <label class="form-label">No. Telp / WhatsApp Manajer</label>
+          <input type="text" id="teamManagerPhoneInput" class="form-input" value="${team.managerPhone || ''}">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+        <button type="button" onclick="closeModal()" class="btn-ucl-secondary">Batal</button>
+        <button type="submit" class="btn-ucl-primary">Simpan Perubahan</button>
+      </div>
+    </form>
+  `);
+}
+
+function saveTeam(teamId, event) {
+  if (event) event.preventDefault();
+
+  const name = document.getElementById('teamNameInput').value.trim();
+  const faculty = document.getElementById('teamFacultyInput').value.trim();
+  const managerName = document.getElementById('teamManagerNameInput').value.trim();
+  const managerPhone = document.getElementById('teamManagerPhoneInput').value.trim();
+
+  if (teamId) {
+    const team = teams.find(t => t.id === teamId);
+    if (team) {
+      const oldName = team.name;
+      team.name = name;
+      team.facultyUnit = faculty;
+      team.managerName = managerName;
+      team.managerPhone = managerPhone;
+      team.logoUrl = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`;
+
+      // Update match records if team name changed
+      matches.forEach(m => {
+        if (m.homeTeamId === teamId) {
+          m.homeTeamName = name;
+          m.homeTeamLogo = team.logoUrl;
+        }
+        if (m.awayTeamId === teamId) {
+          m.awayTeamName = name;
+          m.awayTeamLogo = team.logoUrl;
+        }
+      });
+    }
+  } else {
+    const newTeamId = `team-${Date.now()}`;
+    teams.push({
+      id: newTeamId,
+      name,
+      facultyUnit: faculty,
+      logoUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`,
+      managerId: `mgr-${newTeamId}`,
+      managerName,
+      managerPhone,
+      status: 'APPROVED',
+      suratTugasName: null
+    });
+  }
+
+  saveState();
+  renderApp();
+  closeModal();
+  alert('✅ Data tim berhasil disimpan!');
+}
+
+function deleteTeam(teamId) {
+  if (authState.role !== 'ADMIN') {
+    alert('Hanya Super Admin yang dapat menghapus tim.');
+    return;
+  }
+
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  if (confirm(`🚨 Yakin ingin menghapus tim "${team.name}" beserta seluruh pemain dan officialnya?`)) {
+    teams = teams.filter(t => t.id !== teamId);
+    players = players.filter(p => p.teamId !== teamId);
+    officials = officials.filter(o => o.teamId !== teamId);
+
+    // Clean up matches
+    matches.forEach(m => {
+      if (m.homeTeamId === teamId) {
+        m.homeTeamId = null;
+        m.homeTeamName = 'TBD';
+        m.homeTeamLogo = '';
+      }
+      if (m.awayTeamId === teamId) {
+        m.awayTeamId = null;
+        m.awayTeamName = 'TBD';
+        m.awayTeamLogo = '';
+      }
+    });
+
+    matches = updateKnockoutProgression(matches);
+    saveState();
+    renderApp();
+    alert(`✅ Tim "${team.name}" berhasil dihapus.`);
+  }
+}
+
+// ========== 9. OFFICIAL CRUD MODAL ==========
+function openEditOfficialModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === teamId);
+  if (!canEdit) {
+    alert('Anda tidak memiliki izin untuk mengedit official tim ini.');
+    return;
+  }
+
+  const official = officials.find(o => o.teamId === teamId);
+
+  openModal(`
+    <form onsubmit="saveOfficial('${team.id}', event)" class="space-y-4 text-left text-xs">
+      <div class="pb-2 border-b border-slate-800">
+        <h2 class="text-lg font-bold text-white">👔 Official Tim (Maks 1 Orang): ${team.name}</h2>
+      </div>
+
+      <div>
+        <label class="form-label">Nama Lengkap Official</label>
+        <input type="text" id="officialFullName" class="form-input" value="${official ? official.fullName : ''}" placeholder="Nama Official / Pelatih" required>
+      </div>
+
+      <div>
+        <label class="form-label">Nomor Identitas (NIDN / NIP / KTP)</label>
+        <input type="text" id="officialIdentityNumber" class="form-input" value="${official ? official.identityNumber || '' : ''}" placeholder="contoh: 19800101...">
+      </div>
+
+      <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+        ${official ? `
+          <button type="button" onclick="deleteOfficial('${official.id}')" class="text-rose-400 font-bold hover:underline">Hapus Official</button>
+        ` : '<div></div>'}
+        <div class="flex gap-2">
+          <button type="button" onclick="closeModal()" class="btn-ucl-secondary">Batal</button>
+          <button type="submit" class="btn-ucl-primary">Simpan Official</button>
+        </div>
+      </div>
+    </form>
+  `);
+}
+
+function saveOfficial(teamId, event) {
+  if (event) event.preventDefault();
+
+  const fullName = document.getElementById('officialFullName').value.trim();
+  const identityNumber = document.getElementById('officialIdentityNumber').value.trim();
+
+  let official = officials.find(o => o.teamId === teamId);
+  if (official) {
+    official.fullName = fullName;
+    official.identityNumber = identityNumber;
+  } else {
+    officials.push({
+      id: `off-${Date.now()}`,
+      teamId,
+      fullName,
+      identityNumber,
+      role: 'OFFICIAL'
+    });
+  }
+
+  saveState();
+  renderApp();
+  closeModal();
+  alert('✅ Data Official tim berhasil disimpan!');
+}
+
+function deleteOfficial(officialId) {
+  if (confirm('Hapus official ini?')) {
+    officials = officials.filter(o => o.id !== officialId);
+    saveState();
+    renderApp();
+    closeModal();
+    alert('✅ Official berhasil dihapus.');
+  }
+}
+
+// ========== 10. PLAYER CRUD MODALS (FORM: NAMA, UNIT, UMUR, POSISI - MAKS 14) ==========
+function openAddPlayerModal(teamId) {
+  const team = teams.find(t => t.id === teamId);
+  if (!team) return;
+
+  const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === teamId);
+  if (!canEdit) {
+    alert('Anda tidak memiliki izin untuk menambah pemain pada tim ini.');
+    return;
+  }
+
+  const squad = players.filter(p => p.teamId === teamId);
+  if (squad.length >= 14) {
+    alert('⚠️ Kuota maksimal 14 pemain untuk tim ini sudah terpenuhi!');
+    return;
+  }
+
+  openModal(`
+    <form onsubmit="savePlayer('${teamId}', null, event)" class="space-y-4 text-left text-xs">
+      <div class="pb-2 border-b border-slate-800">
+        <h2 class="text-lg font-bold text-white">➕ Tambah Pemain: ${team.name}</h2>
+        <p class="text-slate-400">Kuota saat ini: ${squad.length} / 14 pemain</p>
+      </div>
+
+      <div>
+        <label class="form-label">Nama Lengkap Pemain</label>
+        <input type="text" id="playerFullName" class="form-input" placeholder="contoh: Bagus Setyawan" required>
+      </div>
+
+      <div>
+        <label class="form-label">Unit / Fakultas</label>
+        <input type="text" id="playerUnit" class="form-input" value="${team.facultyUnit || ''}" placeholder="contoh: Unit Sarpras UMS" required>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Umur (Tahun)</label>
+          <input type="number" id="playerUmur" class="form-input font-bold font-mono" placeholder="contoh: 28" min="17" max="70" required>
+        </div>
+        <div>
+          <label class="form-label">Posisi Bermain</label>
           <select id="playerPosition" class="form-input font-bold" required>
             <option value="FORWARD">PENYERANG (FORWARD)</option>
             <option value="MIDFIELDER">GELANDANG (MIDFIELDER)</option>
@@ -1355,24 +1712,38 @@ function openEditPlayerModal(playerId) {
   const player = players.find(p => p.id === playerId);
   if (!player) return;
 
+  const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === player.teamId);
+  if (!canEdit) {
+    alert('Anda tidak memiliki izin untuk mengedit data pemain ini.');
+    return;
+  }
+
+  const team = teams.find(t => t.id === player.teamId);
+
   openModal(`
     <form onsubmit="savePlayer('${player.teamId}', '${player.id}', event)" class="space-y-4 text-left text-xs">
       <div class="pb-2 border-b border-slate-800">
-        <h2 class="text-lg font-bold text-white">Edit Data Pemain</h2>
+        <h2 class="text-lg font-bold text-white">✏️ Edit Data Pemain</h2>
+        <p class="text-slate-400">${team ? team.name : ''}</p>
       </div>
 
       <div>
-        <label class="form-label">Nama Lengkap</label>
+        <label class="form-label">Nama Lengkap Pemain</label>
         <input type="text" id="playerFullName" class="form-input" value="${player.fullName}" required>
+      </div>
+
+      <div>
+        <label class="form-label">Unit / Fakultas</label>
+        <input type="text" id="playerUnit" class="form-input" value="${player.unit || (team ? team.facultyUnit : '') || ''}" required>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="form-label">Nomor Identitas (NI / NIM / KTP)</label>
-          <input type="text" id="playerIdentityNumber" class="form-input" value="${player.identityNumber || ''}" required>
+          <label class="form-label">Umur (Tahun)</label>
+          <input type="number" id="playerUmur" class="form-input font-bold font-mono" value="${player.umur || ''}" min="17" max="70" required>
         </div>
         <div>
-          <label class="form-label">Posisi</label>
+          <label class="form-label">Posisi Bermain</label>
           <select id="playerPosition" class="form-input font-bold" required>
             <option value="FORWARD" ${player.position === 'FORWARD' ? 'selected' : ''}>PENYERANG (FORWARD)</option>
             <option value="MIDFIELDER" ${player.position === 'MIDFIELDER' ? 'selected' : ''}>GELANDANG (MIDFIELDER)</option>
@@ -1394,23 +1765,33 @@ function savePlayer(teamId, playerId, event) {
   if (event) event.preventDefault();
 
   const fullName = document.getElementById('playerFullName').value.trim();
-  const identityNumber = document.getElementById('playerIdentityNumber').value.trim();
+  const unit = document.getElementById('playerUnit').value.trim();
+  const umur = parseInt(document.getElementById('playerUmur').value, 10) || null;
   const position = document.getElementById('playerPosition').value;
 
   if (playerId) {
     const player = players.find(p => p.id === playerId);
     if (player) {
       player.fullName = fullName;
-      player.identityNumber = identityNumber;
+      player.unit = unit;
+      player.umur = umur;
       player.position = position;
     }
   } else {
+    const currentSquad = players.filter(p => p.teamId === teamId);
+    if (currentSquad.length >= 14) {
+      alert('⚠️ Gagal menambah: Maksimal 14 pemain per tim sudah tercapai!');
+      return;
+    }
+
     const newId = `p-${Date.now()}`;
     players.push({
       id: newId,
       teamId,
       fullName,
-      identityNumber,
+      unit,
+      umur,
+      identityNumber: '',
       position,
       photoProfileUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(fullName)}`
     });
@@ -1419,20 +1800,37 @@ function savePlayer(teamId, playerId, event) {
   saveState();
   renderApp();
   closeModal();
+  alert('✅ Data pemain berhasil disimpan!');
 }
 
 function deletePlayer(playerId) {
-  if (confirm('Hapus pemain ini dari skuad?')) {
+  const player = players.find(p => p.id === playerId);
+  if (!player) return;
+
+  const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === player.teamId);
+  if (!canEdit) {
+    alert('Anda tidak memiliki izin untuk menghapus pemain ini.');
+    return;
+  }
+
+  if (confirm(`Hapus pemain "${player.fullName}" dari skuad?`)) {
     players = players.filter(p => p.id !== playerId);
     saveState();
     renderApp();
+    alert('✅ Pemain berhasil dihapus.');
   }
 }
 
-// ========== 9. SURAT TUGAS MODAL ==========
+// ========== 11. SURAT TUGAS MODAL ==========
 function openUploadSuratTugasModal(teamId) {
   const team = teams.find(t => t.id === teamId);
   if (!team) return;
+
+  const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === teamId);
+  if (!canEdit) {
+    alert('Anda tidak memiliki izin untuk mengunggah berkas untuk tim ini.');
+    return;
+  }
 
   openModal(`
     <form onsubmit="saveSuratTugas('${team.id}', event)" class="space-y-4 text-left text-xs">
@@ -1478,7 +1876,7 @@ function saveSuratTugas(teamId, event) {
   alert(`✅ Berkas Surat Tugas untuk ${team.name} berhasil disimpan!`);
 }
 
-// ========== 10. RULES VIEW ==========
+// ========== 12. RULES VIEW ==========
 function renderRulesSection() {
   const container = document.getElementById('rulesViewContainer');
   if (!container) return;
@@ -1509,7 +1907,7 @@ function renderRulesSection() {
   `;
 }
 
-// ========== 11. AUTHENTICATION ==========
+// ========== 13. AUTHENTICATION ==========
 function handleUnifiedLogin(event) {
   if (event) event.preventDefault();
 
@@ -1559,7 +1957,7 @@ function handleLogout() {
   switchRole('VISITOR');
 }
 
-// ========== 12. NAVBAR & BANNER EDIT MODALS (ADMIN ONLY) ==========
+// ========== 14. NAVBAR & BANNER EDIT MODALS (ADMIN ONLY) ==========
 function openEditNavbarModal() {
   openModal(`
     <form onsubmit="saveNavbarConfig(event)" class="space-y-4 text-left text-xs">
