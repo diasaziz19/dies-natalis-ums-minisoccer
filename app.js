@@ -296,6 +296,7 @@ window.resetAllSuratTugas = resetAllSuratTugas;
 
 // Bracket & Admin Control
 window.applyInitialOfficialTeams = applyInitialOfficialTeams;
+window.saveAllRoundOf16BracketMatches = saveAllRoundOf16BracketMatches;
 window.autoSetRoundOf16Teams = autoSetRoundOf16Teams;
 window.updateRoundOf16MatchTeams = updateRoundOf16MatchTeams;
 window.resetTournamentData = resetTournamentData;
@@ -1268,61 +1269,79 @@ function renderAdminBracketConfig() {
 
   const r16Matches = matches.filter(m => m.stage === 'ROUND_OF_16');
 
-  container.innerHTML = r16Matches.map(m => `
-    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3 text-xs">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <span class="badge-cyan font-bold">Match #${m.matchNumber}</span>
-          <span class="text-slate-300 font-semibold">${m.kickoffTime || '08:00 WIB'}</span>
-        </div>
-        <span class="text-slate-400 text-[11px]">${m.pitchLocation || 'Edupark UMS'}</span>
+  container.innerHTML = `
+    <form onsubmit="saveAllRoundOf16BracketMatches(event)" class="col-span-full space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${r16Matches.map(m => `
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 text-xs hover:border-cyan-500/40 transition-all">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="badge-cyan font-bold font-mono">Match #${m.matchNumber}</span>
+                <span class="text-slate-300 font-semibold">${m.kickoffTime || '08:00 WIB'}</span>
+              </div>
+              <span class="text-slate-400 text-[11px]">📍 ${m.pitchLocation || 'Edupark UMS'}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-[11px] text-cyan-300 font-bold mb-1 block">🏠 Tim Home</label>
+                <select id="bracketSelect_home_${m.matchNumber}" class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" required>
+                  <option value="" disabled ${!m.homeTeamId ? 'selected' : ''}>-- Pilih Tim Home --</option>
+                  ${teams.map(t => `<option value="${t.id}" ${t.id === m.homeTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-[11px] text-cyan-300 font-bold mb-1 block">✈️ Tim Away</label>
+                <select id="bracketSelect_away_${m.matchNumber}" class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" required>
+                  <option value="" disabled ${!m.awayTeamId ? 'selected' : ''}>-- Pilih Tim Away --</option>
+                  ${teams.map(t => `<option value="${t.id}" ${t.id === m.awayTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+        `).join('')}
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="form-label text-[11px] text-cyan-300 font-bold">🏠 Tim Home</label>
-          <select class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" onchange="updateRoundOf16MatchTeams(${m.matchNumber}, 'home', this.value)">
-            <option value="" disabled ${!m.homeTeamId ? 'selected' : ''}>-- Pilih Tim Home --</option>
-            ${teams.map(t => `<option value="${t.id}" ${t.id === m.homeTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
-          </select>
-        </div>
-        <div>
-          <label class="form-label text-[11px] text-cyan-300 font-bold">✈️ Tim Away</label>
-          <select class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" onchange="updateRoundOf16MatchTeams(${m.matchNumber}, 'away', this.value)">
-            <option value="" disabled ${!m.awayTeamId ? 'selected' : ''}>-- Pilih Tim Away --</option>
-            ${teams.map(t => `<option value="${t.id}" ${t.id === m.awayTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
-          </select>
-        </div>
+      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center flex-wrap gap-3">
+        <span class="text-xs text-slate-400">💡 Pilih tim untuk Match #1 s.d #8 lalu klik tombol Simpan di samping.</span>
+        <button type="submit" class="btn-ucl-primary text-xs font-bold shadow-lg shadow-cyan-500/20" style="padding: 10px 24px; font-size: 13px;">
+          💾 Simpan Perubahan Bagan Turnamen
+        </button>
       </div>
-    </div>
-  `).join('');
+    </form>
+  `;
 }
 
-function updateRoundOf16MatchTeams(matchNumber, teamType, teamId) {
-  const match = matches.find(m => m.matchNumber === matchNumber && m.stage === 'ROUND_OF_16');
-  const team = teams.find(t => t.id === teamId);
-  if (!match || !team) return;
+function saveAllRoundOf16BracketMatches(event) {
+  if (event) event.preventDefault();
 
-  if (teamType === 'home') {
-    match.homeTeamId = team.id;
-    match.homeTeamName = team.name;
-    match.homeTeamLogo = team.logoUrl;
-  } else {
-    match.awayTeamId = team.id;
-    match.awayTeamName = team.name;
-    match.awayTeamLogo = team.logoUrl;
+  for (let i = 1; i <= 8; i++) {
+    const homeSelect = document.getElementById(`bracketSelect_home_${i}`);
+    const awaySelect = document.getElementById(`bracketSelect_away_${i}`);
+    const match = matches.find(m => m.matchNumber === i && m.stage === 'ROUND_OF_16');
+
+    if (match && homeSelect && awaySelect) {
+      const homeTeam = teams.find(t => t.id === homeSelect.value);
+      const awayTeam = teams.find(t => t.id === awaySelect.value);
+
+      if (homeTeam) {
+        match.homeTeamId = homeTeam.id;
+        match.homeTeamName = homeTeam.name;
+        match.homeTeamLogo = homeTeam.logoUrl;
+      }
+      if (awayTeam) {
+        match.awayTeamId = awayTeam.id;
+        match.awayTeamName = awayTeam.name;
+        match.awayTeamLogo = awayTeam.logoUrl;
+      }
+    }
   }
 
-  // Reset scores and winner progression for this match when teams are changed
-  match.homeScore = 0;
-  match.awayScore = 0;
-  match.status = 'SCHEDULED';
-
-  // Recalculate progression and immediately persist & push to Cloud Firestore
+  // Recalculate bracket advancement for quarter final, semi final, and final
   matches = updateKnockoutProgression(matches);
   saveState(false);
   renderApp();
-  console.log(`✅ Match #${matchNumber} ${teamType} diperbarui menjadi: ${team.name}`);
+  alert('✅ Susunan peserta Babak 16 Besar berhasil disimpan & diterapkan langsung ke Bagan Turnamen!');
 }
 
 function autoSetRoundOf16Teams() {
