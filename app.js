@@ -32,8 +32,8 @@ let players = JSON.parse(localStorage.getItem('ums_players')) || INITIAL_PLAYERS
 let officials = JSON.parse(localStorage.getItem('ums_officials')) || INITIAL_OFFICIALS;
 let matches = JSON.parse(localStorage.getItem('ums_matches')) || INITIAL_MATCHES;
 
-// Ensure 16 official teams are present and up to date
-if (!teams || teams.length !== 16 || teams[0].name !== 'SATPAM') {
+// Ensure initial teams are loaded if storage is empty
+if (!teams || !Array.isArray(teams) || teams.length === 0) {
   teams = INITIAL_TEAMS;
   players = INITIAL_PLAYERS;
   officials = INITIAL_OFFICIALS;
@@ -1313,11 +1313,16 @@ function updateRoundOf16MatchTeams(matchNumber, teamType, teamId) {
     match.awayTeamLogo = team.logoUrl;
   }
 
-  // Recalculate progression and immediately persist & render
+  // Reset scores and winner progression for this match when teams are changed
+  match.homeScore = 0;
+  match.awayScore = 0;
+  match.status = 'SCHEDULED';
+
+  // Recalculate progression and immediately persist & push to Cloud Firestore
   matches = updateKnockoutProgression(matches);
-  saveState();
+  saveState(false);
   renderApp();
-  console.log(`✅ Match #${matchNumber} ${teamType} diubah menjadi ${team.name}`);
+  console.log(`✅ Match #${matchNumber} ${teamType} diperbarui menjadi: ${team.name}`);
 }
 
 function autoSetRoundOf16Teams() {
