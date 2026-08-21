@@ -304,6 +304,7 @@ window.autoSetRoundOf16Teams = autoSetRoundOf16Teams;
 window.updateRoundOf16MatchTeams = updateRoundOf16MatchTeams;
 window.resetTournamentData = resetTournamentData;
 window.resetBracketToDefault = resetBracketToDefault;
+window.resetAllMatchScores = resetAllMatchScores;
 
 // Modals & Navigation
 window.closeModal = closeModal;
@@ -1594,6 +1595,29 @@ function renderAdminBracketConfig() {
       </div>
     </form>
   `;
+}
+
+
+function resetAllMatchScores() {
+  if (!confirm('⚠️ Reset Seluruh Skor & Hasil Pertandingan menjadi 0-0?\n\nTindakan ini akan:\n1. Mengubah seluruh skor pertandingan menjadi 0 - 0\n2. Mengembalikan status seluruh pertandingan menjadi SCHEDULED\n3. Mengosongkan seluruh riwayat pencetak gol & assist (Top Scorer & Assist menjadi 0)\n4. Mengosongkan tim lolos di babak Perempat Final, Semi Final, & Final (kembali ke Pemenang Match #...)\n\nApakah Anda yakin ingin melanjutkan?')) {
+    return;
+  }
+
+  matches.forEach(m => {
+    m.homeScore = 0;
+    m.awayScore = 0;
+    m.status = 'SCHEDULED';
+    m.goalEvents = [];
+    m.events = [];
+    m.cards = [];
+  });
+
+  // Re-evaluate knockout progression to clear advanced teams
+  matches = updateKnockoutProgression(matches);
+
+  saveState(false);
+  renderApp();
+  alert('✅ Seluruh skor pertandingan berhasil direset menjadi 0-0, riwayat gol/assist dikosongkan, dan Top Scorer kembali 0!');
 }
 
 function resetBracketToDefault() {

@@ -82,7 +82,8 @@
             </h2>
             <p class="text-xs text-slate-400">Daftar seluruh pertandingan turnamen beserta skor akhir.</p>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 flex-wrap items-center">
+            <button onclick="resetAllMatchScores()" class="btn-ucl-secondary text-xs" style="padding: 7px 12px; font-weight: bold; border-color: rgba(239,68,68,0.4); color: #f87171;" title="Reset seluruh skor menjadi 0-0 dan kosongkan top scorer">🔄 Reset Hasil (0-0)</button>
             <select class="form-input" id="matchFilterStatus" onchange="renderVisitorMatches()" style="width: auto; padding: 6px 12px;">
               <option value="ALL">Semua Pertandingan</option>
               <option value="SCHEDULED">Akan Datang (Scheduled)</option>
@@ -268,8 +269,11 @@ Manajer: tim01ums s.d tim16ums'); return false;" class="text-cyan-400 hover:unde
       <div id="adminContent-matches">
         <div class="glass-panel p-6">
           <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-            <h3 class="font-bold text-lg text-white">Input Skor &amp; Hasil Pertandingan</h3>
-            <span class="text-xs text-slate-400">Klik "✏️ Input Skor" pada pertandingan untuk mengisi skor akhir &amp; meloloskan tim.</span>
+            <div>
+              <h3 class="font-bold text-lg text-white">Input Skor &amp; Hasil Pertandingan</h3>
+              <span class="text-xs text-slate-400">Klik "✏️ Input Skor" pada pertandingan untuk mengisi skor akhir, pencetak gol &amp; meloloskan tim.</span>
+            </div>
+            <button onclick="resetAllMatchScores()" class="btn-ucl-secondary text-xs" style="padding: 7px 14px; font-weight: bold; border-color: rgba(239,68,68,0.5); color: #f87171;">🔄 Reset Seluruh Hasil (0-0)</button>
           </div>
           <div id="adminMatchesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
