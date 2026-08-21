@@ -32,8 +32,8 @@ let players = JSON.parse(localStorage.getItem('ums_players')) || INITIAL_PLAYERS
 let officials = JSON.parse(localStorage.getItem('ums_officials')) || INITIAL_OFFICIALS;
 let matches = JSON.parse(localStorage.getItem('ums_matches')) || INITIAL_MATCHES;
 
-// Ensure 17 official teams are present
-if (!teams || teams.length < 17 || teams[0].name === 'Pendidikan Olahraga (POR FKIP)') {
+// Ensure 16 official teams are present and up to date
+if (!teams || teams.length !== 16 || teams[0].name !== 'SATPAM') {
   teams = INITIAL_TEAMS;
   players = INITIAL_PLAYERS;
   officials = INITIAL_OFFICIALS;
@@ -486,7 +486,7 @@ function renderHeroBanner() {
           </div>
           <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
             <span>⚽</span>
-            <span>17 Tim Peserta (7 vs 7 Knockout)</span>
+            <span>16 Tim Peserta (7 vs 7 Knockout)</span>
           </div>
         </div>
       </div>
@@ -1418,7 +1418,7 @@ function rejectTeam(teamId) {
 }
 
 function resetAllSuratTugas() {
-  if (confirm('🔄 Kosongkan seluruh berkas Surat Tugas (0/17)?')) {
+  if (confirm('🔄 Kosongkan seluruh berkas Surat Tugas (0/16)?')) {
     teams.forEach(t => { t.suratTugasName = null; });
     saveState();
     renderApp();
@@ -1427,14 +1427,14 @@ function resetAllSuratTugas() {
 }
 
 function applyInitialOfficialTeams() {
-  if (confirm('⚡ Terapkan ulang 17 Tim Resmi & Skuad Awal Dies Natalis UMS 2026?')) {
+  if (confirm('⚡ Terapkan ulang 16 Tim Resmi Terbaru & Bagan Turnamen Dies Natalis UMS 2026?')) {
     teams = INITIAL_TEAMS;
     players = INITIAL_PLAYERS;
     officials = INITIAL_OFFICIALS;
     matches = updateKnockoutProgression(INITIAL_MATCHES);
     saveState();
     renderApp();
-    alert('✅ 17 Tim Resmi berhasil diterapkan!');
+    alert('✅ 16 Tim Resmi Terbaru berhasil diterapkan ke seluruh sistem & bagan!');
   }
 }
 
