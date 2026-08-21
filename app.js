@@ -325,29 +325,35 @@ function openModal(htmlContent) {
   if (modalContainer && modalBody) {
     modalBody.innerHTML = htmlContent;
     modalContainer.classList.remove('hidden');
+    modalContainer.style.display = 'flex';
     document.body.style.overflow = 'hidden';
   }
 }
 
 function closeModal(event) {
-  if (event) {
-    // If event is passed from overlay, ensure click was on overlay itself, not inside content
-    if (event.target && event.target.id !== 'modalContainer' && !event.target.classList.contains('close-btn-trigger')) {
+  // If invoked with event, only block if clicked inside modal content (except explicit close triggers)
+  if (event && event.target) {
+    const isOverlay = event.target.id === 'modalContainer';
+    const isCloseBtn = event.target.closest && event.target.closest('.close-btn-trigger');
+    const isExplicitCloseBtn = event.target.tagName === 'BUTTON' && (event.target.textContent.includes('Tutup') || event.target.textContent.includes('Batal'));
+    if (!isOverlay && !isCloseBtn && !isExplicitCloseBtn) {
       return;
     }
   }
+
   const modalContainer = document.getElementById('modalContainer');
   const modalContent = document.querySelector('.modal-content');
   if (modalContent) modalContent.style.maxWidth = '650px';
   if (modalContainer) {
     modalContainer.classList.add('hidden');
+    modalContainer.style.display = 'none';
     document.body.style.overflow = '';
   }
 }
 
 // Close on Escape key press
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
+  if (e.key === 'Escape' || e.key === 'Esc') {
     closeModal();
   }
 });
@@ -2629,6 +2635,9 @@ function saveHeroContent(event) {
   renderApp();
   closeModal();
 }
+
+window.closeModal = closeModal;
+window.openModal = openModal;
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
