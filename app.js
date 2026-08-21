@@ -301,6 +301,7 @@ window.saveAllBracketStagesMatches = saveAllBracketStagesMatches;
 window.autoSetRoundOf16Teams = autoSetRoundOf16Teams;
 window.updateRoundOf16MatchTeams = updateRoundOf16MatchTeams;
 window.resetTournamentData = resetTournamentData;
+window.resetBracketToDefault = resetBracketToDefault;
 
 // Modals & Navigation
 window.closeModal = closeModal;
@@ -1332,12 +1333,27 @@ function renderAdminBracketConfig() {
           <strong class="text-white text-sm block">Konfirmasi Perubahan Seluruh Bagan</strong>
           <span class="text-xs text-slate-400">Perubahan tim pada babak 16 besar hingga final akan langsung diterapkan ke bagan turnamen utama dan tersinkronkan ke Cloud Firestore.</span>
         </div>
-        <button type="submit" class="btn-ucl-primary text-xs font-bold shadow-lg shadow-cyan-500/20" style="padding: 12px 28px; font-size: 13px;">
-          💾 Simpan Seluruh Perubahan Bagan Turnamen
-        </button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" onclick="resetBracketToDefault()" class="btn-ucl-secondary text-xs font-bold" style="padding: 11px 18px; border-color: rgba(245,158,11,0.5); color: #fbbf24;">
+            🔄 Reset Bagan ke Awal
+          </button>
+          <button type="submit" class="btn-ucl-primary text-xs font-bold shadow-lg shadow-cyan-500/20" style="padding: 11px 26px; font-size: 13px;">
+            💾 Simpan Seluruh Perubahan Bagan
+          </button>
+        </div>
       </div>
     </form>
   `;
+}
+
+function resetBracketToDefault() {
+  if (confirm('🔄 Reset Bagan Turnamen ke Susunan Awal Resmi?\n\nSemua pasangan tim babak 16 besar akan dikembalikan ke susunan 16 tim resmi awal (Match #1: SATPAM vs PARKIR, dst.) dan skor/babak lanjutan akan dikosongkan.')) {
+    matches = JSON.parse(JSON.stringify(INITIAL_MATCHES));
+    matches = updateKnockoutProgression(matches);
+    saveState(false);
+    renderApp();
+    alert('✅ Bagan Turnamen berhasil direset ke susunan awal resmi 16 tim!');
+  }
 }
 
 function saveAllBracketStagesMatches(event) {

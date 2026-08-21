@@ -282,7 +282,10 @@ Manajer: tim01ums s.d tim16ums'); return false;" class="text-cyan-400 hover:unde
               <h3 class="font-bold text-lg text-cyan-400">Pengaturan Peserta Bagan Turnamen Lengkap</h3>
               <p class="text-xs text-slate-400">Atur dan pilih tim untuk Babak 16 Besar, Perempat Final (QF), Semi Final (SF), Perebutan Juara 3, dan Grand Final.</p>
             </div>
-            <button onclick="saveAllBracketStagesMatches()" class="btn-ucl-primary text-xs" style="padding: 8px 16px; font-weight: bold;">💾 Simpan Seluruh Bagan</button>
+            <div class="flex gap-2 flex-wrap">
+              <button onclick="resetBracketToDefault()" class="btn-ucl-secondary text-xs" style="padding: 8px 14px; font-weight: bold; border-color: rgba(245,158,11,0.5); color: #fbbf24;">🔄 Reset Bagan ke Awal</button>
+              <button onclick="saveAllBracketStagesMatches()" class="btn-ucl-primary text-xs" style="padding: 8px 16px; font-weight: bold;">💾 Simpan Seluruh Bagan</button>
+            </div>
           </div>
           <div id="adminBracketConfigContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
