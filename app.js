@@ -324,17 +324,33 @@ function openModal(htmlContent) {
   if (modalContainer && modalBody) {
     modalBody.innerHTML = htmlContent;
     modalContainer.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
   }
 }
 
-function closeModal() {
+function closeModal(event) {
+  if (event) {
+    // If event is passed from overlay, ensure click was on overlay itself, not inside content
+    if (event.target && event.target.id !== 'modalContainer' && !event.target.classList.contains('close-btn-trigger')) {
+      return;
+    }
+  }
   const modalContainer = document.getElementById('modalContainer');
   const modalContent = document.querySelector('.modal-content');
   if (modalContent) modalContent.style.maxWidth = '650px';
   if (modalContainer) {
     modalContainer.classList.add('hidden');
+    document.body.style.overflow = '';
   }
 }
+
+// Close on Escape key press
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+});
+
 
 // ========== NAVIGATION & ROLE SWITCHING ==========
 function switchRole(role) {
