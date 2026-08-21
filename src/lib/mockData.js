@@ -23,19 +23,21 @@ export const INITIAL_RULES = [
     category: 'Ketentuan Umum & Format Turnamen',
     items: [
       'Format Turnamen: Sistem Gugur Tunggal (Single Elimination Knockout) 16 Tim.',
-      'Jumlah Pemain di Lapangan: 7 vs 7 (1 Kiper + 6 Pemain Lapangan).',
+      'Sistem Pertandingan Lapangan Minisoccer: 7 vs 7 (1 Penjaga Gawang + 6 Pemain Lapangan).',
+      'Komposisi Usia Pemain di Lapangan (Lineup 7 Orang): Maksimal 2 orang pemain berusia di bawah 35 tahun (< 35 tahun), sisanya minimal 5 orang wajib berusia di atas / sama dengan 35 tahun (≥ 35 tahun).',
       'Durasi Pertandingan: 2 x 15 Menit dengan jeda istirahat 5 menit.',
       'Bila Skor Imbang: Langsung dilakukan Adu Penalti (3 Penendang Utama + 1 Sudden Death).',
-      'Pergantian Pemain (Substitusi): Bebas (Rolling Subs) dengan melapor kepada Wasit Cadangan / Meja Official.'
+      'Pergantian Pemain (Substitusi): Bebas (Rolling Subs) dengan tetap mematuhi batasan maksimal 2 pemain < 35 tahun di lapangan.'
     ]
   },
   {
-    category: 'Persyaratan Pemain & Official',
+    category: 'Persyaratan Pemain, Official & Skuad',
     items: [
-      'Komposisi Tim: Maksimal 14 pemain, 1 manajer, dan 1 official per tim.',
+      'Kuota Skuad: Maksimal 14 pemain, 1 manajer tim, dan 1 official tim.',
+      'Ketentuan Usia Skuad: Tim dapat mendaftarkan pemain dengan variasi usia, namun saat bermain di lapangan wajib mematuhi aturan usia (maksimal 2 pemain usia < 35 tahun secara bersamaan).',
       'Status Pemain: Wajib Dosen Tetap/Tidak Tetap, Tenaga Kependidikan (Tendik), atau Staf Resmi Unit/Fakultas UMS.',
-      'Verifikasi: Wajib mengunggah Surat Tugas Resmi dari Pimpinan Unit/Fakultas serta membawa KTP / Kartu Pegawai (NI) asli saat registrasi fisik.',
-      'Perlengkapan: Wajib memakai Jersey Bernomor Punggung, Kaos Kaki Panjang, Shin Guard (Pelindung Tulang Kering), dan Sepatu Minisoccer (TF/AG) - Dilarang memakai Pul Besi (SG).'
+      'Verifikasi Dokumen: Wajib mengunggah Surat Tugas Resmi dari Pimpinan Unit/Fakultas serta membawa KTP / Kartu Pegawai (NI) asli saat registrasi fisik.',
+      'Perlengkapan Pertandingan: Wajib memakai Jersey Bernomor Punggung, Kaos Kaki Panjang, Shin Guard (Pelindung Tulang Kering), dan Sepatu Minisoccer (TF/AG) - Dilarang memakai Pul Besi (SG).'
     ]
   },
   {
@@ -44,7 +46,7 @@ export const INITIAL_RULES = [
       'Akumulasi Kartu Kuning: Pemain yang menerima 2 Kartu Kuning dalam 2 pertandingan berbeda DILARANG bermain pada 1 pertandingan berikutnya (Suspension Otomatis).',
       'Kartu Kuning Ganda (Merah Tidak Langsung): Pemain wajib keluar lapangan + Absen 1 Pertandingan Berikutnya.',
       'Kartu Merah Langsung: Pemain wajib keluar lapangan + Absen 1 Pertandingan Berikutnya. Tim bermain dengan 6 pemain selama 2 menit sebelum digantikan.',
-      'Persyaratan Berkas: Wajib mengunggah Surat Tugas Resmi Dekanat / Unit UMS serta membawa KTP / NI. Kepegawaian asli saat verifikasi fisik.'
+      'Fair Play & Sportivitas: Seluruh pemain, official, dan suporter wajib menjunjung tinggi sportivitas dan nilai keislaman UMS.'
     ]
   }
 ];

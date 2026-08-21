@@ -15,6 +15,11 @@ let currentAdminTab = 'matches';
 // Dynamic Content State
 let homepageContent = JSON.parse(localStorage.getItem('ums_homepage')) || INITIAL_HOMEPAGE;
 let tournamentRules = JSON.parse(localStorage.getItem('ums_rules')) || INITIAL_RULES;
+// Always ensure rules include latest 35 years old clause
+if (!JSON.stringify(tournamentRules).includes('35 tahun')) {
+  tournamentRules = INITIAL_RULES;
+  localStorage.setItem('ums_rules', JSON.stringify(tournamentRules));
+}
 let navbarConfig = JSON.parse(localStorage.getItem('ums_navbar')) || INITIAL_NAVBAR;
 
 // Auth State
