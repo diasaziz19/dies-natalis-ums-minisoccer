@@ -14,12 +14,8 @@ let currentAdminTab = 'matches';
 
 // Dynamic Content State
 let homepageContent = JSON.parse(localStorage.getItem('ums_homepage')) || INITIAL_HOMEPAGE;
-let tournamentRules = JSON.parse(localStorage.getItem('ums_rules')) || INITIAL_RULES;
-// Always ensure rules include latest 35 years old clause
-if (!JSON.stringify(tournamentRules).includes('35 tahun')) {
-  tournamentRules = INITIAL_RULES;
-  localStorage.setItem('ums_rules', JSON.stringify(tournamentRules));
-}
+let tournamentRules = INITIAL_RULES; // Always use latest official INITIAL_RULES
+localStorage.setItem('ums_rules', JSON.stringify(tournamentRules));
 let navbarConfig = JSON.parse(localStorage.getItem('ums_navbar')) || INITIAL_NAVBAR;
 
 // Auth State
@@ -94,7 +90,11 @@ async function manualCloudSync() {
       matches = updateKnockoutProgression(cloudData.matches);
     }
     if (cloudData.homepageContent && typeof cloudData.homepageContent === 'object') homepageContent = cloudData.homepageContent;
-    if (cloudData.tournamentRules && Array.isArray(cloudData.tournamentRules)) tournamentRules = cloudData.tournamentRules;
+    if (cloudData.tournamentRules && Array.isArray(cloudData.tournamentRules) && JSON.stringify(cloudData.tournamentRules).includes('35 tahun')) {
+        tournamentRules = cloudData.tournamentRules;
+      } else {
+        tournamentRules = INITIAL_RULES;
+      }
     if (cloudData.navbarConfig && typeof cloudData.navbarConfig === 'object') navbarConfig = cloudData.navbarConfig;
 
     saveState(true);
@@ -847,7 +847,7 @@ function openTeamSquadModal(teamId) {
               <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:24px;height:24px;border-radius:50%;background:#000;">
               <div>
                 <strong class="text-white block">${p.fullName}</strong>
-                <span class="text-[10px] text-slate-400">Unit: ${p.unit || team.facultyUnit || '-'} • Umur: ${p.umur ? p.umur + ' thn' : '-'}</span>
+                <span class="text-[10px] text-slate-400">Unit: ${p.unit || (team ? team.facultyUnit : '') || 'UMS'} • Usia: ${p.umur || p.usia || '-'} thn ${Number(p.umur || p.usia) < 35 ? '<span class="text-cyan-400 font-bold">(<35)</span>' : '<span class="text-emerald-400 font-bold">(≥35)</span>'}</span>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1193,8 +1193,8 @@ function renderTeamManagerPortal() {
                     <img src="${p.photoProfileUrl || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(p.fullName)}" style="width:24px;height:24px;border-radius:50%;background:#000;">
                     <strong class="text-white">${p.fullName}</strong>
                   </td>
-                  <td class="p-2.5 text-slate-300">${p.unit || team.facultyUnit || '-'}</td>
-                  <td class="p-2.5 text-slate-300 font-mono">${p.umur ? p.umur + ' thn' : '-'}</td>
+                  <td class="p-2.5 text-slate-300">${p.unit || (team ? team.facultyUnit : '') || 'UMS'}</td>
+                  <td class="p-2.5 text-slate-300 font-mono">${p.umur || p.usia || '-'} thn ${Number(p.umur || p.usia) < 35 ? '<span class="text-cyan-400 font-bold text-[10px]">(<35)</span>' : '<span class="text-emerald-400 font-bold text-[10px]">(≥35)</span>'}</td>
                   <td class="p-2.5"><span class="badge-gold text-[10px] uppercase font-bold">${p.position}</span></td>
                   <td class="p-2.5 text-right space-x-2">
                     <button onclick="openEditPlayerModal('${p.id}')" class="text-cyan-400 font-bold hover:underline">Edit</button>
@@ -1766,7 +1766,7 @@ function openEditPlayerModal(playerId) {
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="form-label">Umur (Tahun)</label>
-          <input type="number" id="playerUmur" class="form-input font-bold font-mono" value="${player.umur || ''}" min="17" max="70" required>
+          <input type="number" id="playerUmur" class="form-input font-bold font-mono" value="${player.umur || player.usia || ''}" min="17" max="70" required>
         </div>
         <div>
           <label class="form-label">Posisi Bermain</label>
@@ -1801,6 +1801,7 @@ function savePlayer(teamId, playerId, event) {
       player.fullName = fullName;
       player.unit = unit;
       player.umur = umur;
+      player.usia = umur;
       player.position = position;
     }
   } else {
@@ -1817,6 +1818,7 @@ function savePlayer(teamId, playerId, event) {
       fullName,
       unit,
       umur,
+      usia: umur,
       identityNumber: '',
       position,
       photoProfileUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(fullName)}`
@@ -2163,7 +2165,11 @@ document.addEventListener('DOMContentLoaded', () => {
         matches = updateKnockoutProgression(cloudData.matches);
       }
       if (cloudData.homepageContent && typeof cloudData.homepageContent === 'object') homepageContent = cloudData.homepageContent;
-      if (cloudData.tournamentRules && Array.isArray(cloudData.tournamentRules)) tournamentRules = cloudData.tournamentRules;
+      if (cloudData.tournamentRules && Array.isArray(cloudData.tournamentRules) && JSON.stringify(cloudData.tournamentRules).includes('35 tahun')) {
+        tournamentRules = cloudData.tournamentRules;
+      } else {
+        tournamentRules = INITIAL_RULES;
+      }
       if (cloudData.navbarConfig && typeof cloudData.navbarConfig === 'object') navbarConfig = cloudData.navbarConfig;
 
       saveState(true);
