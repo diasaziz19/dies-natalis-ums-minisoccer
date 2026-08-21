@@ -535,19 +535,23 @@ function renderKnockoutBracket() {
 
 function renderBracketCardHTML(m, customLabel = null) {
   const isFinished = m.status === 'FINISHED';
+  const hasScore = isFinished || (m.homeScore !== undefined && m.homeScore !== null && (m.homeScore > 0 || m.awayScore > 0));
   const hScore = Number(m.homeScore) || 0;
   const aScore = Number(m.awayScore) || 0;
   const homeWinner = isFinished && hScore > aScore;
   const awayWinner = isFinished && aScore > hScore;
   const canUpdate = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && (authState.teamId === m.homeTeamId || authState.teamId === m.awayTeamId));
 
+  const homeScoreDisplay = isFinished ? m.homeScore : (m.homeScore !== undefined && m.homeScore !== null && m.homeScore !== '' ? m.homeScore : '-');
+  const awayScoreDisplay = isFinished ? m.awayScore : (m.awayScore !== undefined && m.awayScore !== null && m.awayScore !== '' ? m.awayScore : '-');
+
   return `
     <div class="bracket-card ${isFinished ? 'is-finished' : ''}">
       <div class="bracket-card-header flex justify-between items-center mb-2">
         <span class="font-bold text-[11px] text-slate-300">${customLabel || `Match #${m.matchNumber}`}</span>
         <div class="flex items-center gap-1.5">
-          <span style="font-weight:700; color: ${isFinished ? '#f59e0b' : '#94a3b8'}; font-size: 10px;">
-            ${isFinished ? 'SELESAI' : 'SCHEDULED'}
+          <span style="font-weight:700; color: ${isFinished ? '#10b981' : '#94a3b8'}; font-size: 10px;">
+            ${isFinished ? '✅ SELESAI' : '⏳ SCHEDULED'}
           </span>
           ${canUpdate ? `
             <button onclick="openInputScoreModal('${m.id}')" class="text-[10px] text-cyan-300 font-bold hover:underline bg-cyan-500/20 px-1.5 py-0.5 rounded border border-cyan-400/30" title="Input / Update Skor">✏️ Skor</button>
@@ -560,18 +564,18 @@ function renderBracketCardHTML(m, customLabel = null) {
       <div class="bracket-team-slot ${homeWinner ? 'is-winner' : ''}">
         <div class="bracket-team-name">
           <img src="${m.homeTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.homeTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;flex-shrink:0;">
-          <span class="truncate" title="${m.homeTeamName}">${m.homeTeamName}</span>
+          <span class="truncate font-semibold ${homeWinner ? 'text-amber-300' : 'text-slate-200'}" title="${m.homeTeamName}">${m.homeTeamName}</span>
         </div>
-        <span class="bracket-score-badge">${isFinished ? m.homeScore : '-'}</span>
+        <span class="bracket-score-badge ${isFinished ? 'font-bold text-amber-300' : ''}">${homeScoreDisplay}</span>
       </div>
 
       <!-- Away Team Slot -->
       <div class="bracket-team-slot ${awayWinner ? 'is-winner' : ''}">
         <div class="bracket-team-name">
           <img src="${m.awayTeamLogo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(m.awayTeamName)}" style="width:18px;height:18px;border-radius:50%;background:#111;flex-shrink:0;">
-          <span class="truncate" title="${m.awayTeamName}">${m.awayTeamName}</span>
+          <span class="truncate font-semibold ${awayWinner ? 'text-amber-300' : 'text-slate-200'}" title="${m.awayTeamName}">${m.awayTeamName}</span>
         </div>
-        <span class="bracket-score-badge">${isFinished ? m.awayScore : '-'}</span>
+        <span class="bracket-score-badge ${isFinished ? 'font-bold text-amber-300' : ''}">${awayScoreDisplay}</span>
       </div>
     </div>
   `;
@@ -1031,12 +1035,19 @@ function saveMatchScore(matchId, event) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
 
-  const homeScoreVal = parseInt(document.getElementById('editHomeScore').value, 10) || 0;
-  const awayScoreVal = parseInt(document.getElementById('editAwayScore').value, 10) || 0;
-  const statusVal = document.getElementById('editMatchStatus').value;
-  const pitchVal = document.getElementById('editPitchLocation').value;
-  const dateVal = document.getElementById('editMatchDate').value;
-  const timeVal = document.getElementById('editKickoffTime').value;
+  const homeScoreEl = document.getElementById('editHomeScore');
+  const awayScoreEl = document.getElementById('editAwayScore');
+  const statusEl = document.getElementById('editMatchStatus');
+  const pitchEl = document.getElementById('editPitchLocation');
+  const dateEl = document.getElementById('editMatchDate');
+  const timeEl = document.getElementById('editKickoffTime');
+
+  const homeScoreVal = homeScoreEl ? parseInt(homeScoreEl.value, 10) : 0;
+  const awayScoreVal = awayScoreEl ? parseInt(awayScoreEl.value, 10) : 0;
+  const statusVal = statusEl ? statusEl.value : 'FINISHED';
+  const pitchVal = pitchEl ? pitchEl.value : (match.pitchLocation || 'Edupark UMS');
+  const dateVal = dateEl ? dateEl.value : (match.matchDate || 'Sabtu, 14 Maret 2026');
+  const timeVal = timeEl ? timeEl.value : (match.kickoffTime || '08:00 WIB');
 
   if (match.stage === 'ROUND_OF_16' && authState.role === 'ADMIN') {
     const homeSelect = document.getElementById('editHomeTeamId');
@@ -1061,8 +1072,8 @@ function saveMatchScore(matchId, event) {
     }
   }
 
-  match.homeScore = homeScoreVal;
-  match.awayScore = awayScoreVal;
+  match.homeScore = isNaN(homeScoreVal) ? 0 : homeScoreVal;
+  match.awayScore = isNaN(awayScoreVal) ? 0 : awayScoreVal;
   match.status = statusVal;
   match.pitchLocation = pitchVal;
   match.matchDate = dateVal;
@@ -1074,7 +1085,7 @@ function saveMatchScore(matchId, event) {
   saveState();
   renderApp();
   closeModal();
-  alert(`✅ Skor Match #${match.matchNumber} (${match.homeTeamName} ${match.homeScore} : ${match.awayScore} ${match.awayTeamName}) berhasil diperbarui!`);
+  alert(`✅ Skor Match #${match.matchNumber} (${match.homeTeamName} ${match.homeScore} : ${match.awayScore} ${match.awayTeamName}) berhasil disimpan & bagan diperbarui!`);
 }
 
 // ========== 6. PORTAL MANAJER TIM ==========
@@ -1260,20 +1271,25 @@ function renderAdminBracketConfig() {
   container.innerHTML = r16Matches.map(m => `
     <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3 text-xs">
       <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-        <strong class="text-cyan-400 font-bold">Match #${m.matchNumber} (Babak 16 Besar)</strong>
-        <span class="text-slate-400">${m.kickoffTime}</span>
+        <div class="flex items-center gap-2">
+          <span class="badge-cyan font-bold">Match #${m.matchNumber}</span>
+          <span class="text-slate-300 font-semibold">${m.kickoffTime || '08:00 WIB'}</span>
+        </div>
+        <span class="text-slate-400 text-[11px]">${m.pitchLocation || 'Edupark UMS'}</span>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="form-label text-[11px]">Tim Home</label>
-          <select class="form-input text-xs font-bold" onchange="updateRoundOf16MatchTeams(${m.matchNumber}, 'home', this.value)">
+          <label class="form-label text-[11px] text-cyan-300 font-bold">🏠 Tim Home</label>
+          <select class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" onchange="updateRoundOf16MatchTeams(${m.matchNumber}, 'home', this.value)">
+            <option value="" disabled ${!m.homeTeamId ? 'selected' : ''}>-- Pilih Tim Home --</option>
             ${teams.map(t => `<option value="${t.id}" ${t.id === m.homeTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
           </select>
         </div>
         <div>
-          <label class="form-label text-[11px]">Tim Away</label>
-          <select class="form-input text-xs font-bold" onchange="updateRoundOf16MatchTeams(${m.matchNumber}, 'away', this.value)">
+          <label class="form-label text-[11px] text-cyan-300 font-bold">✈️ Tim Away</label>
+          <select class="form-input text-xs font-bold text-white bg-slate-950 border-cyan-500/40" onchange="updateRoundOf16MatchTeams(${m.matchNumber}, 'away', this.value)">
+            <option value="" disabled ${!m.awayTeamId ? 'selected' : ''}>-- Pilih Tim Away --</option>
             ${teams.map(t => `<option value="${t.id}" ${t.id === m.awayTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
           </select>
         </div>
@@ -1297,9 +1313,11 @@ function updateRoundOf16MatchTeams(matchNumber, teamType, teamId) {
     match.awayTeamLogo = team.logoUrl;
   }
 
+  // Recalculate progression and immediately persist & render
   matches = updateKnockoutProgression(matches);
   saveState();
   renderApp();
+  console.log(`✅ Match #${matchNumber} ${teamType} diubah menjadi ${team.name}`);
 }
 
 function autoSetRoundOf16Teams() {
