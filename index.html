@@ -35,7 +35,7 @@
       <span class="role-badge" id="navRulesTab" data-role="RULES" onclick="switchRole('RULES')">📜 Peraturan</span>
       <span class="role-badge hidden" id="navManagerTab" data-role="TEAM_MANAGER" onclick="switchRole('TEAM_MANAGER')">⚽ Portal Manajer</span>
       <span class="role-badge hidden" id="navAdminTab" data-role="ADMIN" onclick="switchRole('ADMIN')">👑 Super Admin</span>
-      <span class="role-badge" data-role="LOGIN" id="navLoginBtn" onclick="switchRole('LOGIN')">🔑 Login</span>
+      <span class="role-badge" data-role="LOGIN" id="navLoginBtn" onclick="switchRole('LOGIN')">🔑 Masuk Akun</span>
     </div>
   </div>
 
@@ -61,9 +61,9 @@
             <h2 class="text-xl font-bold flex items-center gap-2 text-white">
               <span>🌳</span> Bagan Turnamen Knockout (16 Besar → Final)
             </h2>
-            <p class="text-xs text-slate-400">Pemenang pertandingan otomatis melaju ke babak berikutnya.</p>
+            <p class="text-xs text-slate-400">Pemenang pertandingan otomatis melaju ke babak berikutnya setelah skor diinput.</p>
           </div>
-          <span class="text-xs text-slate-400">Geser ke kanan untuk melihat babak selanjutnya $\rightarrow$</span>
+          <span class="text-xs text-slate-400">Geser ke kanan untuk melihat bagan selanjutnya →</span>
         </div>
 
         <div class="glass-panel p-4">
@@ -109,7 +109,7 @@
       </div>
     </div>
 
-    <!-- 2. PUBLIC TEAMS & SQUAD VIEW -->
+    <!-- 2. PUBLIC TEAMS & SQUAD VIEW (GUEST VIEW ONLY) -->
     <div id="view-PUBLIC_TEAMS" class="app-view hidden">
       <div class="glass-panel p-6 mb-6">
         <div class="flex justify-between items-center flex-wrap gap-4">
@@ -118,7 +118,7 @@
             <p class="text-sm text-slate-400">Daftar tim dan susunan pemain turnamen Minisoccer Dies Natalis 2026. (Mode Publik: Lihat Skuad).</p>
           </div>
           <div class="flex gap-2">
-            <input type="text" id="publicTeamSearchInput" oninput="renderPublicTeams()" class="form-input text-xs py-1.5 px-3" placeholder="🔍 Cari tim / fakultas..." style="width: 220px;">
+            <input type="text" id="publicTeamSearchInput" oninput="renderPublicTeams()" class="form-input text-xs py-1.5 px-3" placeholder="🔍 Cari tim / unit..." style="width: 220px;">
           </div>
         </div>
       </div>
@@ -131,31 +131,91 @@
       <div id="rulesViewContainer"></div>
     </div>
 
-    <!-- 4. LOGIN VIEW -->
+    <!-- 4. MODERN SOCIAL-STYLE LOGIN VIEW -->
     <div id="view-LOGIN" class="app-view hidden">
-      <div class="glass-panel p-8 text-center" style="max-width: 480px; margin: 40px auto;">
-        <div style="font-size: 48px; margin-bottom: 12px;">🔑</div>
-        <h2 class="text-2xl font-bold text-white mb-2">Login Akun Turnamen</h2>
-        <p class="text-sm text-slate-400 mb-6">Masuk menggunakan Akun Manajer Tim atau Super Admin untuk mengelola data pemain dan pertandingan.</p>
-        
-        <form onsubmit="handleUnifiedLogin(event)" class="space-y-4 text-left">
-          <div>
-            <label class="form-label">Username</label>
-            <input type="text" id="unifiedUsername" class="form-input" placeholder="misal: mgr-team-1 atau superadmin" required>
-          </div>
-          <div>
-            <label class="form-label">Password</label>
-            <input type="password" id="unifiedPassword" class="form-input" placeholder="Password" required>
-          </div>
-          <button type="submit" class="btn-ucl-primary w-full" style="justify-content: center; padding: 12px;">🔑 Masuk ke Sistem</button>
-        </form>
-        
-        <p id="unifiedLoginError" class="text-sm text-rose-400 mt-4 hidden font-bold">❌ Username atau password salah. Silakan coba lagi.</p>
+      <div class="max-w-md mx-auto my-8">
+        <div class="glass-panel p-8 rounded-2xl border border-cyan-500/30 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+          <!-- Decorative Glow -->
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="mt-8 pt-6 border-t border-slate-800 text-left text-xs text-slate-400 space-y-2">
-          <p class="font-bold text-cyan-400">💡 Informasi Akun Login:</p>
-          <p>• <strong>Super Admin</strong>: <code>superadmin</code> / <code>ums2026admin</code></p>
-          <p>• <strong>Manajer Tim</strong>: <code>mgr-team-1</code> s.d <code>mgr-team-17</code> / pass: <code>tim01ums</code>, <code>tim02ums</code>, dst.</p>
+          <div class="text-center mb-6 relative">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-0.5 mx-auto mb-3 shadow-lg shadow-cyan-500/20 flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-2xl">
+                ⚽
+              </div>
+            </div>
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">Masuk ke Akun Turnamen</h2>
+            <p class="text-xs text-slate-400 mt-1">Kelola skuad tim, unggah surat tugas, atau perbarui skor pertandingan</p>
+          </div>
+
+          <!-- Social-Style Quick Login Buttons -->
+          <div class="space-y-2.5 mb-6">
+            <button type="button" onclick="quickLogin('ADMIN')" class="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl font-bold text-xs bg-slate-900 border border-slate-700 hover:border-amber-400 hover:bg-slate-800 text-amber-300 transition-all shadow-sm">
+              <span class="text-base">👑</span>
+              <span>Masuk Cepat sebagai Super Admin</span>
+            </button>
+            <div class="relative">
+              <button type="button" onclick="toggleManagerDropdown()" class="w-full flex items-center justify-between py-2.5 px-4 rounded-xl font-bold text-xs bg-slate-900 border border-slate-700 hover:border-cyan-400 hover:bg-slate-800 text-cyan-300 transition-all shadow-sm">
+                <div class="flex items-center gap-3">
+                  <span class="text-base">⚽</span>
+                  <span id="quickManagerLabel">Pilih Akun Manajer Tim...</span>
+                </div>
+                <span>▼</span>
+              </button>
+              <div id="managerDropdownList" class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-xl max-h-48 overflow-y-auto z-50 p-1 shadow-2xl space-y-0.5"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center my-5">
+            <div class="flex-grow border-t border-slate-800"></div>
+            <span class="px-3 text-[11px] text-slate-500 font-medium uppercase tracking-wider">Atau Masuk dengan Akun</span>
+            <div class="flex-grow border-t border-slate-800"></div>
+          </div>
+          
+          <form onsubmit="handleUnifiedLogin(event)" class="space-y-4 text-left">
+            <div>
+              <label class="form-label text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Username / Email</span>
+              </label>
+              <div class="relative">
+                <input type="text" id="unifiedUsername" class="form-input text-xs pl-9" placeholder="superadmin / mgr-team-1" required autocomplete="username">
+                <span class="absolute left-3 top-2.5 text-slate-500 text-sm">👤</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Kata Sandi (Password)</span>
+                <span class="text-[10px] text-slate-500 font-normal">Rahasia</span>
+              </label>
+              <div class="relative">
+                <input type="password" id="unifiedPassword" class="form-input text-xs pl-9 pr-9" placeholder="••••••••" required autocomplete="current-password">
+                <span class="absolute left-3 top-2.5 text-slate-500 text-sm">🔒</span>
+                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-2.5 text-slate-500 hover:text-white text-xs">👁️</button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" id="rememberMeCheckbox" checked class="rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0">
+                <span>Ingat saya</span>
+              </label>
+              <a href="#" onclick="alert('Gunakan kata sandi default: 
+Superadmin: ums2026admin 
+Manajer: tim01ums s.d tim17ums'); return false;" class="text-cyan-400 hover:underline">Lupa sandi?</a>
+            </div>
+
+            <button type="submit" class="btn-ucl-primary w-full shadow-lg shadow-cyan-500/20 font-bold" style="justify-content: center; padding: 11px;">
+              🚀 Masuk Sekarang
+            </button>
+          </form>
+          
+          <p id="unifiedLoginError" class="text-xs text-rose-400 mt-4 hidden font-bold text-center bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/30">❌ Username atau kata sandi tidak cocok. Silakan periksa kembali.</p>
+
+          <div class="mt-6 pt-5 border-t border-slate-800/80 text-center text-xs text-slate-400">
+            Belum memiliki tim? Hubungi Panitia Pelaksana Dies Natalis UMS.
+          </div>
         </div>
       </div>
     </div>
@@ -166,7 +226,7 @@
         <div class="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h2 class="text-2xl font-bold text-white mb-1">⚽ Portal Manajer Tim</h2>
-            <p class="text-sm text-slate-400" id="managerSubtitleText">Kelola susunan pemain (7-14 orang), official, dan unggah Surat Tugas resmi.</p>
+            <p class="text-sm text-slate-400" id="managerSubtitleText">Kelola susunan pemain (maks 14 orang), official (1 orang), dan unggah Surat Tugas resmi.</p>
             <p class="text-xs text-cyan-400 font-bold mt-1" id="managerLoggedInAs"></p>
           </div>
           <div class="flex gap-2 flex-wrap" id="managerHeaderActions">
@@ -184,9 +244,10 @@
         <div class="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h2 class="text-2xl font-bold text-white mb-1">🔒 Super Admin Dashboard</h2>
-            <p class="text-sm text-slate-400">Kelola verifikasi tim, atur peserta bagan 16 besar, input skor &amp; hasil pertandingan.</p>
+            <p class="text-sm text-slate-400">Kelola seluruh tim, pemain, verifikasi surat tugas, bagan 16 besar, dan update skor.</p>
           </div>
           <div class="flex gap-2 flex-wrap">
+            <button class="btn-ucl-secondary" onclick="openRegisterTeamModal()" style="border-color: rgba(16,185,129,0.4); color: #34d399;">➕ Tambah Tim Baru</button>
             <button class="btn-ucl-secondary" onclick="applyInitialOfficialTeams()" style="border-color: rgba(34,211,238,0.4); color: #22d3ee;">⚡ Terapkan 17 Tim Resmi</button>
             <button class="btn-ucl-secondary" onclick="resetTournamentData()">🔄 Reset Turnamen</button>
             <button onclick="handleLogout()" class="btn-ucl-secondary" style="border-color: rgba(239,68,68,0.4); color: #f87171;">🚪 Logout</button>
@@ -206,7 +267,7 @@
         <div class="glass-panel p-6">
           <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
             <h3 class="font-bold text-lg text-white">Input Skor &amp; Hasil Pertandingan</h3>
-            <span class="text-xs text-slate-400">Klik "✏️ Input Skor" pada pertandingan untuk mengisi skor akhir.</span>
+            <span class="text-xs text-slate-400">Klik "✏️ Input Skor" pada pertandingan untuk mengisi skor akhir &amp; meloloskan tim.</span>
           </div>
           <div id="adminMatchesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>

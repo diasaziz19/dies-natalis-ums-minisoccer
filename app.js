@@ -255,6 +255,10 @@ window.switchVisitorTab = switchVisitorTab;
 window.switchAdminTab = switchAdminTab;
 window.handleUnifiedLogin = handleUnifiedLogin;
 window.handleLogout = handleLogout;
+window.quickLogin = quickLogin;
+window.toggleManagerDropdown = toggleManagerDropdown;
+window.selectQuickManager = selectQuickManager;
+window.togglePasswordVisibility = togglePasswordVisibility;
 
 // Match Score & Results
 window.openInputScoreModal = openInputScoreModal;
@@ -333,6 +337,10 @@ function switchRole(role) {
   document.querySelectorAll('.role-badge').forEach(el => el.classList.remove('active'));
   const activeBadge = document.querySelector(`.role-badge[data-role="${role}"]`);
   if (activeBadge) activeBadge.classList.add('active');
+
+  if (role === 'LOGIN') {
+    populateManagerDropdown();
+  }
 
   renderApp();
 }
@@ -434,7 +442,7 @@ function renderNavbarDOM() {
     if (managerTab) managerTab.classList.add('hidden');
     if (adminTab) adminTab.classList.add('hidden');
     if (loginBtn) {
-      loginBtn.textContent = '🔑 Login';
+      loginBtn.textContent = '🔑 Masuk Akun';
       loginBtn.onclick = () => switchRole('LOGIN');
     }
   }
@@ -523,7 +531,7 @@ function renderBracketCardHTML(m, customLabel = null) {
   const aScore = Number(m.awayScore) || 0;
   const homeWinner = isFinished && hScore > aScore;
   const awayWinner = isFinished && aScore > hScore;
-  const isAdmin = authState.role === 'ADMIN';
+  const canUpdate = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && (authState.teamId === m.homeTeamId || authState.teamId === m.awayTeamId));
 
   return `
     <div class="bracket-card ${isFinished ? 'is-finished' : ''}">
@@ -533,8 +541,8 @@ function renderBracketCardHTML(m, customLabel = null) {
           <span style="font-weight:700; color: ${isFinished ? '#f59e0b' : '#94a3b8'}; font-size: 10px;">
             ${isFinished ? 'SELESAI' : 'SCHEDULED'}
           </span>
-          ${isAdmin ? `
-            <button onclick="openInputScoreModal('${m.id}')" class="text-[10px] text-cyan-300 font-bold hover:underline bg-cyan-500/20 px-1.5 py-0.5 rounded border border-cyan-400/30" title="Super Admin: Edit Skor & Jadwal">✏️ Skor</button>
+          ${canUpdate ? `
+            <button onclick="openInputScoreModal('${m.id}')" class="text-[10px] text-cyan-300 font-bold hover:underline bg-cyan-500/20 px-1.5 py-0.5 rounded border border-cyan-400/30" title="Input / Update Skor">✏️ Skor</button>
           ` : ''}
           <button onclick="openPublicMatchDetailModal('${m.id}')" class="text-[10px] text-slate-400 font-bold hover:text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700" title="Lihat Detail Pertandingan">🔍</button>
         </div>
@@ -578,10 +586,9 @@ function renderVisitorMatches() {
     return;
   }
 
-  const isAdmin = authState.role === 'ADMIN';
-
   container.innerHTML = filtered.map(m => {
     const isFinished = m.status === 'FINISHED';
+    const canUpdate = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && (authState.teamId === m.homeTeamId || authState.teamId === m.awayTeamId));
 
     return `
       <div class="glass-panel p-5 rounded-xl border border-slate-800 hover:border-cyan-400/40 transition-all">
@@ -594,7 +601,7 @@ function renderVisitorMatches() {
             <span class="font-bold ${isFinished ? 'text-amber-400' : 'text-slate-400'}">
               ${isFinished ? '✅ SELESAI' : '⏳ SCHEDULED'}
             </span>
-            ${isAdmin ? `
+            ${canUpdate ? `
               <button onclick="openInputScoreModal('${m.id}')" class="text-xs text-cyan-300 font-bold bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-400/30 hover:bg-cyan-500/30">✏️ Input Skor</button>
             ` : ''}
           </div>
@@ -912,57 +919,68 @@ function openPublicMatchDetailModal(matchId) {
   `);
 }
 
-// ========== 5. SUPER ADMIN SCORE & SCHEDULE MODAL ==========
+// ========== 5. INPUT & UPDATE SKOR MODAL (SUPER ADMIN & MANAJER TIM) ==========
 function openInputScoreModal(matchId) {
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
+
+  const isAdmin = authState.role === 'ADMIN';
+  const isManager = authState.role === 'MANAGER';
+  const isMatchManager = isManager && (authState.teamId === match.homeTeamId || authState.teamId === match.awayTeamId);
+
+  if (!isAdmin && !isMatchManager) {
+    alert('Anda hanya dapat memperbarui skor jika login sebagai Super Admin atau Manajer dari salah satu tim yang bertanding.');
+    return;
+  }
 
   const isR16 = match.stage === 'ROUND_OF_16';
 
   openModal(`
     <form onsubmit="saveMatchScore('${match.id}', event)" class="space-y-4 text-left">
       <div class="pb-2 border-b border-slate-800">
-        <span class="badge-gold text-[10px] font-bold">👑 SUPER ADMIN</span>
-        <h2 class="text-lg font-bold text-white mt-1">Input Skor &amp; Jadwal: Match #${match.matchNumber} (${match.stage.replace(/_/g, ' ')})</h2>
+        <span class="badge-${isAdmin ? 'gold' : 'cyan'} text-[10px] font-bold">
+          ${isAdmin ? '👑 SUPER ADMIN' : '⚽ MANAJER TIM: ' + authState.displayName}
+        </span>
+        <h2 class="text-lg font-bold text-white mt-1">Update Skor &amp; Jadwal: Match #${match.matchNumber} (${match.stage.replace(/_/g, ' ')})</h2>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <!-- Home Team Select (for R16) or Display -->
+        <!-- Home Team Select (for R16 by Admin) or Display -->
         <div>
-          <label class="form-label text-xs">Tim Home</label>
-          ${isR16 ? `
+          <label class="form-label text-xs font-semibold text-slate-300">Tim Home</label>
+          ${isR16 && isAdmin ? `
             <select id="editHomeTeamId" class="form-input text-xs font-bold" required>
               ${teams.map(t => `<option value="${t.id}" ${t.id === match.homeTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
             </select>
           ` : `
-            <input type="text" class="form-input text-xs bg-slate-900" value="${match.homeTeamName}" disabled>
+            <input type="text" class="form-input text-xs bg-slate-900 font-bold text-white" value="${match.homeTeamName}" disabled>
           `}
         </div>
 
-        <!-- Away Team Select (for R16) or Display -->
+        <!-- Away Team Select (for R16 by Admin) or Display -->
         <div>
-          <label class="form-label text-xs">Tim Away</label>
-          ${isR16 ? `
+          <label class="form-label text-xs font-semibold text-slate-300">Tim Away</label>
+          ${isR16 && isAdmin ? `
             <select id="editAwayTeamId" class="form-input text-xs font-bold" required>
               ${teams.map(t => `<option value="${t.id}" ${t.id === match.awayTeamId ? 'selected' : ''}>${t.name}</option>`).join('')}
             </select>
           ` : `
-            <input type="text" class="form-input text-xs bg-slate-900" value="${match.awayTeamName}" disabled>
+            <input type="text" class="form-input text-xs bg-slate-900 font-bold text-white" value="${match.awayTeamName}" disabled>
           `}
         </div>
       </div>
 
       <!-- Skor Akhir -->
       <div class="p-4 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-center">
-        <label class="form-label text-xs text-cyan-300 font-bold mb-2 block">⚽ SKOR AKHIR PERTANDINGAN</label>
+        <label class="form-label text-xs text-cyan-300 font-bold mb-2 block">⚽ SKOR PERTANDINGAN</label>
         <div class="flex items-center justify-center gap-4">
           <div class="text-center">
-            <span class="text-xs text-slate-400 block mb-1">Skor Home</span>
+            <span class="text-xs text-slate-400 block mb-1">Skor ${match.homeTeamName}</span>
             <input type="number" id="editHomeScore" class="form-input text-center text-xl font-bold font-mono" style="width: 80px;" value="${match.homeScore}" min="0" required>
           </div>
           <span class="text-2xl font-bold text-slate-500 mt-4">:</span>
           <div class="text-center">
-            <span class="text-xs text-slate-400 block mb-1">Skor Away</span>
+            <span class="text-xs text-slate-400 block mb-1">Skor ${match.awayTeamName}</span>
             <input type="number" id="editAwayScore" class="form-input text-center text-xl font-bold font-mono" style="width: 80px;" value="${match.awayScore}" min="0" required>
           </div>
         </div>
@@ -973,27 +991,27 @@ function openInputScoreModal(matchId) {
         <div>
           <label class="form-label">Status Pertandingan</label>
           <select id="editMatchStatus" class="form-input text-xs font-bold" required>
-            <option value="SCHEDULED" ${match.status === 'SCHEDULED' ? 'selected' : ''}>⏳ SCHEDULED (Belum Selesai)</option>
+            <option value="SCHEDULED" ${match.status === 'SCHEDULED' ? 'selected' : ''}>⏳ SCHEDULED (Akan Datang)</option>
             <option value="FINISHED" ${match.status === 'FINISHED' ? 'selected' : ''}>✅ FINISHED (Selesai)</option>
           </select>
         </div>
         <div>
           <label class="form-label">Lokasi Lapangan</label>
-          <input type="text" id="editPitchLocation" class="form-input text-xs" value="${match.pitchLocation || 'Edupark UMS'}" required>
+          <input type="text" id="editPitchLocation" class="form-input text-xs" value="${match.pitchLocation || 'Edupark UMS'}" required ${isAdmin ? '' : 'readonly'}>
         </div>
         <div>
           <label class="form-label">Tanggal Pertandingan</label>
-          <input type="text" id="editMatchDate" class="form-input text-xs" value="${match.matchDate || 'Sabtu, 14 Maret 2026'}" required>
+          <input type="text" id="editMatchDate" class="form-input text-xs" value="${match.matchDate || 'Sabtu, 14 Maret 2026'}" required ${isAdmin ? '' : 'readonly'}>
         </div>
         <div>
           <label class="form-label">Waktu Kick-Off</label>
-          <input type="text" id="editKickoffTime" class="form-input text-xs" value="${match.kickoffTime || '08:00 WIB'}" required>
+          <input type="text" id="editKickoffTime" class="form-input text-xs" value="${match.kickoffTime || '08:00 WIB'}" required ${isAdmin ? '' : 'readonly'}>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
         <button type="button" onclick="closeModal()" class="btn-ucl-secondary text-xs">Batal</button>
-        <button type="submit" class="btn-ucl-primary text-xs">💾 Simpan Skor &amp; Hasil</button>
+        <button type="submit" class="btn-ucl-primary text-xs font-bold">💾 Simpan Skor &amp; Hasil</button>
       </div>
     </form>
   `);
@@ -1012,22 +1030,26 @@ function saveMatchScore(matchId, event) {
   const dateVal = document.getElementById('editMatchDate').value;
   const timeVal = document.getElementById('editKickoffTime').value;
 
-  if (match.stage === 'ROUND_OF_16') {
-    const homeTeamId = document.getElementById('editHomeTeamId').value;
-    const awayTeamId = document.getElementById('editAwayTeamId').value;
+  if (match.stage === 'ROUND_OF_16' && authState.role === 'ADMIN') {
+    const homeSelect = document.getElementById('editHomeTeamId');
+    const awaySelect = document.getElementById('editAwayTeamId');
+    if (homeSelect && awaySelect) {
+      const homeTeamId = homeSelect.value;
+      const awayTeamId = awaySelect.value;
 
-    const homeTeam = teams.find(t => t.id === homeTeamId);
-    const awayTeam = teams.find(t => t.id === awayTeamId);
+      const homeTeam = teams.find(t => t.id === homeTeamId);
+      const awayTeam = teams.find(t => t.id === awayTeamId);
 
-    if (homeTeam) {
-      match.homeTeamId = homeTeam.id;
-      match.homeTeamName = homeTeam.name;
-      match.homeTeamLogo = homeTeam.logoUrl;
-    }
-    if (awayTeam) {
-      match.awayTeamId = awayTeam.id;
-      match.awayTeamName = awayTeam.name;
-      match.awayTeamLogo = awayTeam.logoUrl;
+      if (homeTeam) {
+        match.homeTeamId = homeTeam.id;
+        match.homeTeamName = homeTeam.name;
+        match.homeTeamLogo = homeTeam.logoUrl;
+      }
+      if (awayTeam) {
+        match.awayTeamId = awayTeam.id;
+        match.awayTeamName = awayTeam.name;
+        match.awayTeamLogo = awayTeam.logoUrl;
+      }
     }
   }
 
@@ -1044,7 +1066,7 @@ function saveMatchScore(matchId, event) {
   saveState();
   renderApp();
   closeModal();
-  alert(`✅ Skor Match #${match.matchNumber} berhasil disimpan & bagan diperbarui!`);
+  alert(`✅ Skor Match #${match.matchNumber} (${match.homeTeamName} ${match.homeScore} : ${match.awayScore} ${match.awayTeamName}) berhasil diperbarui!`);
 }
 
 // ========== 6. PORTAL MANAJER TIM ==========
@@ -1497,7 +1519,6 @@ function saveTeam(teamId, event) {
   if (teamId) {
     const team = teams.find(t => t.id === teamId);
     if (team) {
-      const oldName = team.name;
       team.name = name;
       team.facultyUnit = faculty;
       team.managerName = managerName;
@@ -1702,7 +1723,7 @@ function openAddPlayerModal(teamId) {
 
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
         <button type="button" onclick="closeModal()" class="btn-ucl-secondary">Batal</button>
-        <button type="submit" class="btn-ucl-primary">Simpan Pemain</button>
+        <button type="submit" class="btn-ucl-primary font-bold">Simpan Pemain</button>
       </div>
     </form>
   `);
@@ -1755,7 +1776,7 @@ function openEditPlayerModal(playerId) {
 
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
         <button type="button" onclick="closeModal()" class="btn-ucl-secondary">Batal</button>
-        <button type="submit" class="btn-ucl-primary">Simpan Perubahan</button>
+        <button type="submit" class="btn-ucl-primary font-bold">Simpan Perubahan</button>
       </div>
     </form>
   `);
@@ -1805,7 +1826,10 @@ function savePlayer(teamId, playerId, event) {
 
 function deletePlayer(playerId) {
   const player = players.find(p => p.id === playerId);
-  if (!player) return;
+  if (!player) {
+    alert('Pemain tidak ditemukan.');
+    return;
+  }
 
   const canEdit = authState.role === 'ADMIN' || (authState.role === 'MANAGER' && authState.teamId === player.teamId);
   if (!canEdit) {
@@ -1813,11 +1837,18 @@ function deletePlayer(playerId) {
     return;
   }
 
-  if (confirm(`Hapus pemain "${player.fullName}" dari skuad?`)) {
+  if (confirm(`Hapus pemain "${player.fullName}" dari susunan skuad?`)) {
+    const teamId = player.teamId;
     players = players.filter(p => p.id !== playerId);
     saveState();
     renderApp();
-    alert('✅ Pemain berhasil dihapus.');
+
+    // If modal is currently showing this team's squad, refresh the modal
+    const modalContainer = document.getElementById('modalContainer');
+    if (modalContainer && !modalContainer.classList.contains('hidden')) {
+      openTeamSquadModal(teamId);
+    }
+    alert(`✅ Pemain "${player.fullName}" berhasil dihapus.`);
   }
 }
 
@@ -1907,7 +1938,7 @@ function renderRulesSection() {
   `;
 }
 
-// ========== 13. AUTHENTICATION ==========
+// ========== 13. AUTHENTICATION & MODERN SOCIAL-STYLE LOGIN ==========
 function handleUnifiedLogin(event) {
   if (event) event.preventDefault();
 
@@ -1944,6 +1975,64 @@ function handleUnifiedLogin(event) {
   }
 
   if (errorEl) errorEl.classList.remove('hidden');
+}
+
+function quickLogin(role, teamId = null) {
+  if (role === 'ADMIN') {
+    authState = {
+      isLoggedIn: true,
+      role: 'ADMIN',
+      teamId: null,
+      displayName: 'Super Admin'
+    };
+    saveState();
+    switchRole('ADMIN');
+  } else if (role === 'MANAGER' && teamId) {
+    const team = teams.find(t => t.id === teamId);
+    const cred = MANAGER_CREDENTIALS.find(c => c.teamId === teamId);
+    authState = {
+      isLoggedIn: true,
+      role: 'MANAGER',
+      teamId: teamId,
+      displayName: team ? team.name : (cred ? cred.displayName : 'Manajer Tim')
+    };
+    saveState();
+    switchRole('TEAM_MANAGER');
+  }
+}
+
+function populateManagerDropdown() {
+  const container = document.getElementById('managerDropdownList');
+  if (!container) return;
+
+  container.innerHTML = teams.map(t => `
+    <div onclick="selectQuickManager('${t.id}')" class="p-2.5 rounded-lg hover:bg-slate-800 cursor-pointer flex items-center gap-2.5 transition-all text-xs">
+      <img src="${t.logoUrl}" style="width:20px;height:20px;border-radius:50%;">
+      <div class="truncate">
+        <strong class="text-white block truncate">${t.name}</strong>
+        <span class="text-[10px] text-slate-400">Manajer: ${t.managerName || '-'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleManagerDropdown() {
+  const container = document.getElementById('managerDropdownList');
+  if (!container) return;
+  populateManagerDropdown();
+  container.classList.toggle('hidden');
+}
+
+function selectQuickManager(teamId) {
+  const container = document.getElementById('managerDropdownList');
+  if (container) container.classList.add('hidden');
+  quickLogin('MANAGER', teamId);
+}
+
+function togglePasswordVisibility() {
+  const input = document.getElementById('unifiedPassword');
+  if (!input) return;
+  input.type = input.type === 'password' ? 'text' : 'password';
 }
 
 function handleLogout() {
