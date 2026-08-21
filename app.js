@@ -176,9 +176,9 @@ function updateKnockoutProgression(matchesList) {
     const o1 = getOutcome(m1);
     const o2 = getOutcome(m2);
     if (o1.winner) { m9.homeTeamId = o1.winner.id; m9.homeTeamName = o1.winner.name; m9.homeTeamLogo = o1.winner.logo; }
-    else if (!m9.homeTeamId) { m9.homeTeamName = 'Pemenang Match #1'; m9.homeTeamLogo = ''; }
+    else { m9.homeTeamId = null; m9.homeTeamName = 'Pemenang Match #1'; m9.homeTeamLogo = ''; }
     if (o2.winner) { m9.awayTeamId = o2.winner.id; m9.awayTeamName = o2.winner.name; m9.awayTeamLogo = o2.winner.logo; }
-    else if (!m9.awayTeamId) { m9.awayTeamName = 'Pemenang Match #2'; m9.awayTeamLogo = ''; }
+    else { m9.awayTeamId = null; m9.awayTeamName = 'Pemenang Match #2'; m9.awayTeamLogo = ''; }
   }
 
   // QF 2 (Match 10)
@@ -186,9 +186,9 @@ function updateKnockoutProgression(matchesList) {
     const o3 = getOutcome(m3);
     const o4 = getOutcome(m4);
     if (o3.winner) { m10.homeTeamId = o3.winner.id; m10.homeTeamName = o3.winner.name; m10.homeTeamLogo = o3.winner.logo; }
-    else if (!m10.homeTeamId) { m10.homeTeamName = 'Pemenang Match #3'; m10.homeTeamLogo = ''; }
+    else { m10.homeTeamId = null; m10.homeTeamName = 'Pemenang Match #3'; m10.homeTeamLogo = ''; }
     if (o4.winner) { m10.awayTeamId = o4.winner.id; m10.awayTeamName = o4.winner.name; m10.awayTeamLogo = o4.winner.logo; }
-    else if (!m10.awayTeamId) { m10.awayTeamName = 'Pemenang Match #4'; m10.awayTeamLogo = ''; }
+    else { m10.awayTeamId = null; m10.awayTeamName = 'Pemenang Match #4'; m10.awayTeamLogo = ''; }
   }
 
   // QF 3 (Match 11)
@@ -196,9 +196,9 @@ function updateKnockoutProgression(matchesList) {
     const o5 = getOutcome(m5);
     const o6 = getOutcome(m6);
     if (o5.winner) { m11.homeTeamId = o5.winner.id; m11.homeTeamName = o5.winner.name; m11.homeTeamLogo = o5.winner.logo; }
-    else if (!m11.homeTeamId) { m11.homeTeamName = 'Pemenang Match #5'; m11.homeTeamLogo = ''; }
+    else { m11.homeTeamId = null; m11.homeTeamName = 'Pemenang Match #5'; m11.homeTeamLogo = ''; }
     if (o6.winner) { m11.awayTeamId = o6.winner.id; m11.awayTeamName = o6.winner.name; m11.awayTeamLogo = o6.winner.logo; }
-    else if (!m11.awayTeamId) { m11.awayTeamName = 'Pemenang Match #6'; m11.awayTeamLogo = ''; }
+    else { m11.awayTeamId = null; m11.awayTeamName = 'Pemenang Match #6'; m11.awayTeamLogo = ''; }
   }
 
   // QF 4 (Match 12)
@@ -206,9 +206,9 @@ function updateKnockoutProgression(matchesList) {
     const o7 = getOutcome(m7);
     const o8 = getOutcome(m8);
     if (o7.winner) { m12.homeTeamId = o7.winner.id; m12.homeTeamName = o7.winner.name; m12.homeTeamLogo = o7.winner.logo; }
-    else if (!m12.homeTeamId) { m12.homeTeamName = 'Pemenang Match #7'; m12.homeTeamLogo = ''; }
+    else { m12.homeTeamId = null; m12.homeTeamName = 'Pemenang Match #7'; m12.homeTeamLogo = ''; }
     if (o8.winner) { m12.awayTeamId = o8.winner.id; m12.awayTeamName = o8.winner.name; m12.awayTeamLogo = o8.winner.logo; }
-    else if (!m12.awayTeamId) { m12.awayTeamName = 'Pemenang Match #8'; m12.awayTeamLogo = ''; }
+    else { m12.awayTeamId = null; m12.awayTeamName = 'Pemenang Match #8'; m12.awayTeamLogo = ''; }
   }
 
   // SF 1 (Match 13)
@@ -216,9 +216,9 @@ function updateKnockoutProgression(matchesList) {
     const o9 = getOutcome(m9);
     const o10 = getOutcome(m10);
     if (o9.winner) { m13.homeTeamId = o9.winner.id; m13.homeTeamName = o9.winner.name; m13.homeTeamLogo = o9.winner.logo; }
-    else if (!m13.homeTeamId) { m13.homeTeamName = 'Pemenang Match #9'; m13.homeTeamLogo = ''; }
+    else { m13.homeTeamId = null; m13.homeTeamName = 'Pemenang Match #9'; m13.homeTeamLogo = ''; }
     if (o10.winner) { m13.awayTeamId = o10.winner.id; m13.awayTeamName = o10.winner.name; m13.awayTeamLogo = o10.winner.logo; }
-    else if (!m13.awayTeamId) { m13.awayTeamName = 'Pemenang Match #10'; m13.awayTeamLogo = ''; }
+    else { m13.awayTeamId = null; m13.awayTeamName = 'Pemenang Match #10'; m13.awayTeamLogo = ''; }
   }
 
   // SF 2 (Match 14)
@@ -226,9 +226,9 @@ function updateKnockoutProgression(matchesList) {
     const o11 = getOutcome(m11);
     const o12 = getOutcome(m12);
     if (o11.winner) { m14.homeTeamId = o11.winner.id; m14.homeTeamName = o11.winner.name; m14.homeTeamLogo = o11.winner.logo; }
-    else if (!m14.homeTeamId) { m14.homeTeamName = 'Pemenang Match #11'; m14.homeTeamLogo = ''; }
+    else { m14.homeTeamId = null; m14.homeTeamName = 'Pemenang Match #11'; m14.homeTeamLogo = ''; }
     if (o12.winner) { m14.awayTeamId = o12.winner.id; m14.awayTeamName = o12.winner.name; m14.awayTeamLogo = o12.winner.logo; }
-    else if (!m14.awayTeamId) { m14.awayTeamName = 'Pemenang Match #12'; m14.awayTeamLogo = ''; }
+    else { m14.awayTeamId = null; m14.awayTeamName = 'Pemenang Match #12'; m14.awayTeamLogo = ''; }
   }
 
   // Bronze Match (Match 15) & Grand Final (Match 16)
@@ -238,16 +238,16 @@ function updateKnockoutProgression(matchesList) {
 
     if (m15) {
       if (o13.loser) { m15.homeTeamId = o13.loser.id; m15.homeTeamName = o13.loser.name; m15.homeTeamLogo = o13.loser.logo; }
-      else if (!m15.homeTeamId) { m15.homeTeamName = 'Kalah Semi Final 1'; m15.homeTeamLogo = ''; }
+      else { m15.homeTeamId = null; m15.homeTeamName = 'Kalah Semi Final 1'; m15.homeTeamLogo = ''; }
       if (o14.loser) { m15.awayTeamId = o14.loser.id; m15.awayTeamName = o14.loser.name; m15.awayTeamLogo = o14.loser.logo; }
-      else if (!m15.awayTeamId) { m15.awayTeamName = 'Kalah Semi Final 2'; m15.awayTeamLogo = ''; }
+      else { m15.awayTeamId = null; m15.awayTeamName = 'Kalah Semi Final 2'; m15.awayTeamLogo = ''; }
     }
 
     if (m16) {
       if (o13.winner) { m16.homeTeamId = o13.winner.id; m16.homeTeamName = o13.winner.name; m16.homeTeamLogo = o13.winner.logo; }
-      else if (!m16.homeTeamId) { m16.homeTeamName = 'Pemenang Semi Final 1'; m16.homeTeamLogo = ''; }
+      else { m16.homeTeamId = null; m16.homeTeamName = 'Pemenang Semi Final 1'; m16.homeTeamLogo = ''; }
       if (o14.winner) { m16.awayTeamId = o14.winner.id; m16.awayTeamName = o14.winner.name; m16.awayTeamLogo = o14.winner.logo; }
-      else if (!m16.awayTeamId) { m16.awayTeamName = 'Pemenang Semi Final 2'; m16.awayTeamLogo = ''; }
+      else { m16.awayTeamId = null; m16.awayTeamName = 'Pemenang Semi Final 2'; m16.awayTeamLogo = ''; }
     }
   }
 
@@ -1605,20 +1605,31 @@ function renderAdminBracketConfig() {
 
 
 function resetAllMatchScores() {
-  if (!confirm('⚠️ Reset Seluruh Skor & Hasil Pertandingan menjadi 0-0?\n\nTindakan ini akan:\n1. Mengubah seluruh skor pertandingan menjadi 0 - 0\n2. Mengembalikan status seluruh pertandingan menjadi SCHEDULED\n3. Mengosongkan seluruh riwayat pencetak gol & assist (Top Scorer & Assist menjadi 0)\n4. Mengosongkan tim lolos di babak Perempat Final, Semi Final, & Final (kembali ke Pemenang Match #...)\n\nApakah Anda yakin ingin melanjutkan?')) {
+  if (!confirm('⚠️ Reset Seluruh Skor & Hasil Pertandingan menjadi 0-0?
+
+Tindakan ini akan:
+1. Mengubah seluruh skor pertandingan menjadi 0 - 0
+2. Mengembalikan status seluruh pertandingan menjadi SCHEDULED
+3. Mengosongkan seluruh riwayat pencetak gol & assist (Top Scorer & Assist menjadi 0)
+4. Mengosongkan tim di babak Perempat Final, Semi Final, & Final (kembali ke Pemenang Match #...)
+
+Apakah Anda yakin ingin melanjutkan?')) {
     return;
   }
 
-  matches.forEach(m => {
-    m.homeScore = 0;
-    m.awayScore = 0;
-    m.status = 'SCHEDULED';
-    m.goalEvents = [];
-    m.events = [];
-    m.cards = [];
+  matches = matches.map(m => {
+    return {
+      ...m,
+      homeScore: 0,
+      awayScore: 0,
+      status: 'SCHEDULED',
+      goalEvents: [],
+      events: [],
+      cards: []
+    };
   });
 
-  // Re-evaluate knockout progression to clear advanced teams
+  // Re-evaluate knockout progression to clear all subsequent stages
   matches = updateKnockoutProgression(matches);
 
   saveState(false);
