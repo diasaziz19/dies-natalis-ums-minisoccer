@@ -329,6 +329,8 @@ function openModal(htmlContent) {
 
 function closeModal() {
   const modalContainer = document.getElementById('modalContainer');
+  const modalContent = document.querySelector('.modal-content');
+  if (modalContent) modalContent.style.maxWidth = '650px';
   if (modalContainer) {
     modalContainer.classList.add('hidden');
   }
@@ -1049,7 +1051,7 @@ function addGoalEventRow(teamType) {
     <!-- Minute (2 cols) -->
     <div class="col-span-2">
       <label class="text-[10px] text-slate-400 font-bold block mb-0.5">⏱️ Menit</label>
-      <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" min="1" max="60" placeholder="10" value="10" required>
+      <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" style="padding: 8px 4px; min-width: 45px; background: #020617; color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);" min="1" max="60" placeholder="Menit" value="1" required>
     </div>
 
     <!-- Delete (1 col) -->
@@ -1068,6 +1070,8 @@ function removeGoalEventRow(rowId) {
 
 // ========== 5. INPUT & UPDATE SKOR MODAL (DENGAN PENCETAK GOL & ASSIST) ==========
 function openInputScoreModal(matchId) {
+  const modalContent = document.querySelector('.modal-content');
+  if (modalContent) modalContent.style.maxWidth = '780px';
   const match = matches.find(m => m.id === matchId);
   if (!match) return;
 
@@ -1169,7 +1173,7 @@ function openInputScoreModal(matchId) {
                   </div>
                   <div class="col-span-2">
                     <label class="text-[10px] text-slate-400 font-bold block mb-0.5">⏱️ Menit</label>
-                    <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" min="1" max="60" value="${ev.minute || 10}" required>
+                    <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" style="padding: 8px 4px; min-width: 45px; background: #020617; color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);" min="1" max="60" value="${ev.minute || 1}" required>
                   </div>
                   <div class="col-span-1 text-center pt-3">
                     <button type="button" onclick="removeGoalEventRow('${rId}')" class="text-rose-400 hover:text-rose-300 font-bold text-sm">✕</button>
@@ -1208,7 +1212,7 @@ function openInputScoreModal(matchId) {
                   </div>
                   <div class="col-span-2">
                     <label class="text-[10px] text-slate-400 font-bold block mb-0.5">⏱️ Menit</label>
-                    <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" min="1" max="60" value="${ev.minute || 10}" required>
+                    <input type="number" class="form-input text-xs font-mono font-bold text-center goal-minute-input" style="padding: 8px 4px; min-width: 45px; background: #020617; color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);" min="1" max="60" value="${ev.minute || 1}" required>
                   </div>
                   <div class="col-span-1 text-center pt-3">
                     <button type="button" onclick="removeGoalEventRow('${rId}')" class="text-rose-400 hover:text-rose-300 font-bold text-sm">✕</button>
