@@ -308,7 +308,7 @@ window.applyInitialOfficialTeams = applyInitialOfficialTeams;
 window.saveAllRoundOf16BracketMatches = saveAllRoundOf16BracketMatches;
 window.saveAllBracketStagesMatches = saveAllBracketStagesMatches;
 window.autoSetRoundOf16Teams = autoSetRoundOf16Teams;
-window.updateRoundOf16MatchTeams = updateRoundOf16MatchTeams;
+// window.updateRoundOf16MatchTeams removed - function not in use
 window.resetTournamentData = resetTournamentData;
 window.resetBracketToDefault = resetBracketToDefault;
 window.resetAllMatchScores = resetAllMatchScores;
