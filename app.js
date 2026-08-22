@@ -32,8 +32,11 @@ let players = JSON.parse(localStorage.getItem('ums_players')) || INITIAL_PLAYERS
 let officials = JSON.parse(localStorage.getItem('ums_officials')) || INITIAL_OFFICIALS;
 let matches = JSON.parse(localStorage.getItem('ums_matches')) || INITIAL_MATCHES;
 
-// Ensure initial teams are loaded if storage is empty
-if (!teams || !Array.isArray(teams) || teams.length === 0) {
+// Verify matches integrity
+const isValidMatchesData = Array.isArray(matches) && matches.length === 16 && matches.every(m => m && m.stage && m.homeTeamName && m.awayTeamName);
+
+if (!teams || !Array.isArray(teams) || teams.length < 16 || !isValidMatchesData) {
+  console.log('🔄 Re-initializing official 16 teams and knockout bracket structure');
   teams = INITIAL_TEAMS;
   players = INITIAL_PLAYERS;
   officials = INITIAL_OFFICIALS;
