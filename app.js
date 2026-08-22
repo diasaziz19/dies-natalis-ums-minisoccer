@@ -2651,7 +2651,7 @@ window.closeModal = closeModal;
 window.openModal = openModal;
 
 // ========== INITIALIZATION ==========
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   renderApp();
 
   // Initialize real-time sync with Cloud Firestore
@@ -2676,4 +2676,10 @@ document.addEventListener('DOMContentLoaded', () => {
       updateCloudSyncBadge('online', 'Tersinkronisasi');
     }
   }, updateCloudSyncBadge);
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
