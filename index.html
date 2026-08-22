@@ -223,11 +223,12 @@ var INIT_MATCHES=[
 var INIT_PLAYERS=(function(){
   var nm=[['Agus','Budi','Cahyo','Dedi','Eko','Fajar','Galih'],['Hendra','Irfan','Joko','Kurnia','Lutfi','Made','Nanda'],['Okto','Pandu','Qadir','Reza','Sandi','Taufik','Udin']];
   var pos=['GK','CB','CB','CM','CM','FW','FW'];
+  var ages=[38,36,35,37,40,33,35,39,36,38,37,35,36,40,38,35];
   var arr=[];
   TEAMS.forEach(function(t,ti){
     pos.forEach(function(p,pi){
       var ri=Math.floor((ti*7+pi)/7)%3, ci=(ti*7+pi)%7;
-      arr.push({id:t.id+'-p'+(pi+1),teamId:t.id,teamName:t.name,fullName:nm[ri][ci]+' ('+t.name.split(' ')[0]+')',pos:p});
+      arr.push({id:t.id+'-p'+(pi+1),teamId:t.id,teamName:t.name,fullName:nm[ri][ci]+' ('+t.name.split(' ')[0]+')',pos:p,unit:t.unit,usia:ages[(ti+pi)%ages.length]});
     });
   });
   return arr;
@@ -478,8 +479,17 @@ function renderTeams(){
 function showSquadModal(teamId){
   var t=TEAMS.find(function(x){return x.id===teamId;});if(!t)return;
   var ps=players.filter(function(p){return p.teamId===teamId;});
+  var rows=ps.length===0?'<p class="text-slate-400 text-sm">Belum ada pemain terdaftar.</p>'
+    :ps.map(function(p){
+      return '<div class="flex items-center gap-3 py-2.5 border-b border-slate-800/50">'
+        +'<div style="min-width:32px;height:32px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
+        +'<div style="flex:1;min-width:0;">'
+        +'<div class="font-semibold text-sm text-white">'+esc(p.fullName)+'</div>'
+        +'<div class="text-xs text-slate-400">'+esc(p.unit||t.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
+        +'</div></div>';
+    }).join('');
   openModal('<div class="pb-3 border-b border-slate-800 mb-4"><span class="badge-c">👥 SKUAD TIM</span><h2 class="text-lg font-bold text-white mt-2">'+esc(t.name)+'</h2><p class="text-xs text-slate-400">'+esc(t.unit)+'</p></div>'
-    +(ps.length===0?'<p class="text-slate-400 text-sm">Belum ada pemain terdaftar.</p>':ps.map(function(p){return '<div class="flex items-center gap-3 py-2 border-b border-slate-800/50"><div style="width:28px;height:28px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;">'+esc(p.pos||'?')+'</div><div class="text-sm font-semibold text-white">'+esc(p.fullName)+'</div></div>';}).join(''))
+    +rows
     +'<button onclick="closeModal()" class="btn-s w-full mt-4">Tutup</button>');
 }
 
@@ -694,53 +704,155 @@ function renderManagePanel(){
 function loadTeamPlayers(teamId){
   var c=document.getElementById('mgrTeamPlayers');if(!c||!teamId)return;
   var ps=players.filter(function(p){return p.teamId===teamId;});
-  c.innerHTML='<div class="flex justify-between items-center mb-3"><span class="text-sm text-slate-400">'+ps.length+' pemain</span><button class="btn-p" style="font-size:11px;padding:5px 12px;" onclick="showAddPlayerModal(\''+teamId+'\')">+ Tambah Pemain</button></div>'
-    +(ps.map(function(p){return '<div class="flex items-center gap-3 py-2 border-b border-slate-800/50"><div class="flex-1 text-sm font-semibold text-white">'+esc(p.fullName)+'</div><span class="badge-c" style="font-size:9px;">'+esc(p.pos||'?')+'</span><button class="btn-d" style="font-size:10px;padding:3px 8px;" onclick="deletePlayer(\''+p.id+'\',\''+teamId+'\')">Hapus</button></div>';}).join('')||'<p class="text-slate-500 text-sm">Belum ada pemain.</p>');
+  var rows=ps.map(function(p){
+    return '<div class="py-3 border-b border-slate-800/50">'
+      +'<div class="flex items-start gap-3">'
+      +'<div style="min-width:36px;height:36px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div class="font-bold text-sm text-white">'+esc(p.fullName)+'</div>'
+      +'<div class="text-xs text-slate-400 mt-0.5">'+esc(p.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
+      +'</div>'
+      +'<div class="flex gap-1.5 flex-shrink-0">'
+      +'<button class="btn-g" style="font-size:10px;padding:3px 8px;" onclick="showEditPlayerModal(\''+p.id+'\',\''+teamId+'\')">✏️</button>'
+      +'<button class="btn-d" style="font-size:10px;padding:3px 8px;" onclick="deletePlayer(\''+p.id+'\',\''+teamId+'\')">🗑️</button>'
+      +'</div></div></div>';
+  }).join('');
+  c.innerHTML='<div class="flex justify-between items-center mb-3"><span class="text-sm text-slate-400">'+ps.length+' pemain terdaftar</span><button class="btn-p" style="font-size:11px;padding:5px 12px;" onclick="showAddPlayerModal(\''+teamId+'\')">+ Tambah Pemain</button></div>'
+    +(rows||'<p class="text-slate-500 text-sm">Belum ada pemain. Klik "Tambah Pemain" untuk menambahkan.</p>');
 }
 
-function showAddPlayerModal(teamId){
+function playerFormFields(vals){
+  vals=vals||{};
+  return '<div class="space-y-3">'
+    +'<div><label class="form-lbl">Nama Lengkap *</label><input type="text" id="pfName" class="form-inp" placeholder="Nama lengkap pemain..." value="'+esc(vals.fullName||'')+'"></div>'
+    +'<div class="grid grid-cols-2 gap-3">'
+    +'<div><label class="form-lbl">Usia (tahun) *</label><input type="number" id="pfUsia" class="form-inp" min="17" max="70" placeholder="35" value="'+esc(vals.usia||'')+'"></div>'
+    +'<div><label class="form-lbl">Posisi *</label><select id="pfPos" class="form-inp">'
+    +'<option value="GK"'+(vals.pos==='GK'?' selected':'')+'>GK – Penjaga Gawang</option>'
+    +'<option value="CB"'+(vals.pos==='CB'?' selected':'')+'>CB – Bek</option>'
+    +'<option value="CM"'+((!vals.pos||vals.pos==='CM')?' selected':'')+'>CM – Gelandang</option>'
+    +'<option value="FW"'+(vals.pos==='FW'?' selected':'')+'>FW – Penyerang</option>'
+    +'</select></div>'
+    +'</div>'
+    +'<div><label class="form-lbl">Unit / Bagian *</label><input type="text" id="pfUnit" class="form-inp" placeholder="Contoh: Fakultas Ekonomi & Bisnis" value="'+esc(vals.unit||'')+'"></div>'
+    +'</div>';
+}
+
+function showAddPlayerModal(teamId,returnFn){
   var t=TEAMS.find(function(x){return x.id===teamId;});
+  var defaultUnit=t?t.unit:'';
   openModal('<div class="pb-3 border-b border-slate-800 mb-4"><span class="badge-c">+ TAMBAH PEMAIN</span><h2 class="text-base font-bold text-white mt-2">'+esc(t?t.name:teamId)+'</h2></div>'
-    +'<div class="space-y-3"><div><label class="form-lbl">Nama Lengkap</label><input type="text" id="newPN" class="form-inp" placeholder="Nama pemain..."></div>'
-    +'<div><label class="form-lbl">Posisi</label><select id="newPPos" class="form-inp"><option value="GK">GK – Penjaga Gawang</option><option value="CB">CB – Bek</option><option value="CM" selected>CM – Gelandang</option><option value="FW">FW – Penyerang</option></select></div></div>'
-    +'<div class="flex gap-2 mt-4 pt-3 border-t border-slate-800"><button onclick="closeModal()" class="btn-s flex-1">Batal</button><button onclick="addPlayer(\''+teamId+'\')" class="btn-p flex-1">Simpan</button></div>');
+    +playerFormFields({unit:defaultUnit})
+    +'<div class="flex gap-2 mt-4 pt-3 border-t border-slate-800"><button onclick="closeModal()" class="btn-s flex-1">Batal</button><button onclick="addPlayer(\''+teamId+'\',\''+esc(returnFn||'')+'\')\" class="btn-p flex-1">💾 Simpan</button></div>');
 }
 
-function addPlayer(teamId){
-  var name=document.getElementById('newPN').value.trim();
-  var pos=document.getElementById('newPPos').value;
+function addPlayer(teamId,returnFn){
+  var name=(document.getElementById('pfName').value||'').trim();
+  var usia=parseInt(document.getElementById('pfUsia').value)||0;
+  var pos=document.getElementById('pfPos').value;
+  var unit=(document.getElementById('pfUnit').value||'').trim();
   if(!name){alert('Nama tidak boleh kosong!');return;}
+  if(!usia||usia<17||usia>70){alert('Usia tidak valid (17-70 tahun).');return;}
+  if(!unit){alert('Unit/Bagian tidak boleh kosong!');return;}
   var t=TEAMS.find(function(x){return x.id===teamId;});
-  players.push({id:teamId+'-p'+Date.now(),teamId:teamId,teamName:t?t.name:'',fullName:name,pos:pos});
-  saveState();closeModal();loadTeamPlayers(teamId);
+  players.push({id:teamId+'-p'+Date.now(),teamId:teamId,teamName:t?t.name:'',fullName:name,pos:pos,unit:unit,usia:usia});
+  saveState();closeModal();
+  if(returnFn==='manager')renderManager();
+  else loadTeamPlayers(teamId);
 }
 
-function deletePlayer(pid,teamId){
-  if(!confirm('Hapus pemain ini?'))return;
-  players=players.filter(function(p){return p.id!==pid;});
-  saveState();loadTeamPlayers(teamId);
+function showEditPlayerModal(playerId,teamId,returnFn){
+  var p=players.find(function(x){return x.id===playerId;});
+  if(!p){alert('Pemain tidak ditemukan.');return;}
+  var t=TEAMS.find(function(x){return x.id===teamId;});
+  openModal('<div class="pb-3 border-b border-slate-800 mb-4"><span class="badge-g">✏️ EDIT PEMAIN</span><h2 class="text-base font-bold text-white mt-2">'+esc(t?t.name:teamId)+'</h2></div>'
+    +playerFormFields(p)
+    +'<div class="flex gap-2 mt-4 pt-3 border-t border-slate-800"><button onclick="closeModal()" class="btn-s flex-1">Batal</button><button onclick="saveEditPlayer(\''+playerId+'\',\''+teamId+'\',\''+esc(returnFn||'')+'\')\" class="btn-p flex-1">💾 Simpan Perubahan</button></div>');
 }
+
+function saveEditPlayer(playerId,teamId,returnFn){
+  var p=players.find(function(x){return x.id===playerId;});
+  if(!p){alert('Pemain tidak ditemukan.');return;}
+  var name=(document.getElementById('pfName').value||'').trim();
+  var usia=parseInt(document.getElementById('pfUsia').value)||0;
+  var pos=document.getElementById('pfPos').value;
+  var unit=(document.getElementById('pfUnit').value||'').trim();
+  if(!name){alert('Nama tidak boleh kosong!');return;}
+  if(!usia||usia<17||usia>70){alert('Usia tidak valid (17-70 tahun).');return;}
+  if(!unit){alert('Unit/Bagian tidak boleh kosong!');return;}
+  p.fullName=name;p.usia=usia;p.pos=pos;p.unit=unit;
+  saveState();closeModal();
+  if(returnFn==='manager')renderManager();
+  else loadTeamPlayers(teamId);
+}
+
+function deletePlayer(pid,teamId,returnFn){
+  if(!confirm('Hapus pemain ini dari skuad?'))return;
+  players=players.filter(function(p){return p.id!==pid;});
+  saveState();
+  if(returnFn==='manager')renderManager();
+  else loadTeamPlayers(teamId);
+}
+
 
 // ==================== MANAGER VIEW ====================
 function renderManager(){
   var c=document.getElementById('managerContent'),tt=document.getElementById('managerTitle');
   if(!c)return;
   if(tt)tt.textContent='Portal Manajer'+(authTeamName?' – '+authTeamName:'');
+  if(!authTeamId){c.innerHTML='<p class="text-slate-400">Sesi tidak valid. Silakan login ulang.</p>';return;}
   var ps=players.filter(function(p){return p.teamId===authTeamId;});
   var ms=matches.filter(function(m){return m.hId===authTeamId||m.aId===authTeamId;});
-  c.innerHTML='<div class="grid grid-cols-1 md:grid-cols-2 gap-6">'
-    +'<div class="glass p-5"><h3 class="font-bold text-white mb-4">👥 Skuad Tim ('+ps.length+' pemain)</h3>'
-    +(ps.map(function(p){return '<div class="flex items-center gap-3 py-2 border-b border-slate-800/50"><span class="badge-c" style="font-size:9px;">'+esc(p.pos||'?')+'</span><div class="text-sm text-white">'+esc(p.fullName)+'</div></div>';}).join('')||'<p class="text-slate-500 text-sm">Belum ada pemain.</p>')
+
+  // Build player rows for manager (with add/edit/delete)
+  var playerRows=ps.map(function(p){
+    return '<div class="py-3 border-b border-slate-800/50">'
+      +'<div class="flex items-start gap-3">'
+      +'<div style="min-width:36px;height:36px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div class="font-bold text-sm text-white">'+esc(p.fullName)+'</div>'
+      +'<div class="text-xs text-slate-400 mt-0.5">'+esc(p.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
+      +'</div>'
+      +'<div class="flex gap-1.5 flex-shrink-0">'
+      +'<button class="btn-g" style="font-size:10px;padding:3px 8px;" onclick="showEditPlayerModal(\''+p.id+'\',\''+authTeamId+'\',\'manager\')">✏️</button>'
+      +'<button class="btn-d" style="font-size:10px;padding:3px 8px;" onclick="deletePlayer(\''+p.id+'\',\''+authTeamId+'\',\'manager\')">🗑️</button>'
+      +'</div></div></div>';
+  }).join('');
+
+  // Build match rows
+  var matchRows=ms.map(function(m){
+    var isH=m.hId===authTeamId,fin=m.status==='F';
+    var myS=fin?(isH?m.hScore:m.aScore):'-',opS=fin?(isH?m.aScore:m.hScore):'-';
+    var opp=isH?m.aName:m.hName;
+    var res=fin?(myS>opS?'<span class="text-emerald-400 font-bold">✅ Menang</span>':myS<opS?'<span class="text-red-400 font-bold">❌ Kalah</span>':'<span class="text-amber-400 font-bold">🤝 Seri</span>'):'<span class="text-slate-400">⏳ Terjadwal</span>';
+    // Goal events for this team
+    var myGoals=(m.events||[]).filter(function(e){return e.type==='goal'&&e.team===(isH?'home':'away');});
+    var goalsHtml=myGoals.length>0?'<div class="mt-1.5 pl-1">'+myGoals.map(function(g){return '<span class="text-xs text-slate-400">⚽ '+esc(g.player)+' ('+g.minute+'\')'+(g.assist?' 🎯'+esc(g.assist):'')+' </span>';}).join('')+'</div>':'';
+    return '<div class="py-3 border-b border-slate-800/50">'
+      +'<div class="text-xs text-slate-500 mb-1">Match #'+m.no+' · '+m.date+' · '+m.time+'</div>'
+      +'<div class="flex items-center gap-2 text-sm">'
+      +'<div class="text-xl font-extrabold text-amber-400" style="min-width:40px;text-align:center;">'+myS+'</div>'
+      +'<div class="text-slate-500 font-bold">vs</div>'
+      +'<div class="text-xl font-extrabold text-amber-400" style="min-width:40px;text-align:center;">'+opS+'</div>'
+      +'<div class="flex-1 min-w-0"><div class="text-xs text-slate-300 truncate">'+esc(opp)+'</div>'+res+'</div>'
+      +'</div>'+goalsHtml+'</div>';
+  }).join('');
+
+  c.innerHTML='<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">'
+    // --- Skuad panel ---
+    +'<div class="glass p-5">'
+    +'<div class="flex justify-between items-center mb-4">'
+    +'<h3 class="font-bold text-white">👥 Skuad Tim <span class="text-slate-400 font-normal text-sm">('+ps.length+' pemain)</span></h3>'
+    +'<button class="btn-p" style="font-size:11px;padding:5px 12px;" onclick="showAddPlayerModal(\''+authTeamId+'\',\'manager\')">+ Tambah Pemain</button>'
     +'</div>'
-    +'<div class="glass p-5"><h3 class="font-bold text-white mb-4">📅 Pertandingan Tim</h3>'
-    +(ms.map(function(m){
-      var isH=m.hId===authTeamId,fin=m.status==='F';
-      var myS=fin?(isH?m.hScore:m.aScore):'-',opS=fin?(isH?m.aScore:m.hScore):'-';
-      var opp=isH?m.aName:m.hName;
-      var res=fin?(myS>opS?'✅ Menang':myS<opS?'❌ Kalah':'🤝 Seri'):'⏳ Belum';
-      return '<div class="py-2 border-b border-slate-800/50"><div class="text-xs text-slate-500 mb-1">Match #'+m.no+' · '+m.date+'</div><div class="flex items-center gap-2 text-sm"><span class="font-bold text-white">'+myS+'</span><span class="text-slate-500">vs</span><span class="font-bold text-white">'+opS+'</span><span class="text-slate-400 flex-1 truncate text-xs">– '+esc(opp)+'</span><span class="text-xs font-bold">'+res+'</span></div></div>';
-    }).join('')||'<p class="text-slate-500 text-sm">Belum ada jadwal.</p>')
-    +'</div></div>';
+    +(playerRows||'<p class="text-slate-500 text-sm">Belum ada pemain. Klik "Tambah Pemain" untuk menambahkan.</p>')
+    +'</div>'
+    // --- Pertandingan panel ---
+    +'<div class="glass p-5">'
+    +'<h3 class="font-bold text-white mb-4">📅 Jadwal &amp; Hasil Pertandingan</h3>'
+    +(matchRows||'<p class="text-slate-500 text-sm">Belum ada jadwal pertandingan.</p>')
+    +'</div>'
+    +'</div>';
 }
 
 // ==================== AUTH ====================
