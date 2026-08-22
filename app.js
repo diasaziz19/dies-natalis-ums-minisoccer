@@ -42,7 +42,11 @@ if (!teams || !Array.isArray(teams) || teams.length === 0) {
 }
 
 // Recalculate bracket progression on load
-matches = updateKnockoutProgression(matches);
+try {
+  matches = updateKnockoutProgression(matches);
+} catch (e) {
+  console.warn('Initial progression will run in initApp');
+}
 
 // ========== CLOUD SYNC HELPERS ==========
 function updateCloudSyncBadge(status, message) {
@@ -376,10 +380,6 @@ function switchRole(role) {
   const activeBadge = document.querySelector(`.role-badge[data-role="${role}"]`);
   if (activeBadge) activeBadge.classList.add('active');
 
-  if (role === 'LOGIN') {
-    populateManagerDropdown();
-  }
-
   renderApp();
 }
 
@@ -422,21 +422,44 @@ function switchAdminTab(tab) {
 
 // ========== APP RENDER DISPATCHER ==========
 function renderApp() {
-  players = evaluatePlayerSuspensions(players, matches);
-  matches = updateKnockoutProgression(matches);
-  renderNavbarDOM();
+  try {
+    players = evaluatePlayerSuspensions(players, matches);
+  } catch (e) {
+    console.error('evaluatePlayerSuspensions error:', e);
+  }
+  try {
+    matches = updateKnockoutProgression(matches);
+  } catch (e) {
+    console.error('updateKnockoutProgression error:', e);
+  }
+  try {
+    renderNavbarDOM();
+  } catch (e) {
+    console.error('renderNavbarDOM error:', e);
+  }
 
-  if (currentRole === 'VISITOR') {
-    renderHeroBanner();
-    switchVisitorTab(currentVisitorTab);
-  } else if (currentRole === 'PUBLIC_TEAMS') {
-    renderPublicTeams();
-  } else if (currentRole === 'RULES') {
-    renderRulesSection();
-  } else if (currentRole === 'TEAM_MANAGER') {
-    renderTeamManagerPortal();
-  } else if (currentRole === 'ADMIN') {
-    renderAdminPortal();
+  try {
+    // Ensure active view is visible and other views hidden
+    document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+    const targetView = document.getElementById(`view-${currentRole}`);
+    if (targetView) targetView.classList.remove('hidden');
+
+    if (currentRole === 'VISITOR') {
+      renderHeroBanner();
+      switchVisitorTab(currentVisitorTab);
+    } else if (currentRole === 'PUBLIC_TEAMS') {
+      renderPublicTeams();
+    } else if (currentRole === 'RULES') {
+      renderRulesSection();
+    } else if (currentRole === 'TEAM_MANAGER') {
+      renderTeamManagerPortal();
+    } else if (currentRole === 'ADMIN') {
+      renderAdminPortal();
+    } else if (currentRole === 'LOGIN') {
+      populateManagerDropdown();
+    }
+  } catch (err) {
+    console.error('Error rendering app role view:', err);
   }
 }
 
@@ -529,36 +552,53 @@ function renderKnockoutBracket() {
   const container = document.getElementById('knockoutBracketContainer');
   if (!container) return;
 
+  if (!matches || !Array.isArray(matches) || matches.length === 0) {
+    matches = INITIAL_MATCHES;
+    saveState();
+  }
+
   const r16Matches = matches.filter(m => m.stage === 'ROUND_OF_16');
   const qfMatches = matches.filter(m => m.stage === 'QUARTER_FINAL');
   const sfMatches = matches.filter(m => m.stage === 'SEMI_FINAL');
   const finalMatch = matches.find(m => m.stage === 'FINAL');
   const thirdMatch = matches.find(m => m.stage === 'THIRD_PLACE');
 
+  const r16Cards = r16Matches.length > 0 
+    ? r16Matches.map(m => renderBracketCardHTML(m)).join('') 
+    : '<div class="text-xs text-slate-400 text-center py-4">Memuat bagan 16 besar...</div>';
+  
+  const qfCards = qfMatches.length > 0 
+    ? qfMatches.map(m => renderBracketCardHTML(m)).join('') 
+    : '<div class="text-xs text-slate-400 text-center py-4">Memuat perempat final...</div>';
+
+  const sfCards = sfMatches.length > 0 
+    ? sfMatches.map(m => renderBracketCardHTML(m)).join('') 
+    : '<div class="text-xs text-slate-400 text-center py-4">Memuat semi final...</div>';
+
   container.innerHTML = `
     <!-- Round of 16 (8 Matches) -->
     <div class="bracket-round">
       <div class="bracket-round-header">Babak 16 Besar</div>
-      ${r16Matches.map(m => renderBracketCardHTML(m)).join('')}
+      ${r16Cards}
     </div>
 
     <!-- Quarter Finals (4 Matches) -->
     <div class="bracket-round">
       <div class="bracket-round-header">Perempat Final</div>
-      ${qfMatches.map(m => renderBracketCardHTML(m)).join('')}
+      ${qfCards}
     </div>
 
     <!-- Semi Finals (2 Matches) -->
     <div class="bracket-round">
       <div class="bracket-round-header">Semi Final</div>
-      ${sfMatches.map(m => renderBracketCardHTML(m)).join('')}
+      ${sfCards}
     </div>
 
     <!-- Grand Final & 3rd Place (2 Matches) -->
     <div class="bracket-round">
       <div class="bracket-round-header" style="background: rgba(255, 215, 0, 0.15); border-color: #ffd700; color: #ffd700;">🏆 Final &amp; Juara 3</div>
-      ${finalMatch ? renderBracketCardHTML(finalMatch, '🏆 GRAND FINAL') : ''}
-      ${thirdMatch ? renderBracketCardHTML(thirdMatch, '🥉 PEREBUTAN JUARA 3') : ''}
+      ${finalMatch ? renderBracketCardHTML(finalMatch, '🏆 GRAND FINAL') : '<div class="text-xs text-slate-400 text-center py-2">Match #16</div>'}
+      ${thirdMatch ? renderBracketCardHTML(thirdMatch, '🥉 PEREBUTAN JUARA 3') : '<div class="text-xs text-slate-400 text-center py-2">Match #15</div>'}
     </div>
   `;
 }
