@@ -226,25 +226,25 @@ var fbConfig={apiKey:"AIzaSyB5ggfDs3r3hdzQGGrteiZtW4vFgWVtVCI",authDomain:"dies-
 var db=null;
 try{firebase.initializeApp(fbConfig);db=firebase.firestore();db.settings({experimentalForceLongPolling:true});}catch(e){console.warn('Firebase init failed:',e);}
 
-// ==================== DATA ====================
-var TEAMS=[
-  {id:'t1',  name:'SATPAM',unit:'Unit Keamanan / Satpam UMS'},
-  {id:'t2',  name:'PARKIR',unit:'Unit Sarpras & Parkir UMS'},
-  {id:'t3',  name:'FKIP',unit:'Fakultas Keguruan & Ilmu Pendidikan'},
-  {id:'t4',  name:'FKI + FT + VOKASI',unit:'Fakultas Komunikasi Informatika, Teknik & Vokasi'},
-  {id:'t5',  name:'FEB',unit:'Fakultas Ekonomi & Bisnis UMS'},
-  {id:'t6',  name:'FG + FHIP + LBIPU',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU'},
-  {id:'t7',  name:'BPUI (AUM, AHAS, EDU, MMC & UNIT USAHA)',unit:'Badan Pengelola Usaha & Inovasi (BPUI)'},
-  {id:'t8',  name:'PSIKOLOGI + PASCA + FARMASI',unit:'Fakultas Psikologi, Pascasarjana & Farmasi'},
-  {id:'t9',  name:'RSGM + FKG',unit:'RSGM & Fakultas Kedokteran Gigi UMS'},
-  {id:'t10', name:'FIK',unit:'Fakultas Ilmu Kesehatan UMS'},
-  {id:'t11', name:'FAI + SOBRON',unit:'Fakultas Agama Islam & Ponpes Sobron'},
-  {id:'t12', name:'PERPUSTAKAAN + LPPIK',unit:'Perpustakaan & LPPIK UMS'},
-  {id:'t13', name:'DKeu + SAI + DAA + DKPTI + LP3A + DSTI',unit:'Direktorat Keuangan & Lembaga Terkait'},
-  {id:'t14', name:'BPH + SEK.Univ/HUMAS + DAPEN + DSDMO + DRKUI + DRPPS + BPP + LPPIP',unit:'BPH, Sekretariat Universitas & Lembaga Universitas'},
-  {id:'t15', name:'DASP + OUTSOURCING',unit:'Direktorat Aset & Sarana Prasarana serta Outsourcing'},
-  {id:'t16', name:'PESMA + KEDOKTERAN UMUM',unit:'Pesma & Fakultas Kedokteran Umum UMS'},
+var INIT_TEAMS=[
+  {id:'t1',  name:'SATPAM',unit:'Unit Keamanan / Satpam UMS',manager:'Ahmad Dahlan',official:'Suratno, S.Pd.',captain:'Bagus Setyawan'},
+  {id:'t2',  name:'PARKIR',unit:'Unit Sarpras & Parkir UMS',manager:'Bambang Supriyanto',official:'Prof. Dr. Sutama',captain:'Ahmad Syukri'},
+  {id:'t3',  name:'FKIP',unit:'Fakultas Keguruan & Ilmu Pendidikan',manager:'Dwi Cahyono',official:'Drs. H. Maryadi',captain:'Andi Wijaya'},
+  {id:'t4',  name:'FKI + FT + VOKASI',unit:'Fakultas Komunikasi Informatika, Teknik & Vokasi',manager:'Eko Prasetyo',official:'Ir. Subroto, M.T.',captain:'Hendra Setiawan'},
+  {id:'t5',  name:'FEB',unit:'Fakultas Ekonomi & Bisnis UMS',manager:'Muhammad Arifin',official:'Dr. Anton Agus S.',captain:'Oktovianus M.'},
+  {id:'t6',  name:'FG + FHIP + LBIPU',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',manager:'Siti Rahmawati',official:'Dr. Kelik Wardiono',captain:'Agung P.'},
+  {id:'t7',  name:'BPUI (AUM, AHAS, EDU, MMC & UNIT USAHA)',unit:'Badan Pengelola Usaha & Inovasi (BPUI)',manager:'Qomaruddin Hidayat',official:'Drs. Suryadi',captain:'Budi Santoso'},
+  {id:'t8',  name:'PSIKOLOGI + PASCA + FARMASI',unit:'Fakultas Psikologi, Pascasarjana & Farmasi',manager:'Joko Susilo',official:'Dr. Taufik Kasturi',captain:'Cahyo Utomo'},
+  {id:'t9',  name:'RSGM + FKG',unit:'RSGM & Fakultas Kedokteran Gigi UMS',manager:'Hendra Setiawan',official:'drg. Noor Hafida',captain:'Dharma W.'},
+  {id:'t10', name:'FIK',unit:'Fakultas Ilmu Kesehatan UMS',manager:'Kusuma Wardana',official:'Dr. Umi Budi R.',captain:'Erwin S.'},
+  {id:'t11', name:'FAI + SOBRON',unit:'Fakultas Agama Islam & Ponpes Sobron',manager:'Lestari Putri',official:'Dr. Syamsul Hidayat',captain:'Faris M.'},
+  {id:'t12', name:'PERPUSTAKAAN + LPPIK',unit:'Perpustakaan & LPPIK UMS',manager:'Nugroho Adi',official:'Drs. Imron Rosyadi',captain:'Giri K.'},
+  {id:'t13', name:'DKeu + SAI + DAA + DKPTI + LP3A + DSTI',unit:'Direktorat Keuangan & Lembaga Terkait',manager:'Rahmat Basuki',official:'Dr. M. Farid Wajdi',captain:'Hendra B.'},
+  {id:'t14', name:'BPH + SEK.Univ/HUMAS + DAPEN + DSDMO + DRKUI + DRPPS + BPP + LPPIP',unit:'BPH, Sekretariat Universitas & Lembaga Universitas',manager:'Oki Kurniawan',official:'Prof. Dr. Anam',captain:'Irfan S.'},
+  {id:'t15', name:'DASP + OUTSOURCING',unit:'Direktorat Aset & Sarana Prasarana serta Outsourcing',manager:'Purnomo Shiddiq',official:'Ir. Ahmad Kholid',captain:'Joko W.'},
+  {id:'t16', name:'PESMA + KEDOKTERAN UMUM',unit:'Pesma & Fakultas Kedokteran Umum UMS',manager:'Fitri Handayani',official:'dr. Flora Ramona',captain:'Kurnia D.'},
 ];
+var TEAMS=JSON.parse(JSON.stringify(INIT_TEAMS));
 
 var INIT_MATCHES=[
   // HARI 1: SENIN, 28 SEPTEMBER 2026 - 16 BESAR (4 Pertandingan)
@@ -302,6 +302,8 @@ var matches,players,rules,authRole=null,authTeamId=null,authTeamName=null;
 var currentView='home',currentHomeTab='bracket',currentAdminTab='matches';
 
 function loadState(){
+  try{TEAMS=JSON.parse(localStorage.getItem('ums_t3'))||null;}catch(e){TEAMS=null;}
+  if(!Array.isArray(TEAMS)||TEAMS.length===0)TEAMS=JSON.parse(JSON.stringify(INIT_TEAMS));
   try{matches=JSON.parse(localStorage.getItem('ums_m3'))||null;}catch(e){matches=null;}
   if(!Array.isArray(matches)||matches.length!==16)matches=JSON.parse(JSON.stringify(INIT_MATCHES));
   try{players=JSON.parse(localStorage.getItem('ums_p3'))||null;}catch(e){players=null;}
@@ -314,6 +316,7 @@ function loadState(){
 }
 
 function saveState(){
+  localStorage.setItem('ums_t3',JSON.stringify(TEAMS));
   localStorage.setItem('ums_m3',JSON.stringify(matches));
   localStorage.setItem('ums_p3',JSON.stringify(players));
   localStorage.setItem('ums_r3',JSON.stringify(rules));
@@ -329,7 +332,7 @@ function pushCloud(){
   if(!db)return;
   clearTimeout(_pushT);
   _pushT=setTimeout(function(){
-    db.collection('ums26_v2').doc('main').set({matches:matches,players:players,rules:rules},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
+    db.collection('ums26_v2').doc('main').set({teams:TEAMS,matches:matches,players:players,rules:rules},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
   },400);
 }
 
@@ -339,10 +342,12 @@ function startCloud(){
   db.collection('ums26_v2').doc('main').onSnapshot(function(snap){
     if(!snap.exists){pushCloud();return;}
     var d=snap.data();
-    if(d&&Array.isArray(d.matches)&&d.matches.length===16){
-      matches=d.matches;
+    if(d){
+      if(Array.isArray(d.teams)&&d.teams.length>0)TEAMS=d.teams;
+      if(Array.isArray(d.matches)&&d.matches.length===16)matches=d.matches;
       if(Array.isArray(d.players)&&d.players.length>0)players=d.players;
       if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
+      localStorage.setItem('ums_t3',JSON.stringify(TEAMS));
       localStorage.setItem('ums_m3',JSON.stringify(matches));
       localStorage.setItem('ums_p3',JSON.stringify(players));
       localStorage.setItem('ums_r3',JSON.stringify(rules));
@@ -526,7 +531,24 @@ function renderTeams(){
   var c=document.getElementById('teamsList');if(!c)return;
   c.innerHTML=TEAMS.map(function(t){
     var cnt=players.filter(function(p){return p.teamId===t.id;}).length;
-    return '<div class="glass p-4"><div class="flex items-center gap-3 mb-3"><img src="https://api.dicebear.com/7.x/identicon/svg?seed='+t.id+'" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);" onerror="this.style.display=\'none\'"><div><div class="font-bold text-white text-sm">'+esc(t.name)+'</div><div class="text-xs text-slate-400">'+esc(t.unit)+'</div></div></div><div class="flex justify-between items-center"><span class="badge-gr">'+cnt+' Pemain</span><button class="btn-s" style="font-size:11px;padding:5px 10px;" onclick="showSquadModal(\''+t.id+'\')">👥 Lihat Skuad</button></div></div>';
+    return '<div class="glass p-5 flex flex-col justify-between">'
+      +'<div>'
+      +'<div class="flex items-center gap-3 mb-3">'
+      +'<img src="https://api.dicebear.com/7.x/identicon/svg?seed='+t.id+'" style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);" onerror="this.style.display=\'none\'">'
+      +'<div class="min-w-0 flex-1">'
+      +'<div class="font-bold text-white text-sm truncate">'+esc(t.name)+'</div>'
+      +'<div class="text-xs text-slate-400 truncate">'+esc(t.unit)+'</div>'
+      +'</div></div>'
+      +'<div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1 mb-4">'
+      +'<div class="flex items-center justify-between"><span class="text-slate-400 font-medium">👔 Manajer:</span><span class="text-slate-200 font-semibold truncate ml-1">'+esc(t.manager||'-')+'</span></div>'
+      +'<div class="flex items-center justify-between"><span class="text-slate-400 font-medium">📋 Official:</span><span class="text-slate-200 font-semibold truncate ml-1">'+esc(t.official||'-')+'</span></div>'
+      +'<div class="flex items-center justify-between"><span class="text-slate-400 font-medium">©️ Kapten:</span><span class="text-cyan-300 font-bold truncate ml-1">'+esc(t.captain||'-')+'</span></div>'
+      +'</div>'
+      +'</div>'
+      +'<div class="flex justify-between items-center pt-2 border-t border-slate-800/50">'
+      +'<span class="badge-gr">'+cnt+' Pemain</span>'
+      +'<button class="btn-s" style="font-size:11px;padding:5px 12px;" onclick="showSquadModal(\''+t.id+'\')">👥 Lihat Skuad</button>'
+      +'</div></div>';
   }).join('');
 }
 
@@ -535,14 +557,26 @@ function showSquadModal(teamId){
   var ps=players.filter(function(p){return p.teamId===teamId;});
   var rows=ps.length===0?'<p class="text-slate-400 text-sm">Belum ada pemain terdaftar.</p>'
     :ps.map(function(p){
+      var isCap=(t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
       return '<div class="flex items-center gap-3 py-2.5 border-b border-slate-800/50">'
         +'<div style="min-width:32px;height:32px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
         +'<div style="flex:1;min-width:0;">'
-        +'<div class="font-semibold text-sm text-white">'+esc(p.fullName)+'</div>'
+        +'<div class="font-semibold text-sm text-white flex items-center gap-2">'
+        +'<span>'+esc(p.fullName)+'</span>'
+        +(isCap?'<span class="badge-g text-[9px] px-1.5 py-0.5">©️ Kapten</span>':'')
+        +'</div>'
         +'<div class="text-xs text-slate-400">'+esc(p.unit||t.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
         +'</div></div>';
     }).join('');
-  openModal('<div class="pb-3 border-b border-slate-800 mb-4"><span class="badge-c">👥 SKUAD TIM</span><h2 class="text-lg font-bold text-white mt-2">'+esc(t.name)+'</h2><p class="text-xs text-slate-400">'+esc(t.unit)+'</p></div>'
+  openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
+    +'<span class="badge-c">👥 SKUAD TIM</span>'
+    +'<h2 class="text-lg font-bold text-white mt-1">'+esc(t.name)+'</h2>'
+    +'<p class="text-xs text-slate-400 mb-3">'+esc(t.unit)+'</p>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 bg-slate-900/80 rounded-xl border border-slate-800 text-xs">'
+    +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">👔 Manajer</span><strong class="text-white truncate block">'+esc(t.manager||'-')+'</strong></div>'
+    +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">📋 Official</span><strong class="text-white truncate block">'+esc(t.official||'-')+'</strong></div>'
+    +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">©️ Kapten</span><strong class="text-cyan-300 truncate block">'+esc(t.captain||'-')+'</strong></div>'
+    +'</div></div>'
     +rows
     +'<button onclick="closeModal()" class="btn-s w-full mt-4">Tutup</button>');
 }
@@ -837,15 +871,112 @@ function renderManagePanel(){
   c.innerHTML='<div class="glass p-5"><h4 class="font-bold text-white mb-4">👤 Manajemen Pemain per Tim</h4><div class="mb-3"><label class="form-lbl">Pilih Tim</label><select class="form-inp" onchange="loadTeamPlayers(this.value)" id="mgrTeamSel"><option value="">-- Pilih Tim --</option>'+teamOpts+'</select></div><div id="mgrTeamPlayers"></div></div>';
 }
 
+// ==================== EDIT TEAM & OFFICIAL MODAL ====================
+function showEditTeamModal(teamId,returnFn){
+  var t=TEAMS.find(function(x){return x.id===teamId;});
+  if(!t){alert('Tim tidak ditemukan.');return;}
+  var ps=players.filter(function(p){return p.teamId===teamId;});
+  var captainOpts='<option value="">-- Pilih dari Pemain / Ketik Manual --</option>'
+    +ps.map(function(p){
+      var isSel=(t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.fullName===t.captain;
+      return '<option value="'+esc(p.fullName)+'"'+(isSel?' selected':'')+'>'+esc(p.fullName)+' ('+esc(p.pos||'?')+')</option>';
+    }).join('');
+
+  openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
+    +'<span class="badge-g">⚙️ EDIT PROFIL TIM &amp; OFFICIAL</span>'
+    +'<h2 class="text-base font-bold text-white mt-2">'+esc(t.name)+'</h2>'
+    +'</div>'
+    +'<div class="space-y-3">'
+    +'<div><label class="form-lbl">Nama Tim *</label>'
+    +'<input type="text" id="tmName" class="form-inp font-bold" value="'+esc(t.name)+'" placeholder="Contoh: SATPAM UMS">'
+    +'</div>'
+    +'<div><label class="form-lbl">Unit / Fakultas / Lembaga *</label>'
+    +'<input type="text" id="tmUnit" class="form-inp" value="'+esc(t.unit)+'" placeholder="Contoh: Unit Keamanan / Satpam UMS">'
+    +'</div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">'
+    +'<div><label class="form-lbl">👔 Nama Manajer Tim</label>'
+    +'<input type="text" id="tmManager" class="form-inp" value="'+esc(t.manager||'')+'" placeholder="Nama Manajer...">'
+    +'</div>'
+    +'<div><label class="form-lbl">📋 Nama Official Tim</label>'
+    +'<input type="text" id="tmOfficial" class="form-inp" value="'+esc(t.official||'')+'" placeholder="Nama Official...">'
+    +'</div>'
+    +'</div>'
+    +'<div><label class="form-lbl">©️ Kapten Tim</label>'
+    +'<div class="space-y-2">'
+    +'<select id="tmCaptainSel" class="form-inp" onchange="if(this.value)document.getElementById(\'tmCaptain\').value=this.value;">'
+    +captainOpts
+    +'</select>'
+    +'<input type="text" id="tmCaptain" class="form-inp" value="'+esc(t.captain||'')+'" placeholder="Atau ketik nama kapten tim...">'
+    +'</div></div>'
+    +'</div>'
+    +'<div class="flex gap-2 mt-5 pt-3 border-t border-slate-800">'
+    +'<button onclick="closeModal()" class="btn-s flex-1">Batal</button>'
+    +'<button onclick="saveEditTeam(\''+teamId+'\',\''+esc(returnFn||'')+'\')\" class="btn-p flex-1">💾 Simpan Perubahan</button>'
+    +'</div>'
+  );
+}
+
+function saveEditTeam(teamId,returnFn){
+  var t=TEAMS.find(function(x){return x.id===teamId;});
+  if(!t){alert('Tim tidak ditemukan.');return;}
+  var name=(document.getElementById('tmName').value||'').trim();
+  var unit=(document.getElementById('tmUnit').value||'').trim();
+  var manager=(document.getElementById('tmManager').value||'').trim();
+  var official=(document.getElementById('tmOfficial').value||'').trim();
+  var captain=(document.getElementById('tmCaptain').value||'').trim();
+  if(!name){alert('Nama Tim tidak boleh kosong!');return;}
+  if(!unit){alert('Unit/Fakultas tidak boleh kosong!');return;}
+
+  var oldName=t.name;
+  t.name=name;
+  t.unit=unit;
+  t.manager=manager;
+  t.official=official;
+  t.captain=captain;
+
+  // Update match team names if changed
+  if(oldName!==name){
+    matches.forEach(function(m){
+      if(m.hId===teamId)m.hName=name;
+      if(m.aId===teamId)m.aName=name;
+      (m.events||[]).forEach(function(e){
+        if(e.teamName===oldName)e.teamName=name;
+      });
+    });
+    players.forEach(function(p){
+      if(p.teamId===teamId){
+        p.teamName=name;
+      }
+    });
+    if(authRole==='manager'&&authTeamId===teamId){
+      authTeamName=name;
+      localStorage.setItem('ums_tname3',name);
+      updateNavAuth();
+    }
+  }
+
+  saveState();
+  closeModal();
+  if(returnFn==='manager')renderManager();
+  else if(returnFn==='adminManage')renderManagePanel();
+  else renderCurrentView();
+  alert('✅ Profil Tim & Official berhasil diperbarui!');
+}
+
 function loadTeamPlayers(teamId){
   var c=document.getElementById('mgrTeamPlayers');if(!c||!teamId)return;
+  var t=TEAMS.find(function(x){return x.id===teamId;});
   var ps=players.filter(function(p){return p.teamId===teamId;});
   var rows=ps.map(function(p){
+    var isCap=(t&&t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
     return '<div class="py-3 border-b border-slate-800/50">'
       +'<div class="flex items-start gap-3">'
       +'<div style="min-width:36px;height:36px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
       +'<div style="flex:1;min-width:0;">'
-      +'<div class="font-bold text-sm text-white">'+esc(p.fullName)+'</div>'
+      +'<div class="font-bold text-sm text-white flex items-center gap-2">'
+      +'<span>'+esc(p.fullName)+'</span>'
+      +(isCap?'<span class="badge-g text-[9px] px-1.5 py-0.5">©️ Kapten</span>':'')
+      +'</div>'
       +'<div class="text-xs text-slate-400 mt-0.5">'+esc(p.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
       +'</div>'
       +'<div class="flex gap-1.5 flex-shrink-0">'
@@ -853,7 +984,20 @@ function loadTeamPlayers(teamId){
       +'<button class="btn-d" style="font-size:10px;padding:3px 8px;" onclick="deletePlayer(\''+p.id+'\',\''+teamId+'\')">🗑️</button>'
       +'</div></div></div>';
   }).join('');
-  c.innerHTML='<div class="flex justify-between items-center mb-3"><span class="text-sm text-slate-400">'+ps.length+' pemain terdaftar</span><button class="btn-p" style="font-size:11px;padding:5px 12px;" onclick="showAddPlayerModal(\''+teamId+'\')">+ Tambah Pemain</button></div>'
+
+  var teamInfoHtml=t?'<div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 mb-4">'
+    +'<div class="flex justify-between items-start flex-wrap gap-2 mb-3">'
+    +'<div><span class="badge-c text-[10px]">PROFIL TIM</span><h3 class="font-bold text-white text-base mt-1">'+esc(t.name)+'</h3><p class="text-xs text-slate-400">'+esc(t.unit)+'</p></div>'
+    +'<button class="btn-g" style="font-size:11px;padding:5px 12px;" onclick="showEditTeamModal(\''+teamId+'\',\'adminManage\')">⚙️ Edit Nama Tim &amp; Official</button>'
+    +'</div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-xs">'
+    +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">👔 Manajer</span><strong class="text-white truncate block">'+esc(t.manager||'-')+'</strong></div>'
+    +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">📋 Official</span><strong class="text-white truncate block">'+esc(t.official||'-')+'</strong></div>'
+    +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">©️ Kapten</span><strong class="text-cyan-300 truncate block">'+esc(t.captain||'-')+'</strong></div>'
+    +'</div></div>':'';
+
+  c.innerHTML=teamInfoHtml
+    +'<div class="flex justify-between items-center mb-3 mt-4"><span class="text-sm text-slate-400 font-bold">'+ps.length+' pemain terdaftar</span><button class="btn-p" style="font-size:11px;padding:5px 12px;" onclick="showAddPlayerModal(\''+teamId+'\')">+ Tambah Pemain</button></div>'
     +(rows||'<p class="text-slate-500 text-sm">Belum ada pemain. Klik "Tambah Pemain" untuk menambahkan.</p>');
 }
 
@@ -940,13 +1084,19 @@ function renderManager(){
   var ps=players.filter(function(p){return p.teamId===authTeamId;});
   var ms=matches.filter(function(m){return m.hId===authTeamId||m.aId===authTeamId;});
 
+  var t=TEAMS.find(function(x){return x.id===authTeamId;});
+
   // Build player rows for manager (with add/edit/delete)
   var playerRows=ps.map(function(p){
+    var isCap=(t&&t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
     return '<div class="py-3 border-b border-slate-800/50">'
       +'<div class="flex items-start gap-3">'
       +'<div style="min-width:36px;height:36px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
       +'<div style="flex:1;min-width:0;">'
-      +'<div class="font-bold text-sm text-white">'+esc(p.fullName)+'</div>'
+      +'<div class="font-bold text-sm text-white flex items-center gap-2">'
+      +'<span>'+esc(p.fullName)+'</span>'
+      +(isCap?'<span class="badge-g text-[9px] px-1.5 py-0.5">©️ Kapten</span>':'')
+      +'</div>'
       +'<div class="text-xs text-slate-400 mt-0.5">'+esc(p.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
       +'</div>'
       +'<div class="flex gap-1.5 flex-shrink-0">'
@@ -974,11 +1124,23 @@ function renderManager(){
       +'</div>'+goalsHtml+'</div>';
   }).join('');
 
-  c.innerHTML='<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">'
+  var teamHeaderHtml=t?'<div class="glass p-5 mb-6 border border-cyan-400/20">'
+    +'<div class="flex justify-between items-start flex-wrap gap-3">'
+    +'<div><span class="badge-g text-[10px]">PROFIL TIM &amp; OFFICIAL RESMI</span><h3 class="font-extrabold text-white text-xl mt-1.5">'+esc(t.name)+'</h3><p class="text-xs text-slate-300 mt-0.5">'+esc(t.unit)+'</p></div>'
+    +'<button class="btn-p text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="showEditTeamModal(\''+authTeamId+'\',\'manager\')">⚙️ Edit Nama Tim &amp; Official</button>'
+    +'</div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 mt-3 border-t border-slate-800 text-xs">'
+    +'<div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800"><span class="text-slate-400 block text-[10px] uppercase font-bold">👔 Manajer Tim</span><strong class="text-white text-sm block mt-0.5">'+esc(t.manager||'-')+'</strong></div>'
+    +'<div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800"><span class="text-slate-400 block text-[10px] uppercase font-bold">📋 Official Tim</span><strong class="text-white text-sm block mt-0.5">'+esc(t.official||'-')+'</strong></div>'
+    +'<div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800"><span class="text-slate-400 block text-[10px] uppercase font-bold">©️ Kapten Tim</span><strong class="text-cyan-300 text-sm block mt-0.5">'+esc(t.captain||'-')+'</strong></div>'
+    +'</div></div>':'';
+
+  c.innerHTML=teamHeaderHtml
+    +'<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">'
     // --- Skuad panel ---
     +'<div class="glass p-5">'
     +'<div class="flex justify-between items-center mb-4">'
-    +'<h3 class="font-bold text-white">👥 Skuad Tim <span class="text-slate-400 font-normal text-sm">('+ps.length+' pemain)</span></h3>'
+    +'<h3 class="font-bold text-white">👥 Skuad Pemain <span class="text-slate-400 font-normal text-sm">('+ps.length+' pemain)</span></h3>'
     +'<button class="btn-p" style="font-size:11px;padding:5px 12px;" onclick="showAddPlayerModal(\''+authTeamId+'\',\'manager\')">+ Tambah Pemain</button>'
     +'</div>'
     +(playerRows||'<p class="text-slate-500 text-sm">Belum ada pemain. Klik "Tambah Pemain" untuk menambahkan.</p>')
