@@ -65,10 +65,10 @@
       <img src="./assets/logo-dies-natalis-68-ums.png" alt="Dies Natalis 68 UMS" style="height:38px;width:auto;object-fit:contain;" class="drop-shadow-md">
       <div>
         <div class="font-bold text-white text-sm tracking-wide flex items-center gap-1.5">
-          <span>DIES NATALIS 68 UMS</span>
-          <span class="badge-g text-[9px] px-1.5 py-0.5">2026</span>
+          <span id="navTitleDisplay">DIES NATALIS 68 UMS</span>
+          <span class="badge-g text-[9px] px-1.5 py-0.5" id="navYearDisplay">2026</span>
         </div>
-        <div class="text-[11px] text-cyan-400 font-semibold uppercase tracking-wider">Minisoccer Champions League</div>
+        <div class="text-[11px] text-cyan-400 font-semibold uppercase tracking-wider" id="navSubDisplay">Minisoccer Champions League</div>
       </div>
     </a>
     <div id="syncBadge" onclick="syncNow()" title="Klik untuk sync manual" class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border cursor-pointer ml-1" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.35);color:#34d399;">
@@ -88,6 +88,17 @@
 <div style="max-width:1280px;margin:0 auto;padding:20px 16px;">
   <!-- HOME -->
   <div id="view-home">
+    <!-- Super Admin Dashboard Edit Quick Banner -->
+    <div id="adminHomeEditBar" class="hidden glass p-3.5 mb-4 border border-amber-400/40 flex items-center justify-between gap-3 flex-wrap bg-amber-500/10">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="badge-g font-bold">👑 SUPER ADMIN</span>
+        <span class="text-amber-200 font-medium">Mode Administrator aktif. Anda dapat mengubah teks header, judul, deskripsi, dan info dashboard utama.</span>
+      </div>
+      <button class="btn-g text-xs py-1.5 px-3.5 flex items-center gap-1.5 shadow-md" onclick="showEditHeaderModal()">
+        ✏️ Edit Dashboard &amp; Header
+      </button>
+    </div>
+
     <div class="glass p-6 sm:p-8 mb-6 relative overflow-hidden border border-cyan-400/25 shadow-2xl">
       <!-- Decorative Background Watermark -->
       <div class="absolute -right-6 -bottom-6 opacity-15 pointer-events-none select-none hidden sm:block">
@@ -97,29 +108,32 @@
       <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-3 flex-wrap">
-            <span class="badge-g">🏆 TURNAMEN RESMI MINISOCCER</span>
-            <span class="badge-c font-bold">EDISI SPESIAL DIES NATALIS KE-68</span>
+            <span class="badge-g" id="heroBadge1Display">🏆 TURNAMEN RESMI MINISOCCER</span>
+            <span class="badge-c font-bold" id="heroBadge2Display">EDISI SPESIAL DIES NATALIS KE-68</span>
+            <button id="adminHeroEditBtn" class="btn-g hidden text-[10px] py-1 px-2.5 ml-auto" onclick="showEditHeaderModal()">
+              ✏️ Edit Konten
+            </button>
           </div>
-          <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-1 mb-1.5">
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-1 mb-1.5" id="heroTitleDisplay">
             DIES NATALIS KE-68 UMS
           </h1>
-          <p class="text-cyan-300 font-bold text-base sm:text-lg mb-2 flex items-center gap-2">
+          <p class="text-cyan-300 font-bold text-base sm:text-lg mb-2 flex items-center gap-2" id="heroSubDisplay">
             <span>⚽ MINISOCCER CHAMPIONS LEAGUE (7 vs 7)</span>
           </p>
-          <p class="text-slate-300 text-sm leading-relaxed max-w-2xl mb-5">
+          <p class="text-slate-300 text-sm leading-relaxed max-w-2xl mb-5" id="heroDescDisplay">
             Portal Resmi Turnamen Minisoccer dalam rangka memperingati <strong>Dies Natalis ke-68 Universitas Muhammadiyah Surakarta</strong> dengan semangat <em>"Sinergi Berdampak Berkelanjutan"</em>. Saksikan perebutan gelar juara bergengsi antar unit, fakultas, dan lembaga sivitas akademika UMS!
           </p>
           <div class="flex flex-wrap gap-2.5 text-xs text-slate-300">
-            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">📅 <strong class="text-white">Mulai Senin, 28 Sept 2026 (07:30 WIB)</strong></div>
-            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">📍 <strong class="text-white">Lapangan Minisoccer Kampus 4 UMS</strong></div>
-            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">⚽ <strong class="text-white">16 Tim (Sistem Gugur)</strong></div>
+            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">📅 <strong class="text-white" id="heroDateDisplay">Mulai Senin, 28 Sept 2026 (07:30 WIB)</strong></div>
+            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">📍 <strong class="text-white" id="heroVenueDisplay">Lapangan Minisoccer Kampus 4 UMS</strong></div>
+            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">⚽ <strong class="text-white" id="heroFormatDisplay">16 Tim (Sistem Gugur)</strong></div>
           </div>
         </div>
 
         <!-- Decorative Logo Card -->
         <div class="flex-shrink-0 self-center md:self-auto p-5 rounded-2xl glass border border-cyan-400/30 shadow-2xl flex flex-col items-center justify-center text-center backdrop-blur-md transition transform hover:scale-105 duration-300" style="max-width:280px;background:rgba(11,25,60,0.85);">
           <img src="./assets/logo-dies-natalis-68-ums.png" alt="Logo Resmi Dies Natalis 68 UMS" style="width:230px;height:auto;object-fit:contain;" class="drop-shadow-[0_10px_20px_rgba(0,240,255,0.25)]">
-          <div class="mt-3 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase border-t border-cyan-400/20 pt-2 w-full">
+          <div class="mt-3 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase border-t border-cyan-400/20 pt-2 w-full" id="cardFooterDisplay">
             Turnamen Resmi 2026
           </div>
         </div>
@@ -170,7 +184,8 @@
     <div class="flex gap-2 mb-5 flex-wrap border-b border-slate-800 pb-3">
       <div class="tab-btn active" id="atab-matches" onclick="switchAdminTab('matches')">📋 Input Hasil</div>
       <div class="tab-btn" id="atab-bracket" onclick="switchAdminTab('bracket')">⚙️ Pengaturan Bagan</div>
-      <div class="tab-btn" id="atab-manage" onclick="switchAdminTab('manage')">👥 Kelola Data</div>
+      <div class="tab-btn" id="atab-manage" onclick="switchAdminTab('manage')">👥 Kelola Data Tim</div>
+      <div class="tab-btn" id="atab-header" onclick="switchAdminTab('header')">🖥️ Edit Dashboard &amp; Header</div>
     </div>
     <div id="adminContent-matches">
       <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
@@ -189,6 +204,7 @@
       <button class="btn-p mt-4" onclick="saveBracketSettings()">💾 Simpan Perubahan Bagan</button>
     </div>
     <div id="adminContent-manage" class="hidden"><div id="adminManagePanel"></div></div>
+    <div id="adminContent-header" class="hidden"><div id="adminHeaderPanel"></div></div>
   </div>
   <!-- MANAGER -->
   <div id="view-manager" class="hidden">
@@ -225,6 +241,22 @@
 var fbConfig={apiKey:"AIzaSyB5ggfDs3r3hdzQGGrteiZtW4vFgWVtVCI",authDomain:"dies-natalis-ums-2026.firebaseapp.com",projectId:"dies-natalis-ums-2026",storageBucket:"dies-natalis-ums-2026.firebasestorage.app",messagingSenderId:"912617266657",appId:"1:912617266657:web:c6d163bd67cd5b83e506a0"};
 var db=null;
 try{firebase.initializeApp(fbConfig);db=firebase.firestore();db.settings({experimentalForceLongPolling:true});}catch(e){console.warn('Firebase init failed:',e);}
+
+var INIT_HEADER={
+  navTitle:'DIES NATALIS 68 UMS',
+  navYear:'2026',
+  navSubtitle:'Minisoccer Champions League',
+  heroBadge1:'🏆 TURNAMEN RESMI MINISOCCER',
+  heroBadge2:'EDISI SPESIAL DIES NATALIS KE-68',
+  heroTitle:'DIES NATALIS KE-68 UMS',
+  heroSubtitle:'⚽ MINISOCCER CHAMPIONS LEAGUE (7 vs 7)',
+  heroDesc:'Portal Resmi Turnamen Minisoccer dalam rangka memperingati Dies Natalis ke-68 Universitas Muhammadiyah Surakarta dengan semangat "Sinergi Berdampak Berkelanjutan". Saksikan perebutan gelar juara bergengsi antar unit, fakultas, dan lembaga sivitas akademika UMS!',
+  heroDate:'Mulai Senin, 28 Sept 2026 (07:30 WIB)',
+  heroVenue:'Lapangan Minisoccer Kampus 4 UMS',
+  heroFormat:'16 Tim (Sistem Gugur)',
+  cardFooter:'Turnamen Resmi 2026'
+};
+var HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
 
 var INIT_TEAMS=[
   {id:'t1',  name:'SATPAM',unit:'Unit Keamanan / Satpam UMS',manager:'Ahmad Dahlan',official:'Suratno, S.Pd.',captain:'Bagus Setyawan'},
@@ -302,6 +334,8 @@ var matches,players,rules,authRole=null,authTeamId=null,authTeamName=null;
 var currentView='home',currentHomeTab='bracket',currentAdminTab='matches';
 
 function loadState(){
+  try{HEADER=JSON.parse(localStorage.getItem('ums_h3'))||null;}catch(e){HEADER=null;}
+  if(!HEADER||typeof HEADER!=='object')HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
   try{TEAMS=JSON.parse(localStorage.getItem('ums_t3'))||null;}catch(e){TEAMS=null;}
   if(!Array.isArray(TEAMS)||TEAMS.length===0)TEAMS=JSON.parse(JSON.stringify(INIT_TEAMS));
   try{matches=JSON.parse(localStorage.getItem('ums_m3'))||null;}catch(e){matches=null;}
@@ -316,6 +350,7 @@ function loadState(){
 }
 
 function saveState(){
+  localStorage.setItem('ums_h3',JSON.stringify(HEADER));
   localStorage.setItem('ums_t3',JSON.stringify(TEAMS));
   localStorage.setItem('ums_m3',JSON.stringify(matches));
   localStorage.setItem('ums_p3',JSON.stringify(players));
@@ -332,7 +367,7 @@ function pushCloud(){
   if(!db)return;
   clearTimeout(_pushT);
   _pushT=setTimeout(function(){
-    db.collection('ums26_v2').doc('main').set({teams:TEAMS,matches:matches,players:players,rules:rules},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
+    db.collection('ums26_v2').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
   },400);
 }
 
@@ -343,14 +378,17 @@ function startCloud(){
     if(!snap.exists){pushCloud();return;}
     var d=snap.data();
     if(d){
+      if(d.header&&typeof d.header==='object')HEADER=d.header;
       if(Array.isArray(d.teams)&&d.teams.length>0)TEAMS=d.teams;
       if(Array.isArray(d.matches)&&d.matches.length===16)matches=d.matches;
       if(Array.isArray(d.players)&&d.players.length>0)players=d.players;
       if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
+      localStorage.setItem('ums_h3',JSON.stringify(HEADER));
       localStorage.setItem('ums_t3',JSON.stringify(TEAMS));
       localStorage.setItem('ums_m3',JSON.stringify(matches));
       localStorage.setItem('ums_p3',JSON.stringify(players));
       localStorage.setItem('ums_r3',JSON.stringify(rules));
+      renderHeader();
       renderCurrentView();
       setSyncBadge('online');
     } else { pushCloud(); }
@@ -603,9 +641,25 @@ function saveRules(){
   saveState();renderRules();closeModal();
 }
 
+function renderHeader(){
+  if(!HEADER)return;
+  var nTitle=document.getElementById('navTitleDisplay');if(nTitle)nTitle.textContent=HEADER.navTitle||INIT_HEADER.navTitle;
+  var nYear=document.getElementById('navYearDisplay');if(nYear)nYear.textContent=HEADER.navYear||INIT_HEADER.navYear;
+  var nSub=document.getElementById('navSubDisplay');if(nSub)nSub.textContent=HEADER.navSubtitle||INIT_HEADER.navSubtitle;
+  var b1=document.getElementById('heroBadge1Display');if(b1)b1.textContent=HEADER.heroBadge1||INIT_HEADER.heroBadge1;
+  var b2=document.getElementById('heroBadge2Display');if(b2)b2.textContent=HEADER.heroBadge2||INIT_HEADER.heroBadge2;
+  var hTitle=document.getElementById('heroTitleDisplay');if(hTitle)hTitle.textContent=HEADER.heroTitle||INIT_HEADER.heroTitle;
+  var hSub=document.getElementById('heroSubDisplay');if(hSub)hSub.textContent=HEADER.heroSubtitle||INIT_HEADER.heroSubtitle;
+  var hDesc=document.getElementById('heroDescDisplay');if(hDesc)hDesc.textContent=HEADER.heroDesc||INIT_HEADER.heroDesc;
+  var hDate=document.getElementById('heroDateDisplay');if(hDate)hDate.textContent=HEADER.heroDate||INIT_HEADER.heroDate;
+  var hVen=document.getElementById('heroVenueDisplay');if(hVen)hVen.textContent=HEADER.heroVenue||INIT_HEADER.heroVenue;
+  var hFmt=document.getElementById('heroFormatDisplay');if(hFmt)hFmt.textContent=HEADER.heroFormat||INIT_HEADER.heroFormat;
+  var cFoot=document.getElementById('cardFooterDisplay');if(cFoot)cFoot.textContent=HEADER.cardFooter||INIT_HEADER.cardFooter;
+}
+
 // ==================== ADMIN VIEW ====================
 function renderAdmin(){
-  ['matches','bracket','manage'].forEach(function(t){
+  ['matches','bracket','manage','header'].forEach(function(t){
     var el=document.getElementById('adminContent-'+t),btn=document.getElementById('atab-'+t);
     if(el)el.classList.toggle('hidden',t!==currentAdminTab);
     if(btn)btn.classList.toggle('active',t===currentAdminTab);
@@ -613,6 +667,7 @@ function renderAdmin(){
   if(currentAdminTab==='matches')renderAdminMatches();
   else if(currentAdminTab==='bracket')renderBracketSettings();
   else if(currentAdminTab==='manage')renderManagePanel();
+  else if(currentAdminTab==='header')renderHeaderPanel();
 }
 function switchAdminTab(t){currentAdminTab=t;renderAdmin();}
 
@@ -963,6 +1018,141 @@ function saveEditTeam(teamId,returnFn){
   alert('✅ Profil Tim & Official berhasil diperbarui!');
 }
 
+// ==================== DASHBOARD & HEADER SETTINGS ====================
+function renderHeaderPanel(){
+  var c=document.getElementById('adminHeaderPanel');if(!c)return;
+  var h=HEADER||INIT_HEADER;
+  c.innerHTML='<div class="glass p-6">'
+    +'<div class="flex justify-between items-center mb-5 flex-wrap gap-2">'
+    +'<div><h3 class="font-bold text-white text-lg">🖥️ Pengaturan Header &amp; Dashboard Utama</h3><p class="text-xs text-slate-400">Ubah seluruh teks, judul, banner, dan informasi turnamen pada beranda utama.</p></div>'
+    +'<button class="btn-d text-xs py-1.5 px-3" onclick="confirmResetHeader()">🔄 Reset Teks ke Default</button>'
+    +'</div>'
+    +'<div class="space-y-4">'
+    +'<div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">'
+    +'<h4 class="font-bold text-cyan-400 text-sm mb-3">🏷️ Teks Navigation Bar (Header Atas)</h4>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">'
+    +'<div><label class="form-lbl">Judul Navbar</label><input type="text" id="admNavTitle" class="form-inp" value="'+esc(h.navTitle||'')+'"></div>'
+    +'<div><label class="form-lbl">Tahun / Badge</label><input type="text" id="admNavYear" class="form-inp" value="'+esc(h.navYear||'')+'"></div>'
+    +'<div><label class="form-lbl">Subjudul Navbar</label><input type="text" id="admNavSub" class="form-inp" value="'+esc(h.navSubtitle||'')+'"></div>'
+    +'</div></div>'
+    +'<div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">'
+    +'<h4 class="font-bold text-amber-400 text-sm mb-3">🏆 Hero Banner Utama</h4>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">'
+    +'<div><label class="form-lbl">Badge Emas (Kiri Atas)</label><input type="text" id="admHeroBadge1" class="form-inp" value="'+esc(h.heroBadge1||'')+'"></div>'
+    +'<div><label class="form-lbl">Badge Cyan (Kanan Atas)</label><input type="text" id="admHeroBadge2" class="form-inp" value="'+esc(h.heroBadge2||'')+'"></div>'
+    +'</div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">'
+    +'<div><label class="form-lbl">Judul Besar Turnamen</label><input type="text" id="admHeroTitle" class="form-inp font-bold" value="'+esc(h.heroTitle||'')+'"></div>'
+    +'<div><label class="form-lbl">Subjudul Turnamen</label><input type="text" id="admHeroSub" class="form-inp" value="'+esc(h.heroSubtitle||'')+'"></div>'
+    +'</div>'
+    +'<div class="mb-3"><label class="form-lbl">Deskripsi / Sambutan Turnamen</label><textarea id="admHeroDesc" class="form-inp" rows="3">'+esc(h.heroDesc||'')+'</textarea></div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">'
+    +'<div><label class="form-lbl">📅 Tanggal &amp; Waktu</label><input type="text" id="admHeroDate" class="form-inp" value="'+esc(h.heroDate||'')+'"></div>'
+    +'<div><label class="form-lbl">📍 Lokasi Lapangan</label><input type="text" id="admHeroVenue" class="form-inp" value="'+esc(h.heroVenue||'')+'"></div>'
+    +'<div><label class="form-lbl">⚽ Format Turnamen</label><input type="text" id="admHeroFormat" class="form-inp" value="'+esc(h.heroFormat||'')+'"></div>'
+    +'</div>'
+    +'<div><label class="form-lbl">Label Kartu Logo (Footer Kartu)</label><input type="text" id="admCardFoot" class="form-inp" value="'+esc(h.cardFooter||'')+'"></div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="flex gap-2 mt-5">'
+    +'<button class="btn-p py-2 px-6 text-sm" onclick="saveHeaderSettingsFromPanel()">💾 Simpan Perubahan Dashboard &amp; Header</button>'
+    +'</div>'
+    +'</div>';
+}
+
+function showEditHeaderModal(){
+  var h=HEADER||INIT_HEADER;
+  openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
+    +'<span class="badge-g">👑 SUPER ADMIN</span>'
+    +'<h2 class="text-base font-bold text-white mt-2">Edit Dashboard Utama &amp; Header</h2>'
+    +'<p class="text-xs text-slate-400 mt-1">Ubah teks dan identitas turnamen yang tampil di beranda dan header web.</p>'
+    +'</div>'
+    +'<div class="space-y-3 max-h-[70vh] overflow-y-auto pr-1">'
+    +'<div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">'
+    +'<div class="text-xs font-bold text-cyan-400 mb-2">🏷️ HEADER / NAVBAR</div>'
+    +'<div class="space-y-2">'
+    +'<div><label class="form-lbl">Judul Navbar</label><input type="text" id="modNavTitle" class="form-inp" value="'+esc(h.navTitle||'')+'"></div>'
+    +'<div class="grid grid-cols-2 gap-2">'
+    +'<div><label class="form-lbl">Tahun / Badge</label><input type="text" id="modNavYear" class="form-inp" value="'+esc(h.navYear||'')+'"></div>'
+    +'<div><label class="form-lbl">Subjudul Navbar</label><input type="text" id="modNavSub" class="form-inp" value="'+esc(h.navSubtitle||'')+'"></div>'
+    +'</div></div></div>'
+    +'<div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">'
+    +'<div class="text-xs font-bold text-amber-400 mb-2">🏆 HERO BANNER UTAMA</div>'
+    +'<div class="space-y-2">'
+    +'<div class="grid grid-cols-2 gap-2">'
+    +'<div><label class="form-lbl">Badge Kiri</label><input type="text" id="modHeroBadge1" class="form-inp" value="'+esc(h.heroBadge1||'')+'"></div>'
+    +'<div><label class="form-lbl">Badge Kanan</label><input type="text" id="modHeroBadge2" class="form-inp" value="'+esc(h.heroBadge2||'')+'"></div>'
+    +'</div>'
+    +'<div><label class="form-lbl">Judul Besar Turnamen</label><input type="text" id="modHeroTitle" class="form-inp font-bold" value="'+esc(h.heroTitle||'')+'"></div>'
+    +'<div><label class="form-lbl">Subjudul Turnamen</label><input type="text" id="modHeroSub" class="form-inp" value="'+esc(h.heroSubtitle||'')+'"></div>'
+    +'<div><label class="form-lbl">Deskripsi / Sambutan</label><textarea id="modHeroDesc" class="form-inp" rows="3">'+esc(h.heroDesc||'')+'</textarea></div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">'
+    +'<div><label class="form-lbl">📅 Tanggal &amp; Jam</label><input type="text" id="modHeroDate" class="form-inp" value="'+esc(h.heroDate||'')+'"></div>'
+    +'<div><label class="form-lbl">📍 Lokasi</label><input type="text" id="modHeroVenue" class="form-inp" value="'+esc(h.heroVenue||'')+'"></div>'
+    +'<div><label class="form-lbl">⚽ Format</label><input type="text" id="modHeroFormat" class="form-inp" value="'+esc(h.heroFormat||'')+'"></div>'
+    +'</div>'
+    +'<div><label class="form-lbl">Label Kartu Logo</label><input type="text" id="modCardFoot" class="form-inp" value="'+esc(h.cardFooter||'')+'"></div>'
+    +'</div></div>'
+    +'</div>'
+    +'<div class="flex gap-2 mt-4 pt-3 border-t border-slate-800">'
+    +'<button onclick="closeModal()" class="btn-s flex-1">Batal</button>'
+    +'<button onclick="saveHeaderSettingsFromModal()" class="btn-p flex-1">💾 Simpan Perubahan</button>'
+    +'</div>'
+  ,'wide');
+}
+
+function saveHeaderSettingsFromModal(){
+  HEADER={
+    navTitle:(document.getElementById('modNavTitle').value||'').trim()||INIT_HEADER.navTitle,
+    navYear:(document.getElementById('modNavYear').value||'').trim()||INIT_HEADER.navYear,
+    navSubtitle:(document.getElementById('modNavSub').value||'').trim()||INIT_HEADER.navSubtitle,
+    heroBadge1:(document.getElementById('modHeroBadge1').value||'').trim()||INIT_HEADER.heroBadge1,
+    heroBadge2:(document.getElementById('modHeroBadge2').value||'').trim()||INIT_HEADER.heroBadge2,
+    heroTitle:(document.getElementById('modHeroTitle').value||'').trim()||INIT_HEADER.heroTitle,
+    heroSubtitle:(document.getElementById('modHeroSub').value||'').trim()||INIT_HEADER.heroSubtitle,
+    heroDesc:(document.getElementById('modHeroDesc').value||'').trim()||INIT_HEADER.heroDesc,
+    heroDate:(document.getElementById('modHeroDate').value||'').trim()||INIT_HEADER.heroDate,
+    heroVenue:(document.getElementById('modHeroVenue').value||'').trim()||INIT_HEADER.heroVenue,
+    heroFormat:(document.getElementById('modHeroFormat').value||'').trim()||INIT_HEADER.heroFormat,
+    cardFooter:(document.getElementById('modCardFoot').value||'').trim()||INIT_HEADER.cardFooter
+  };
+  saveState();
+  renderHeader();
+  renderCurrentView();
+  closeModal();
+  alert('✅ Informasi Dashboard & Header berhasil diperbarui!');
+}
+
+function saveHeaderSettingsFromPanel(){
+  HEADER={
+    navTitle:(document.getElementById('admNavTitle').value||'').trim()||INIT_HEADER.navTitle,
+    navYear:(document.getElementById('admNavYear').value||'').trim()||INIT_HEADER.navYear,
+    navSubtitle:(document.getElementById('admNavSub').value||'').trim()||INIT_HEADER.navSubtitle,
+    heroBadge1:(document.getElementById('admHeroBadge1').value||'').trim()||INIT_HEADER.heroBadge1,
+    heroBadge2:(document.getElementById('admHeroBadge2').value||'').trim()||INIT_HEADER.heroBadge2,
+    heroTitle:(document.getElementById('admHeroTitle').value||'').trim()||INIT_HEADER.heroTitle,
+    heroSubtitle:(document.getElementById('admHeroSub').value||'').trim()||INIT_HEADER.heroSubtitle,
+    heroDesc:(document.getElementById('admHeroDesc').value||'').trim()||INIT_HEADER.heroDesc,
+    heroDate:(document.getElementById('admHeroDate').value||'').trim()||INIT_HEADER.heroDate,
+    heroVenue:(document.getElementById('admHeroVenue').value||'').trim()||INIT_HEADER.heroVenue,
+    heroFormat:(document.getElementById('admHeroFormat').value||'').trim()||INIT_HEADER.heroFormat,
+    cardFooter:(document.getElementById('admCardFoot').value||'').trim()||INIT_HEADER.cardFooter
+  };
+  saveState();
+  renderHeader();
+  renderCurrentView();
+  alert('✅ Informasi Dashboard & Header berhasil disimpan!');
+}
+
+function confirmResetHeader(){
+  if(!confirm('Kembalikan semua teks header dan dashboard ke default?'))return;
+  HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
+  saveState();
+  renderHeader();
+  renderAdmin();
+  alert('✅ Teks header dan dashboard dikembalikan ke default.');
+}
+
 function loadTeamPlayers(teamId){
   var c=document.getElementById('mgrTeamPlayers');if(!c||!teamId)return;
   var t=TEAMS.find(function(x){return x.id===teamId;});
@@ -1169,33 +1359,40 @@ function doLogin(){
   var u=(document.getElementById('loginU').value||'').trim();
   var p=(document.getElementById('loginP').value||'').trim();
   if(!u||!p){alert('Username dan password wajib diisi.');return;}
-  if(u===ADMIN.user&&p===ADMIN.pass){authRole='admin';authTeamId=null;authTeamName=null;localStorage.setItem('ums_role2','admin');localStorage.removeItem('ums_tid2');localStorage.removeItem('ums_tname2');updateNavAuth();closeModal();goTo('admin');return;}
+  if(u===ADMIN.user&&p===ADMIN.pass){authRole='admin';authTeamId=null;authTeamName=null;localStorage.setItem('ums_role3','admin');localStorage.removeItem('ums_tid3');localStorage.removeItem('ums_tname3');updateNavAuth();closeModal();goTo('admin');return;}
   var mgr=MGRS.find(function(m){return m.user===u&&m.pass===p;});
-  if(mgr){authRole='manager';authTeamId=mgr.teamId;authTeamName=mgr.teamName;localStorage.setItem('ums_role2','manager');localStorage.setItem('ums_tid2',mgr.teamId);localStorage.setItem('ums_tname2',mgr.teamName);updateNavAuth();closeModal();goTo('manager');return;}
+  if(mgr){authRole='manager';authTeamId=mgr.teamId;authTeamName=mgr.teamName;localStorage.setItem('ums_role3','manager');localStorage.setItem('ums_tid3',mgr.teamId);localStorage.setItem('ums_tname3',mgr.teamName);updateNavAuth();closeModal();goTo('manager');return;}
   alert('❌ Username atau password salah.');
 }
 
 function doLogout(){
   authRole=null;authTeamId=null;authTeamName=null;
-  localStorage.removeItem('ums_role2');localStorage.removeItem('ums_tid2');localStorage.removeItem('ums_tname2');
+  localStorage.removeItem('ums_role3');localStorage.removeItem('ums_tid3');localStorage.removeItem('ums_tname3');
   updateNavAuth();goTo('home');
 }
 
 function updateNavAuth(){
   var lb=document.getElementById('navLoginBtn'),at=document.getElementById('navAdmin'),mt=document.getElementById('navManager');
   var eb=document.getElementById('editRulesBtn');
+  var aBar=document.getElementById('adminHomeEditBar'),aHeroBtn=document.getElementById('adminHeroEditBtn');
   if(authRole==='admin'){
     if(at)at.classList.remove('hidden');if(mt)mt.classList.add('hidden');
     if(lb){lb.textContent='👑 Super Admin (Keluar)';lb.onclick=doLogout;}
     if(eb)eb.classList.remove('hidden');
+    if(aBar)aBar.classList.remove('hidden');
+    if(aHeroBtn)aHeroBtn.classList.remove('hidden');
   } else if(authRole==='manager'){
     if(mt)mt.classList.remove('hidden');if(at)at.classList.add('hidden');
     if(lb){lb.textContent='⚽ '+(authTeamName?authTeamName.split(' ')[0]:'Manajer')+' (Keluar)';lb.onclick=doLogout;}
     if(eb)eb.classList.add('hidden');
+    if(aBar)aBar.classList.add('hidden');
+    if(aHeroBtn)aHeroBtn.classList.add('hidden');
   } else {
     if(at)at.classList.add('hidden');if(mt)mt.classList.add('hidden');
     if(lb){lb.textContent='🔑 Masuk Akun';lb.onclick=showLoginModal;}
     if(eb)eb.classList.add('hidden');
+    if(aBar)aBar.classList.add('hidden');
+    if(aHeroBtn)aHeroBtn.classList.add('hidden');
   }
 }
 
@@ -1217,6 +1414,7 @@ function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').repla
 
 // ==================== BOOT ====================
 loadState();
+renderHeader();
 updateNavAuth();
 goTo('home');
 startCloud();
