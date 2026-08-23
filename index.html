@@ -60,13 +60,20 @@
 </head>
 <body>
 <div class="navbar px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
-  <div class="flex items-center gap-2">
-    <img src="https://upload.wikimedia.org/wikipedia/id/0/05/Logo_Universitas_Muhammadiyah_Surakarta.png" alt="UMS" style="height:34px;width:34px;border-radius:50%;border:1px solid #00f0ff;object-fit:cover;">
-    <div>
-      <div class="font-bold text-white text-sm tracking-wide">DIES NATALIS UMS 2026</div>
-      <div class="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Minisoccer Tournament</div>
-    </div>
-    <div id="syncBadge" onclick="syncNow()" title="Klik untuk sync manual" class="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold border cursor-pointer ml-2" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.35);color:#34d399;">
+  <div class="flex items-center gap-3">
+    <a href="#" onclick="goTo('home'); return false;" class="flex items-center gap-2.5 hover:opacity-95 transition">
+      <div class="p-1 rounded-xl bg-white/90 shadow-md flex items-center justify-center border border-cyan-400/30">
+        <img src="./assets/logo-dies-natalis-68-ums.png" alt="Dies Natalis 68 UMS" style="height:36px;width:auto;object-fit:contain;">
+      </div>
+      <div>
+        <div class="font-bold text-white text-sm tracking-wide flex items-center gap-1.5">
+          <span>DIES NATALIS 68 UMS</span>
+          <span class="badge-g text-[9px] px-1.5 py-0.5">2026</span>
+        </div>
+        <div class="text-[11px] text-cyan-400 font-semibold uppercase tracking-wider">Minisoccer Champions League</div>
+      </div>
+    </a>
+    <div id="syncBadge" onclick="syncNow()" title="Klik untuk sync manual" class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border cursor-pointer ml-1" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.35);color:#34d399;">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
       <span id="syncText">Cloud</span>
     </div>
@@ -83,15 +90,41 @@
 <div style="max-width:1280px;margin:0 auto;padding:20px 16px;">
   <!-- HOME -->
   <div id="view-home">
-    <div class="glass p-6 mb-6" style="border-color:rgba(0,240,255,0.2);">
-      <span class="badge-g">🏆 TURNAMEN RESMI MINISOCCER UMS 2026</span>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-2 mb-1">DIES NATALIS UMS 2026</h1>
-      <p class="text-cyan-300 font-semibold mb-2">MINISOCCER CHAMPIONS LEAGUE (7 vs 7)</p>
-      <p class="text-slate-400 text-sm mb-4">Portal Resmi Turnamen Minisoccer Dies Natalis Universitas Muhammadiyah Surakarta 2026. Saksikan pertandingan seru antar unit, fakultas, dan lembaga sivitas akademika UMS!</p>
-      <div class="flex flex-wrap gap-3 text-xs text-slate-300">
-        <div class="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">📅 14 - 15 Maret 2026</div>
-        <div class="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">📍 Lapangan Minisoccer Kampus 4 UMS</div>
-        <div class="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">⚽ 16 Tim (7 vs 7 Knockout)</div>
+    <div class="glass p-6 sm:p-8 mb-6 relative overflow-hidden border border-cyan-400/25 shadow-2xl">
+      <!-- Decorative Background Watermark -->
+      <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none select-none hidden sm:block">
+        <img src="./assets/logo-dies-natalis-68-ums.png" alt="Watermark" style="width:340px;height:auto;filter:grayscale(100%) brightness(200%);">
+      </div>
+
+      <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
+            <span class="badge-g">🏆 TURNAMEN RESMI MINISOCCER</span>
+            <span class="badge-c font-bold">EDISI SPESIAL DIES NATALIS KE-68</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-1 mb-1.5">
+            DIES NATALIS KE-68 UMS
+          </h1>
+          <p class="text-cyan-300 font-bold text-base sm:text-lg mb-2 flex items-center gap-2">
+            <span>⚽ MINISOCCER CHAMPIONS LEAGUE (7 vs 7)</span>
+          </p>
+          <p class="text-slate-300 text-sm leading-relaxed max-w-2xl mb-5">
+            Portal Resmi Turnamen Minisoccer dalam rangka memperingati <strong>Dies Natalis ke-68 Universitas Muhammadiyah Surakarta</strong> dengan semangat <em>"Sinergi Berdampak Berkelanjutan"</em>. Saksikan perebutan gelar juara bergengsi antar unit, fakultas, dan lembaga sivitas akademika UMS!
+          </p>
+          <div class="flex flex-wrap gap-2.5 text-xs text-slate-300">
+            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">📅 <strong class="text-white">14 - 15 Maret 2026</strong></div>
+            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">📍 <strong class="text-white">Lapangan Minisoccer Kampus 4 UMS</strong></div>
+            <div class="flex items-center gap-1.5 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 shadow-inner">⚽ <strong class="text-white">16 Tim (Sistem Gugur)</strong></div>
+          </div>
+        </div>
+
+        <!-- Decorative Logo Card -->
+        <div class="flex-shrink-0 self-center md:self-auto p-4 rounded-2xl bg-white/95 border border-cyan-400/30 shadow-xl flex flex-col items-center justify-center text-center backdrop-blur-sm transition transform hover:scale-105 duration-300" style="max-width:280px;">
+          <img src="./assets/logo-dies-natalis-68-ums.png" alt="Logo Resmi Dies Natalis 68 UMS" style="width:230px;height:auto;object-fit:contain;">
+          <div class="mt-2 text-[11px] font-bold text-slate-800 tracking-wide uppercase border-t border-slate-200 pt-1.5 w-full">
+            Turnamen Resmi 2026
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex gap-2 mb-5 flex-wrap border-b border-slate-800 pb-3">
@@ -166,6 +199,22 @@
       <button class="btn-d" onclick="doLogout()">🚪 Keluar</button>
     </div>
     <div id="managerContent"></div>
+  </div>
+  <!-- FOOTER DECORATION -->
+  <div class="mt-12 pt-8 pb-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+    <div class="flex items-center gap-3">
+      <div class="p-1.5 rounded-xl bg-white/90 shadow flex items-center justify-center">
+        <img src="./assets/logo-dies-natalis-68-ums.png" alt="Dies Natalis 68 UMS" style="height:32px;width:auto;object-fit:contain;">
+      </div>
+      <div>
+        <div class="text-xs font-bold text-white tracking-wide">PANITIA DIES NATALIS KE-68 UMS 2026</div>
+        <div class="text-[11px] text-cyan-400">Turnamen Minisoccer Antar Sivitas Akademika</div>
+      </div>
+    </div>
+    <div class="text-xs text-slate-400">
+      <div>© 2026 Universitas Muhammadiyah Surakarta</div>
+      <div class="text-[10px] text-slate-500 mt-0.5 font-medium">Sinergi Berdampak Berkelanjutan</div>
+    </div>
   </div>
 </div>
 <!-- MODAL -->
