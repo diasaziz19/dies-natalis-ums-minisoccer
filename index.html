@@ -593,21 +593,27 @@ function renderTeams(){
 function showSquadModal(teamId){
   var t=TEAMS.find(function(x){return x.id===teamId;});if(!t)return;
   var ps=players.filter(function(p){return p.teamId===teamId;});
+  var posLabels={GK:'Penjaga Gawang (GK)',CB:'Bek (CB)',CM:'Gelandang (CM)',FW:'Penyerang (FW)'};
   var rows=ps.length===0?'<p class="text-slate-400 text-sm">Belum ada pemain terdaftar.</p>'
     :ps.map(function(p){
       var isCap=(t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
+      var posFull=posLabels[p.pos]||p.pos||'Pemain';
       return '<div class="flex items-center gap-3 py-2.5 border-b border-slate-800/50">'
-        +'<div style="min-width:32px;height:32px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
+        +'<div style="min-width:38px;height:38px;border-radius:50%;background:rgba(0,240,255,0.12);border:1px solid rgba(0,240,255,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
         +'<div style="flex:1;min-width:0;">'
-        +'<div class="font-semibold text-sm text-white flex items-center gap-2">'
+        +'<div class="font-bold text-sm text-white flex items-center gap-2 flex-wrap">'
         +'<span>'+esc(p.fullName)+'</span>'
         +(isCap?'<span class="badge-g text-[9px] px-1.5 py-0.5">©️ Kapten</span>':'')
         +'</div>'
-        +'<div class="text-xs text-slate-400">'+esc(p.unit||t.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
+        +'<div class="flex items-center gap-2 flex-wrap text-xs text-slate-300 mt-1">'
+        +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-cyan-300 font-semibold">📍 Unit: '+esc(p.unit||t.unit||'-')+'</span>'
+        +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-amber-300 font-semibold">🎂 Usia: '+esc(p.usia||'-')+' thn</span>'
+        +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-slate-300">⚽ Posisi: '+esc(posFull)+'</span>'
+        +'</div>'
         +'</div></div>';
     }).join('');
   openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
-    +'<span class="badge-c">👥 SKUAD TIM</span>'
+    +'<span class="badge-c">👥 SKUAD RESMI TIM</span>'
     +'<h2 class="text-lg font-bold text-white mt-1">'+esc(t.name)+'</h2>'
     +'<p class="text-xs text-slate-400 mb-3">'+esc(t.unit)+'</p>'
     +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 bg-slate-900/80 rounded-xl border border-slate-800 text-xs">'
@@ -615,8 +621,11 @@ function showSquadModal(teamId){
     +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">📋 Official</span><strong class="text-white truncate block">'+esc(t.official||'-')+'</strong></div>'
     +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">©️ Kapten</span><strong class="text-cyan-300 truncate block">'+esc(t.captain||'-')+'</strong></div>'
     +'</div></div>'
+    +'<div class="max-h-[60vh] overflow-y-auto pr-1">'
     +rows
-    +'<button onclick="closeModal()" class="btn-s w-full mt-4">Tutup</button>');
+    +'</div>'
+    +'<button onclick="closeModal()" class="btn-s w-full mt-4">Tutup</button>'
+  ,'wide');
 }
 
 // ==================== RULES VIEW ====================
@@ -1157,17 +1166,23 @@ function loadTeamPlayers(teamId){
   var c=document.getElementById('mgrTeamPlayers');if(!c||!teamId)return;
   var t=TEAMS.find(function(x){return x.id===teamId;});
   var ps=players.filter(function(p){return p.teamId===teamId;});
+  var posLabels={GK:'Penjaga Gawang (GK)',CB:'Bek (CB)',CM:'Gelandang (CM)',FW:'Penyerang (FW)'};
   var rows=ps.map(function(p){
     var isCap=(t&&t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
+    var posFull=posLabels[p.pos]||p.pos||'Pemain';
     return '<div class="py-3 border-b border-slate-800/50">'
       +'<div class="flex items-start gap-3">'
-      +'<div style="min-width:36px;height:36px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
+      +'<div style="min-width:38px;height:38px;border-radius:50%;background:rgba(0,240,255,0.12);border:1px solid rgba(0,240,255,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
       +'<div style="flex:1;min-width:0;">'
-      +'<div class="font-bold text-sm text-white flex items-center gap-2">'
+      +'<div class="font-bold text-sm text-white flex items-center gap-2 flex-wrap">'
       +'<span>'+esc(p.fullName)+'</span>'
       +(isCap?'<span class="badge-g text-[9px] px-1.5 py-0.5">©️ Kapten</span>':'')
       +'</div>'
-      +'<div class="text-xs text-slate-400 mt-0.5">'+esc(p.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
+      +'<div class="flex items-center gap-2 flex-wrap text-xs text-slate-300 mt-1">'
+      +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-cyan-300 font-semibold">📍 Unit: '+esc(p.unit||t.unit||'-')+'</span>'
+      +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-amber-300 font-semibold">🎂 Usia: '+esc(p.usia||'-')+' thn</span>'
+      +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-slate-300">⚽ Posisi: '+esc(posFull)+'</span>'
+      +'</div>'
       +'</div>'
       +'<div class="flex gap-1.5 flex-shrink-0">'
       +'<button class="btn-g" style="font-size:10px;padding:3px 8px;" onclick="showEditPlayerModal(\''+p.id+'\',\''+teamId+'\')">✏️</button>'
@@ -1275,19 +1290,25 @@ function renderManager(){
   var ms=matches.filter(function(m){return m.hId===authTeamId||m.aId===authTeamId;});
 
   var t=TEAMS.find(function(x){return x.id===authTeamId;});
+  var posLabels={GK:'Penjaga Gawang (GK)',CB:'Bek (CB)',CM:'Gelandang (CM)',FW:'Penyerang (FW)'};
 
   // Build player rows for manager (with add/edit/delete)
   var playerRows=ps.map(function(p){
     var isCap=(t&&t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
+    var posFull=posLabels[p.pos]||p.pos||'Pemain';
     return '<div class="py-3 border-b border-slate-800/50">'
       +'<div class="flex items-start gap-3">'
-      +'<div style="min-width:36px;height:36px;border-radius:50%;background:rgba(0,240,255,0.1);border:1px solid rgba(0,240,255,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
+      +'<div style="min-width:38px;height:38px;border-radius:50%;background:rgba(0,240,255,0.12);border:1px solid rgba(0,240,255,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#22d3ee;flex-shrink:0;">'+esc(p.pos||'?')+'</div>'
       +'<div style="flex:1;min-width:0;">'
-      +'<div class="font-bold text-sm text-white flex items-center gap-2">'
+      +'<div class="font-bold text-sm text-white flex items-center gap-2 flex-wrap">'
       +'<span>'+esc(p.fullName)+'</span>'
       +(isCap?'<span class="badge-g text-[9px] px-1.5 py-0.5">©️ Kapten</span>':'')
       +'</div>'
-      +'<div class="text-xs text-slate-400 mt-0.5">'+esc(p.unit||'-')+' · Usia '+esc(p.usia||'-')+' thn</div>'
+      +'<div class="flex items-center gap-2 flex-wrap text-xs text-slate-300 mt-1">'
+      +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-cyan-300 font-semibold">📍 Unit: '+esc(p.unit||t.unit||'-')+'</span>'
+      +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-amber-300 font-semibold">🎂 Usia: '+esc(p.usia||'-')+' thn</span>'
+      +'<span class="bg-slate-800/80 px-2 py-0.5 rounded text-[11px] text-slate-300">⚽ Posisi: '+esc(posFull)+'</span>'
+      +'</div>'
       +'</div>'
       +'<div class="flex gap-1.5 flex-shrink-0">'
       +'<button class="btn-g" style="font-size:10px;padding:3px 8px;" onclick="showEditPlayerModal(\''+p.id+'\',\''+authTeamId+'\',\'manager\')">✏️</button>'
