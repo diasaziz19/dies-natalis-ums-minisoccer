@@ -184,7 +184,7 @@
         <h3 class="font-bold text-white">⚙️ Pengaturan Bagan Turnamen</h3>
         <button class="btn-d" onclick="confirmResetBracket()">🔄 Reset Bagan ke Awal</button>
       </div>
-      <p class="text-xs text-slate-400 mb-4">Edit tim di babak Perempat Final, Semi Final, dan Final secara manual.</p>
+      <p class="text-xs text-slate-400 mb-4">Atur bagan &amp; pasangan tim untuk babak <strong>16 Besar, Perempat Final, Semi Final, Perebutan Juara 3, dan Grand Final</strong> secara leluasa.</p>
       <div id="bracketSettings"></div>
       <button class="btn-p mt-4" onclick="saveBracketSettings()">💾 Simpan Perubahan Bagan</button>
     </div>
@@ -697,17 +697,25 @@ function confirmResetAllScores(){
 // ==================== BRACKET SETTINGS ====================
 function renderBracketSettings(){
   var c=document.getElementById('bracketSettings');if(!c)return;
-  var stages=[{key:'QF',lbl:'Perempat Final'},{key:'SF',lbl:'Semi Final'},{key:'3RD',lbl:'Perebutan Juara 3'},{key:'FINAL',lbl:'Grand Final'}];
+  var stages=[
+    {key:'R16',lbl:'Babak 16 Besar (Putaran Pertama)'},
+    {key:'QF',lbl:'Perempat Final (8 Besar)'},
+    {key:'SF',lbl:'Semi Final'},
+    {key:'3RD',lbl:'Perebutan Juara 3'},
+    {key:'FINAL',lbl:'Grand Final'}
+  ];
   var teamOpts=TEAMS.map(function(t){return '<option value="'+t.id+'">'+esc(t.name)+'</option>';}).join('');
   var html='';
   stages.forEach(function(st){
     var ms=matches.filter(function(m){return m.stage===st.key;});
+    if(!ms.length)return;
     html+='<div class="glass p-4 mb-4"><h4 class="font-bold text-amber-300 mb-3 text-sm">'+st.lbl+'</h4>';
     ms.forEach(function(m){
-      html+='<div class="mb-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800"><div class="text-xs text-slate-500 mb-2 font-bold">Match #'+m.no+'</div>'
-        +'<div class="grid grid-cols-2 gap-3">'
-        +'<div><label class="form-lbl">Tim Home</label><select class="form-inp bk-sel" data-mid="'+m.id+'" data-side="home"><option value="">-- Pilih Tim --</option>'+teamOpts+'</select></div>'
-        +'<div><label class="form-lbl">Tim Away</label><select class="form-inp bk-sel" data-mid="'+m.id+'" data-side="away"><option value="">-- Pilih Tim --</option>'+teamOpts+'</select></div>'
+      html+='<div class="mb-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800">'
+        +'<div class="flex justify-between items-center mb-2"><span class="text-xs text-slate-400 font-bold">Match #'+m.no+'</span><span class="text-[11px] text-slate-500">'+m.date+' · '+m.time+'</span></div>'
+        +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">'
+        +'<div><label class="form-lbl">Tim Home</label><select class="form-inp bk-sel" data-mid="'+m.id+'" data-side="home"><option value="">-- Belum Ditentukan / Placeholder --</option>'+teamOpts+'</select></div>'
+        +'<div><label class="form-lbl">Tim Away</label><select class="form-inp bk-sel" data-mid="'+m.id+'" data-side="away"><option value="">-- Belum Ditentukan / Placeholder --</option>'+teamOpts+'</select></div>'
         +'</div></div>';
     });
     html+='</div>';
@@ -723,14 +731,28 @@ function renderBracketSettings(){
 
 function saveBracketSettings(){
   document.querySelectorAll('.bk-sel').forEach(function(sel){
-    if(!sel.value)return;
     var m=matches.find(function(x){return x.id===sel.dataset.mid;});
-    var t=TEAMS.find(function(x){return x.id===sel.value;});
-    if(!m||!t)return;
-    if(sel.dataset.side==='home'){m.hId=t.id;m.hName=t.name;}
-    else{m.aId=t.id;m.aName=t.name;}
+    if(!m)return;
+    var val=sel.value;
+    if(val){
+      var t=TEAMS.find(function(x){return x.id===val;});
+      if(t){
+        if(sel.dataset.side==='home'){m.hId=t.id;m.hName=t.name;}
+        else{m.aId=t.id;m.aName=t.name;}
+      }
+    } else {
+      // Empty / reset to default placeholder name
+      var orig=INIT_MATCHES.find(function(x){return x.id===m.id;});
+      if(sel.dataset.side==='home'){
+        m.hId=null;
+        m.hName=orig?orig.hName:'Tim Home';
+      } else {
+        m.aId=null;
+        m.aName=orig?orig.aName:'Tim Away';
+      }
+    }
   });
-  saveState();alert('Perubahan bagan berhasil disimpan!');renderAdmin();
+  saveState();alert('✅ Pengaturan bagan turnamen (termasuk 16 Besar) berhasil disimpan!');renderAdmin();
 }
 
 function confirmResetBracket(){
