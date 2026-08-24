@@ -497,10 +497,14 @@ function bCard(m){
   var fin=m.status==='F';
   var hW=fin&&m.hScore>m.aScore,aW=fin&&m.aScore>m.hScore;
   var lbl=m.stage==='FINAL'?'🏆 FINAL':m.stage==='3RD'?'🥉 Juara 3':'#'+m.no;
+  var hIsPlace=!m.hId||m.hName==='Belum Ditentukan';
+  var aIsPlace=!m.aId||m.aName==='Belum Ditentukan';
+  var hDisplay='<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;'+(hIsPlace?'color:#64748b;font-style:italic;':'')+'">'+esc(m.hName)+'</span>';
+  var aDisplay='<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;'+(aIsPlace?'color:#64748b;font-style:italic;':'')+'">'+esc(m.aName)+'</span>';
   return '<div class="b-card'+(fin?' fin':'')+'">'
     +'<div style="font-size:10px;color:#64748b;margin-bottom:4px;font-weight:700;">'+lbl+' · '+m.time+'</div>'
-    +'<div class="b-team'+(hW?' win':'')+'"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;">'+esc(m.hName)+'</span><span class="b-score">'+(fin?m.hScore:'-')+'</span></div>'
-    +'<div class="b-team'+(aW?' win':'')+'"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;">'+esc(m.aName)+'</span><span class="b-score">'+(fin?m.aScore:'-')+'</span></div>'
+    +'<div class="b-team'+(hW?' win':'')+'">'+hDisplay+'<span class="b-score">'+(fin?m.hScore:'-')+'</span></div>'
+    +'<div class="b-team'+(aW?' win':'')+'">'+aDisplay+'<span class="b-score">'+(fin?m.aScore:'-')+'</span></div>'
     +'</div>';
 }
 
@@ -520,6 +524,8 @@ function renderPublicMatches(){
 function pubMatchCard(m){
   var fin=m.status==='F';
   var hW=fin&&m.hScore>m.aScore,aW=fin&&m.aScore>m.hScore;
+  var hIsPlace=!m.hId||m.hName==='Belum Ditentukan';
+  var aIsPlace=!m.aId||m.aName==='Belum Ditentukan';
   var badge=fin?'<span class="badge-g">✅ Selesai</span>':'<span class="badge-c">🕐 Terjadwal</span>';
   var evHtml='';
   if(fin&&m.events&&m.events.length>0){
@@ -536,9 +542,9 @@ function pubMatchCard(m){
   }
   return '<div class="match-card"><div class="flex justify-between items-start mb-3 flex-wrap gap-2"><div class="text-xs text-slate-400">'+badge+' · Match #'+m.no+' · '+m.date+' · '+m.time+' · '+m.venue+'</div></div>'
     +'<div class="flex items-center gap-2">'
-    +'<div class="flex-1 text-right font-bold text-sm'+(hW?' text-cyan-300':'')+'">'+esc(m.hName)+'</div>'
+    +'<div class="flex-1 text-right font-bold text-sm'+(hW?' text-cyan-300':'')+(hIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.hName)+'</div>'
     +'<div class="flex items-center gap-1 flex-shrink-0"><div class="score-box">'+(fin?m.hScore:'-')+'</div><div style="color:#64748b;font-weight:800;">:</div><div class="score-box">'+(fin?m.aScore:'-')+'</div></div>'
-    +'<div class="flex-1 font-bold text-sm'+(aW?' text-cyan-300':'')+'">'+esc(m.aName)+'</div>'
+    +'<div class="flex-1 font-bold text-sm'+(aW?' text-cyan-300':'')+(aIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.aName)+'</div>'
     +'</div>'+evHtml+'</div>';
 }
 
@@ -909,23 +915,39 @@ function saveBracketSettings(){
       }
     } else {
       // Empty / reset to default placeholder name
-      var orig=INIT_MATCHES.find(function(x){return x.id===m.id;});
-      if(sel.dataset.side==='home'){
-        m.hId=null;
-        m.hName=orig?orig.hName:'Tim Home';
+      if(m.stage==='R16'){
+        if(sel.dataset.side==='home'){
+          m.hId=null;
+          m.hName='Belum Ditentukan';
+        } else {
+          m.aId=null;
+          m.aName='Belum Ditentukan';
+        }
       } else {
-        m.aId=null;
-        m.aName=orig?orig.aName:'Tim Away';
+        var orig=INIT_MATCHES.find(function(x){return x.id===m.id;});
+        if(sel.dataset.side==='home'){
+          m.hId=null;
+          m.hName=orig?orig.hName:'Tim Home';
+        } else {
+          m.aId=null;
+          m.aName=orig?orig.aName:'Tim Away';
+        }
       }
     }
   });
-  saveState();alert('✅ Pengaturan bagan turnamen (termasuk 16 Besar) berhasil disimpan!');renderAdmin();
+  saveState();
+  renderBracketSettings();
+  renderCurrentView();
+  alert('✅ Pengaturan bagan turnamen berhasil disimpan!');
 }
 
 function confirmResetBracket(){
   if(!confirm('Reset SELURUH bagan ke kondisi awal?'))return;
   matches=JSON.parse(JSON.stringify(INIT_MATCHES));
-  saveState();renderAdmin();alert('Bagan berhasil direset ke kondisi awal.');
+  saveState();
+  renderBracketSettings();
+  renderCurrentView();
+  alert('Bagan berhasil direset ke kondisi awal.');
 }
 
 // ==================== MANAGE PANEL ====================
