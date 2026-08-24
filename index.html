@@ -264,7 +264,7 @@ var INIT_TEAMS=[
   {id:'t3',  name:'FKIP',unit:'Fakultas Keguruan & Ilmu Pendidikan',manager:'Dwi Cahyono',official:'Drs. H. Maryadi',captain:'Andi Wijaya'},
   {id:'t4',  name:'FKI + FT + VOKASI',unit:'Fakultas Komunikasi Informatika, Teknik & Vokasi',manager:'Eko Prasetyo',official:'Ir. Subroto, M.T.',captain:'Hendra Setiawan'},
   {id:'t5',  name:'FEB',unit:'Fakultas Ekonomi & Bisnis UMS',manager:'Muhammad Arifin',official:'Dr. Anton Agus S.',captain:'Oktovianus M.'},
-  {id:'t6',  name:'FG + FHIP + LBIPU',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',manager:'Siti Rahmawati',official:'Dr. Kelik Wardiono',captain:'Agung P.'},
+  {id:'t6',  name:'FG + FHIP + LPMB',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',manager:'Pak Choi',official:'Prof. Dr. Kelik Wardiono, S.H., M.Hum',captain:'Mahyan Danu Kusuma'},
   {id:'t7',  name:'BPUI (AUM, AHAS, EDU, MMC & UNIT USAHA)',unit:'Badan Pengelola Usaha & Inovasi (BPUI)',manager:'Qomaruddin Hidayat',official:'Drs. Suryadi',captain:'Budi Santoso'},
   {id:'t8',  name:'PSIKOLOGI + PASCA + FARMASI',unit:'Fakultas Psikologi, Pascasarjana & Farmasi',manager:'Joko Susilo',official:'Dr. Taufik Kasturi',captain:'Cahyo Utomo'},
   {id:'t9',  name:'RSGM + FKG',unit:'RSGM & Fakultas Kedokteran Gigi UMS',manager:'Hendra Setiawan',official:'drg. Noor Hafida',captain:'Dharma W.'},
@@ -312,10 +312,32 @@ var INIT_PLAYERS=(function(){
   var ages=[38,36,35,37,40,33,35,39,36,38,37,35,36,40,38,35];
   var arr=[];
   TEAMS.forEach(function(t,ti){
-    pos.forEach(function(p,pi){
-      var ri=Math.floor((ti*7+pi)/7)%3, ci=(ti*7+pi)%7;
-      arr.push({id:t.id+'-p'+(pi+1),teamId:t.id,teamName:t.name,fullName:nm[ri][ci]+' ('+t.name.split(' ')[0]+')',pos:p,unit:t.unit,usia:ages[(ti+pi)%ages.length]});
-    });
+    if(t.id==='t6'){
+      var t6Arr=[
+        {id:'t6-p1',teamId:'t6',teamName:t.name,fullName:'Okto (FG)',pos:'GK',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:33},
+        {id:'t6-p2',teamId:'t6',teamName:t.name,fullName:'Pak Choi',pos:'CB',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:35},
+        {id:'t6-p3',teamId:'t6',teamName:t.name,fullName:'Mahyan Danu Kusuma',pos:'CB',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:39,isCaptain:true},
+        {id:'t6-p4',teamId:'t6',teamName:t.name,fullName:'RM Fayyas Failaq',pos:'CM',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:36},
+        {id:'t6-p5',teamId:'t6',teamName:t.name,fullName:'Wahyu Koerniawan',pos:'CM',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:38},
+        {id:'t6-p6',teamId:'t6',teamName:t.name,fullName:'Arif Kancil',pos:'FW',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:37},
+        {id:'t6-p7',teamId:'t6',teamName:t.name,fullName:'Danang Kurniawan',pos:'FW',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:35},
+        {id:'t6-p8',teamId:'t6',teamName:t.name,fullName:'Pak Iqbal',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:35},
+        {id:'t6-p9',teamId:'t6',teamName:t.name,fullName:'Zaenal',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:34},
+        {id:'t6-p10',teamId:'t6',teamName:t.name,fullName:'Pak Djumadi, Ph.D',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:32},
+        {id:'t6-p11',teamId:'t6',teamName:t.name,fullName:'Ahmad Fauzi Djamaluddin',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:35},
+        {id:'t6-p12',teamId:'t6',teamName:t.name,fullName:'Park Ji Sung',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:33},
+        {id:'t6-p13',teamId:'t6',teamName:t.name,fullName:'Pak Endy',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:40},
+        {id:'t6-p14',teamId:'t6',teamName:t.name,fullName:'Sandya Mahendra',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:33},
+        {id:'t6-p15',teamId:'t6',teamName:t.name,fullName:'Pak Fahmi Fairuzzaman',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:39},
+        {id:'t6-p16',teamId:'t6',teamName:t.name,fullName:'M. Junaidi',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:42},
+      ];
+      t6Arr.forEach(function(p){arr.push(p);});
+    } else {
+      pos.forEach(function(p,pi){
+        var ri=Math.floor((ti*7+pi)/7)%3, ci=(ti*7+pi)%7;
+        arr.push({id:t.id+'-p'+(pi+1),teamId:t.id,teamName:t.name,fullName:nm[ri][ci]+' ('+t.name.split(' ')[0]+')',pos:p,unit:t.unit,usia:ages[(ti+pi)%ages.length]});
+      });
+    }
   });
   return arr;
 })();
@@ -334,30 +356,30 @@ var matches,players,rules,authRole=null,authTeamId=null,authTeamName=null;
 var currentView='home',currentHomeTab='bracket',currentAdminTab='matches';
 
 function loadState(){
-  try{HEADER=JSON.parse(localStorage.getItem('ums_h4'))||null;}catch(e){HEADER=null;}
+  try{HEADER=JSON.parse(localStorage.getItem('ums_h5'))||null;}catch(e){HEADER=null;}
   if(!HEADER||typeof HEADER!=='object')HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
-  try{TEAMS=JSON.parse(localStorage.getItem('ums_t4'))||null;}catch(e){TEAMS=null;}
+  try{TEAMS=JSON.parse(localStorage.getItem('ums_t5'))||null;}catch(e){TEAMS=null;}
   if(!Array.isArray(TEAMS)||TEAMS.length===0)TEAMS=JSON.parse(JSON.stringify(INIT_TEAMS));
-  try{matches=JSON.parse(localStorage.getItem('ums_m4'))||null;}catch(e){matches=null;}
+  try{matches=JSON.parse(localStorage.getItem('ums_m5'))||null;}catch(e){matches=null;}
   if(!Array.isArray(matches)||matches.length!==16)matches=JSON.parse(JSON.stringify(INIT_MATCHES));
-  try{players=JSON.parse(localStorage.getItem('ums_p4'))||null;}catch(e){players=null;}
+  try{players=JSON.parse(localStorage.getItem('ums_p5'))||null;}catch(e){players=null;}
   if(!Array.isArray(players)||players.length===0)players=JSON.parse(JSON.stringify(INIT_PLAYERS));
-  try{rules=JSON.parse(localStorage.getItem('ums_r4'))||null;}catch(e){rules=null;}
+  try{rules=JSON.parse(localStorage.getItem('ums_r5'))||null;}catch(e){rules=null;}
   if(!Array.isArray(rules)||rules.length===0)rules=JSON.parse(JSON.stringify(RULES));
-  authRole=localStorage.getItem('ums_role4')||null;
-  authTeamId=localStorage.getItem('ums_tid4')||null;
-  authTeamName=localStorage.getItem('ums_tname4')||null;
+  authRole=localStorage.getItem('ums_role5')||null;
+  authTeamId=localStorage.getItem('ums_tid5')||null;
+  authTeamName=localStorage.getItem('ums_tname5')||null;
 }
 
 function saveState(){
-  localStorage.setItem('ums_h4',JSON.stringify(HEADER));
-  localStorage.setItem('ums_t4',JSON.stringify(TEAMS));
-  localStorage.setItem('ums_m4',JSON.stringify(matches));
-  localStorage.setItem('ums_p4',JSON.stringify(players));
-  localStorage.setItem('ums_r4',JSON.stringify(rules));
-  if(authRole)localStorage.setItem('ums_role4',authRole);
-  if(authTeamId)localStorage.setItem('ums_tid4',authTeamId);
-  if(authTeamName)localStorage.setItem('ums_tname4',authTeamName);
+  localStorage.setItem('ums_h5',JSON.stringify(HEADER));
+  localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
+  localStorage.setItem('ums_m5',JSON.stringify(matches));
+  localStorage.setItem('ums_p5',JSON.stringify(players));
+  localStorage.setItem('ums_r5',JSON.stringify(rules));
+  if(authRole)localStorage.setItem('ums_role5',authRole);
+  if(authTeamId)localStorage.setItem('ums_tid5',authTeamId);
+  if(authTeamName)localStorage.setItem('ums_tname5',authTeamName);
   pushCloud();
 }
 
@@ -367,14 +389,14 @@ function pushCloud(){
   if(!db)return;
   clearTimeout(_pushT);
   _pushT=setTimeout(function(){
-    db.collection('ums26_v4').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
+    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
   },400);
 }
 
 function startCloud(){
   if(!db){setSyncBadge('offline');return;}
   setSyncBadge('connecting');
-  db.collection('ums26_v4').doc('main').onSnapshot(function(snap){
+  db.collection('ums26_v5').doc('main').onSnapshot(function(snap){
     if(!snap.exists){pushCloud();return;}
     var d=snap.data();
     if(d){
@@ -383,11 +405,11 @@ function startCloud(){
       if(Array.isArray(d.matches)&&d.matches.length===16)matches=d.matches;
       if(Array.isArray(d.players)&&d.players.length>0)players=d.players;
       if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
-      localStorage.setItem('ums_h4',JSON.stringify(HEADER));
-      localStorage.setItem('ums_t4',JSON.stringify(TEAMS));
-      localStorage.setItem('ums_m4',JSON.stringify(matches));
-      localStorage.setItem('ums_p4',JSON.stringify(players));
-      localStorage.setItem('ums_r4',JSON.stringify(rules));
+      localStorage.setItem('ums_h5',JSON.stringify(HEADER));
+      localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
+      localStorage.setItem('ums_m5',JSON.stringify(matches));
+      localStorage.setItem('ums_p5',JSON.stringify(players));
+      localStorage.setItem('ums_r5',JSON.stringify(rules));
       renderHeader();
       renderCurrentView();
       setSyncBadge('online');
@@ -406,14 +428,20 @@ function setSyncBadge(s){
 function syncNow(){
   if(!db){alert('Cloud tidak tersedia.');return;}
   setSyncBadge('syncing');
-  db.collection('ums26').doc('main').get().then(function(snap){
+  db.collection('ums26_v5').doc('main').get().then(function(snap){
     if(snap.exists){
       var d=snap.data();
-      if(d&&Array.isArray(d.matches)&&d.matches.length===16){
-        matches=d.matches;
-        if(Array.isArray(d.players))players=d.players;
-        if(Array.isArray(d.rules))rules=d.rules;
-        saveState();renderCurrentView();setSyncBadge('online');alert('Berhasil sinkron dari Cloud!');
+      if(d){
+        if(d.header&&typeof d.header==='object')HEADER=d.header;
+        if(Array.isArray(d.teams)&&d.teams.length>0)TEAMS=d.teams;
+        if(Array.isArray(d.matches)&&d.matches.length===16)matches=d.matches;
+        if(Array.isArray(d.players)&&d.players.length>0)players=d.players;
+        if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
+        saveState();
+        renderHeader();
+        renderCurrentView();
+        setSyncBadge('online');
+        alert('✅ Berhasil sinkron data terbaru dari Cloud!');
       } else{pushCloud();setSyncBadge('online');}
     } else{pushCloud();setSyncBadge('online');}
   }).catch(function(e){setSyncBadge('offline');alert('Gagal sync: '+e.message);});
@@ -1413,15 +1441,15 @@ function doLogin(){
   var u=(document.getElementById('loginU').value||'').trim();
   var p=(document.getElementById('loginP').value||'').trim();
   if(!u||!p){alert('Username dan password wajib diisi.');return;}
-  if(u===ADMIN.user&&p===ADMIN.pass){authRole='admin';authTeamId=null;authTeamName=null;localStorage.setItem('ums_role4','admin');localStorage.removeItem('ums_tid4');localStorage.removeItem('ums_tname4');updateNavAuth();closeModal();goTo('admin');return;}
+  if(u===ADMIN.user&&p===ADMIN.pass){authRole='admin';authTeamId=null;authTeamName=null;localStorage.setItem('ums_role5','admin');localStorage.removeItem('ums_tid5');localStorage.removeItem('ums_tname5');updateNavAuth();closeModal();goTo('admin');return;}
   var mgr=MGRS.find(function(m){return m.user===u&&m.pass===p;});
-  if(mgr){authRole='manager';authTeamId=mgr.teamId;authTeamName=mgr.teamName;localStorage.setItem('ums_role4','manager');localStorage.setItem('ums_tid4',mgr.teamId);localStorage.setItem('ums_tname4',mgr.teamName);updateNavAuth();closeModal();goTo('manager');return;}
+  if(mgr){authRole='manager';authTeamId=mgr.teamId;authTeamName=mgr.teamName;localStorage.setItem('ums_role5','manager');localStorage.setItem('ums_tid5',mgr.teamId);localStorage.setItem('ums_tname5',mgr.teamName);updateNavAuth();closeModal();goTo('manager');return;}
   alert('❌ Username atau password salah.');
 }
 
 function doLogout(){
   authRole=null;authTeamId=null;authTeamName=null;
-  localStorage.removeItem('ums_role4');localStorage.removeItem('ums_tid4');localStorage.removeItem('ums_tname4');
+  localStorage.removeItem('ums_role5');localStorage.removeItem('ums_tid5');localStorage.removeItem('ums_tname5');
   updateNavAuth();goTo('home');
 }
 
