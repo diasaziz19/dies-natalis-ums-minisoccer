@@ -942,12 +942,27 @@ function saveBracketSettings(){
 }
 
 function confirmResetBracket(){
-  if(!confirm('Reset SELURUH bagan ke kondisi awal?'))return;
-  matches=JSON.parse(JSON.stringify(INIT_MATCHES));
+  if(!confirm('Reset SELURUH bagan pertandingan ke "Belum Ditentukan"?\n(Semua pasangan tim di 16 Besar dan skor akan dikosongkan untuk persiapan drawing)'))return;
+  matches.forEach(function(m){
+    m.hScore=0;
+    m.aScore=0;
+    m.status='S';
+    m.events=[];
+    m.hId=null;
+    m.aId=null;
+    if(m.stage==='R16'){
+      m.hName='Belum Ditentukan';
+      m.aName='Belum Ditentukan';
+    } else {
+      var orig=INIT_MATCHES.find(function(x){return x.id===m.id;});
+      m.hName=orig?orig.hName:'Tim Home';
+      m.aName=orig?orig.aName:'Tim Away';
+    }
+  });
   saveState();
   renderBracketSettings();
   renderCurrentView();
-  alert('Bagan berhasil direset ke kondisi awal.');
+  alert('✅ Seluruh bagan berhasil direset ke "Belum Ditentukan".');
 }
 
 // ==================== MANAGE PANEL ====================
