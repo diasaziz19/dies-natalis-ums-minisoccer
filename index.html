@@ -1357,6 +1357,9 @@ function saveFormationData(teamId){
   else renderCurrentView();
   alert('✅ Susunan formasi dan lineup berhasil disimpan!');
 }
+
+// ==================== EDIT TEAM & OFFICIAL MODAL ====================
+function showEditTeamModal(teamId,returnFn){
   var t=TEAMS.find(function(x){return x.id===teamId;});
   if(!t){alert('Tim tidak ditemukan.');return;}
   var ps=players.filter(function(p){return p.teamId===teamId;});
