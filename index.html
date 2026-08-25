@@ -56,6 +56,27 @@
     .score-box{font-size:28px;font-weight:900;color:#ffd700;font-family:'Outfit',monospace;min-width:50px;text-align:center;}
     .scorer-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.05);margin-bottom:6px;}
     .event-row{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;margin-bottom:8px;}
+
+    /* Pitch Tactical Board Styles */
+    .pitch-container{background:linear-gradient(180deg,#15803d,#166534,#14532d);border:2px solid rgba(255,255,255,0.8);border-radius:14px;position:relative;width:100%;max-width:380px;height:520px;margin:0 auto;box-shadow:inset 0 0 40px rgba(0,0,0,0.5),0 10px 25px rgba(0,0,0,0.5);overflow:hidden;background-size:100% 40px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.04) 0px,rgba(255,255,255,0.04) 20px,transparent 20px,transparent 40px);}
+    .pitch-line{position:absolute;border-color:rgba(255,255,255,0.7);pointer-events:none;}
+    .pitch-center-line{top:50%;left:0;right:0;height:0;border-top:2px solid rgba(255,255,255,0.65);}
+    .pitch-center-circle{top:50%;left:50%;width:80px;height:80px;margin-left:-40px;margin-top:-40px;border:2px solid rgba(255,255,255,0.65);border-radius:50%;position:absolute;}
+    .pitch-center-dot{top:50%;left:50%;width:6px;height:6px;margin-left:-3px;margin-top:-3px;background:rgba(255,255,255,0.9);border-radius:50%;position:absolute;}
+    .pitch-box-top{top:0;left:50%;width:170px;height:85px;margin-left:-85px;border-bottom:2px solid rgba(255,255,255,0.65);border-left:2px solid rgba(255,255,255,0.65);border-right:2px solid rgba(255,255,255,0.65);position:absolute;}
+    .pitch-box-top-sm{top:0;left:50%;width:90px;height:38px;margin-left:-45px;border-bottom:2px solid rgba(255,255,255,0.65);border-left:2px solid rgba(255,255,255,0.65);border-right:2px solid rgba(255,255,255,0.65);position:absolute;}
+    .pitch-arc-top{top:85px;left:50%;width:60px;height:30px;margin-left:-30px;border-bottom:2px solid rgba(255,255,255,0.65);border-radius:0 0 50px 50px;position:absolute;}
+    .pitch-box-btm{bottom:0;left:50%;width:170px;height:85px;margin-left:-85px;border-top:2px solid rgba(255,255,255,0.65);border-left:2px solid rgba(255,255,255,0.65);border-right:2px solid rgba(255,255,255,0.65);position:absolute;}
+    .pitch-box-btm-sm{bottom:0;left:50%;width:90px;height:38px;margin-left:-45px;border-top:2px solid rgba(255,255,255,0.65);border-left:2px solid rgba(255,255,255,0.65);border-right:2px solid rgba(255,255,255,0.65);position:absolute;}
+    .pitch-arc-btm{bottom:85px;left:50%;width:60px;height:30px;margin-left:-30px;border-top:2px solid rgba(255,255,255,0.65);border-radius:50px 50px 0 0;position:absolute;}
+    .pitch-node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:10;transition:transform 0.2s;}
+    .pitch-node:hover{transform:translate(-50%,-50%) scale(1.08);}
+    .pitch-node-dot{width:42px;height:42px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,0.5);border:2px solid #fff;font-weight:900;font-size:11px;line-height:1;}
+    .pitch-node-dot.gk{background:linear-gradient(135deg,#eab308,#ca8a04);color:#070a12;border-color:#fef08a;}
+    .pitch-node-dot.outfield{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border-color:#fef08a;}
+    .pitch-node-dot.empty{background:rgba(15,23,42,0.85);color:#94a3b8;border:2px dashed rgba(255,255,255,0.5);}
+    .pitch-node-lbl{background:rgba(7,10,18,0.92);backdrop-filter:blur(4px);color:#f8fafc;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:700;margin-top:3px;max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;border:1px solid rgba(255,255,255,0.15);box-shadow:0 2px 4px rgba(0,0,0,0.5);}
+    .pitch-node-pos{font-size:8px;font-weight:800;color:#fde047;text-transform:uppercase;letter-spacing:0.5px;}
   </style>
 </head>
 <body>
@@ -351,8 +372,48 @@ var RULES=[
 var ADMIN={user:'superadmin',pass:'ums2026admin'};
 var MGRS=TEAMS.map(function(t,i){return{user:'mgr-t'+(i+1),pass:'tim'+('0'+(i+1)).slice(-2)+'ums',teamId:t.id,teamName:t.name};});
 
+// Preset Formasi Minisoccer 7 vs 7
+var FORMATION_PRESETS={
+  '2-3-1':{
+    label:'2 - 3 - 1 (Standar Minisoccer)',
+    slots:[
+      {key:'GK', pos:'GK', label:'GK', top:88, left:50, isGk:true},
+      {key:'LCB',pos:'CB', label:'LCB',top:72, left:28},
+      {key:'RCB',pos:'CB', label:'RCB',top:72, left:72},
+      {key:'LM', pos:'CM', label:'LM', top:48, left:18},
+      {key:'CM', pos:'CM', label:'CM', top:48, left:50},
+      {key:'RM', pos:'CM', label:'RM', top:48, left:82},
+      {key:'CF', pos:'FW', label:'CF', top:20, left:50}
+    ]
+  },
+  '3-2-1':{
+    label:'3 - 2 - 1 (Defensif Solid)',
+    slots:[
+      {key:'GK', pos:'GK', label:'GK', top:88, left:50, isGk:true},
+      {key:'LB', pos:'CB', label:'LB', top:73, left:20},
+      {key:'CB', pos:'CB', label:'CB', top:75, left:50},
+      {key:'RB', pos:'CB', label:'RB', top:73, left:80},
+      {key:'LCM',pos:'CM', label:'LCM',top:48, left:35},
+      {key:'RCM',pos:'CM', label:'RCM',top:48, left:65},
+      {key:'CF', pos:'FW', label:'CF', top:20, left:50}
+    ]
+  },
+  '2-2-2':{
+    label:'2 - 2 - 2 (Seimbang Box-to-Box)',
+    slots:[
+      {key:'GK', pos:'GK', label:'GK', top:88, left:50, isGk:true},
+      {key:'LCB',pos:'CB', label:'LCB',top:73, left:30},
+      {key:'RCB',pos:'CB', label:'RCB',top:73, left:70},
+      {key:'LM', pos:'CM', label:'LM', top:50, left:25},
+      {key:'RM', pos:'CM', label:'RM', top:50, left:75},
+      {key:'LS', pos:'FW', label:'LS', top:22, left:35},
+      {key:'RS', pos:'FW', label:'RS', top:22, left:65}
+    ]
+  }
+};
+
 // ==================== STATE ====================
-var matches,players,rules,authRole=null,authTeamId=null,authTeamName=null;
+var matches,players,rules,formations={},authRole=null,authTeamId=null,authTeamName=null;
 var currentView='home',currentHomeTab='bracket',currentAdminTab='matches';
 
 function loadState(){
@@ -366,6 +427,8 @@ function loadState(){
   if(!Array.isArray(players)||players.length===0)players=JSON.parse(JSON.stringify(INIT_PLAYERS));
   try{rules=JSON.parse(localStorage.getItem('ums_r5'))||null;}catch(e){rules=null;}
   if(!Array.isArray(rules)||rules.length===0)rules=JSON.parse(JSON.stringify(RULES));
+  try{formations=JSON.parse(localStorage.getItem('ums_f5'))||{};}catch(e){formations={};}
+  if(!formations||typeof formations!=='object')formations={};
   authRole=localStorage.getItem('ums_role5')||null;
   authTeamId=localStorage.getItem('ums_tid5')||null;
   authTeamName=localStorage.getItem('ums_tname5')||null;
@@ -377,6 +440,7 @@ function saveState(){
   localStorage.setItem('ums_m5',JSON.stringify(matches));
   localStorage.setItem('ums_p5',JSON.stringify(players));
   localStorage.setItem('ums_r5',JSON.stringify(rules));
+  localStorage.setItem('ums_f5',JSON.stringify(formations));
   if(authRole)localStorage.setItem('ums_role5',authRole);
   if(authTeamId)localStorage.setItem('ums_tid5',authTeamId);
   if(authTeamName)localStorage.setItem('ums_tname5',authTeamName);
@@ -389,7 +453,7 @@ function pushCloud(){
   if(!db)return;
   clearTimeout(_pushT);
   _pushT=setTimeout(function(){
-    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
+    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules,formations:formations},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
   },400);
 }
 
@@ -405,11 +469,13 @@ function startCloud(){
       if(Array.isArray(d.matches)&&d.matches.length===16)matches=d.matches;
       if(Array.isArray(d.players)&&d.players.length>0)players=d.players;
       if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
+      if(d.formations&&typeof d.formations==='object')formations=d.formations;
       localStorage.setItem('ums_h5',JSON.stringify(HEADER));
       localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
       localStorage.setItem('ums_m5',JSON.stringify(matches));
       localStorage.setItem('ums_p5',JSON.stringify(players));
       localStorage.setItem('ums_r5',JSON.stringify(rules));
+      localStorage.setItem('ums_f5',JSON.stringify(formations));
       renderHeader();
       renderCurrentView();
       setSyncBadge('online');
@@ -619,7 +685,10 @@ function renderTeams(){
       +'</div>'
       +'<div class="flex justify-between items-center pt-2 border-t border-slate-800/50">'
       +'<span class="badge-gr">'+cnt+' Pemain</span>'
-      +'<button class="btn-s" style="font-size:11px;padding:5px 12px;" onclick="showSquadModal(\''+t.id+'\')">👥 Lihat Skuad</button>'
+      +'<div class="flex gap-1.5">'
+      +'<button class="btn-g" style="font-size:11px;padding:5px 10px;" onclick="showFormationModal(\''+t.id+'\',false)" title="Lihat Papan Formasi 7 vs 7">📋 Formasi</button>'
+      +'<button class="btn-s" style="font-size:11px;padding:5px 10px;" onclick="showSquadModal(\''+t.id+'\')">👥 Skuad</button>'
+      +'</div>'
       +'</div></div>';
   }).join('');
 }
@@ -647,10 +716,11 @@ function showSquadModal(teamId){
         +'</div></div>';
     }).join('');
   openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
-    +'<span class="badge-c">👥 SKUAD RESMI TIM</span>'
-    +'<h2 class="text-lg font-bold text-white mt-1">'+esc(t.name)+'</h2>'
-    +'<p class="text-xs text-slate-400 mb-3">'+esc(t.unit)+'</p>'
-    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 bg-slate-900/80 rounded-xl border border-slate-800 text-xs">'
+    +'<div class="flex justify-between items-start flex-wrap gap-2">'
+    +'<div><span class="badge-c">👥 SKUAD RESMI TIM</span><h2 class="text-lg font-bold text-white mt-1">'+esc(t.name)+'</h2><p class="text-xs text-slate-400">'+esc(t.unit)+'</p></div>'
+    +'<button class="btn-g text-xs py-1.5 px-3 flex items-center gap-1" onclick="showFormationModal(\''+teamId+'\',false)">📋 Lihat Papan Formasi</button>'
+    +'</div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 bg-slate-900/80 rounded-xl border border-slate-800 text-xs mt-3">'
     +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">👔 Manajer</span><strong class="text-white truncate block">'+esc(t.manager||'-')+'</strong></div>'
     +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">📋 Official</span><strong class="text-white truncate block">'+esc(t.official||'-')+'</strong></div>'
     +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">©️ Kapten</span><strong class="text-cyan-300 truncate block">'+esc(t.captain||'-')+'</strong></div>'
@@ -1000,8 +1070,293 @@ function renderManagePanel(){
   c.innerHTML='<div class="glass p-5"><h4 class="font-bold text-white mb-4">👤 Manajemen Pemain per Tim</h4><div class="mb-3"><label class="form-lbl">Pilih Tim</label><select class="form-inp" onchange="loadTeamPlayers(this.value)" id="mgrTeamSel"><option value="">-- Pilih Tim --</option>'+teamOpts+'</select></div><div id="mgrTeamPlayers"></div></div>';
 }
 
-// ==================== EDIT TEAM & OFFICIAL MODAL ====================
-function showEditTeamModal(teamId,returnFn){
+// ==================== FORMATION & LINEUP BOARD (7 vs 7) ====================
+function getTeamFormation(teamId){
+  if(formations&&formations[teamId])return formations[teamId];
+  // Default formation 2-3-1
+  var ps=players.filter(function(p){return p.teamId===teamId;});
+  var defForm={preset:'2-3-1',starters:{}};
+  var slots=FORMATION_PRESETS['2-3-1'].slots;
+  var usedIds=[];
+
+  slots.forEach(function(slot){
+    // Try to find matching player with preferred position
+    var match=ps.find(function(p){return !usedIds.includes(p.id)&&p.pos===slot.pos;});
+    if(!match){
+      // Fallback to any remaining player
+      match=ps.find(function(p){return !usedIds.includes(p.id);});
+    }
+    if(match){
+      defForm.starters[slot.key]=match.id;
+      usedIds.push(match.id);
+    } else {
+      defForm.starters[slot.key]='';
+    }
+  });
+  return defForm;
+}
+
+function showFormationModal(teamId,isEditable){
+  var t=TEAMS.find(function(x){return x.id===teamId;});
+  if(!t){alert('Tim tidak ditemukan.');return;}
+  var ps=players.filter(function(p){return p.teamId===teamId;});
+  var form=getTeamFormation(teamId);
+  var curPreset=form.preset||'2-3-1';
+
+  var presetSelectHtml='<div class="mb-4 flex items-center justify-between flex-wrap gap-2">'
+    +'<div><label class="form-lbl">Pilihan Formasi (7 vs 7)</label>'
+    +'<select id="formPresetSel" class="form-inp py-1.5 px-3 text-xs w-auto font-bold text-cyan-300" '+(isEditable?'onchange="updateFormationPitch(\''+teamId+'\',this.value,true)"':'disabled')+'>'
+    +Object.keys(FORMATION_PRESETS).map(function(k){
+      return '<option value="'+k+'"'+(k===curPreset?' selected':'')+'>'+FORMATION_PRESETS[k].label+'</option>';
+    }).join('')
+    +'</select></div>'
+    +'<div id="formAgeBadge" class="text-xs"></div>'
+    +'</div>';
+
+  openModal('<div class="pb-3 border-b border-slate-800 mb-3">'
+    +'<div class="flex justify-between items-center">'
+    +'<div><span class="badge-g text-[10px]">📋 SUSUNAN FORMASI &amp; LINEUP (7 VS 7)</span><h2 class="text-base font-bold text-white mt-1">'+esc(t.name)+'</h2></div>'
+    +(isEditable?'<span class="badge-c">Mode Edit</span>':'<span class="badge-gr">Mode Lihat</span>')
+    +'</div></div>'
+    +presetSelectHtml
+    +'<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">'
+    +'<div class="md:col-span-7 flex justify-center">'
+    +'<div id="pitchBoardContainer" class="w-full"></div>'
+    +'</div>'
+    +'<div class="md:col-span-5 space-y-3">'
+    +'<div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">'
+    +'<h4 class="font-bold text-amber-300 text-xs uppercase mb-2">👥 Daftar Pemain Starter (7)</h4>'
+    +'<div id="formStarterList" class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1 text-xs"></div>'
+    +'</div>'
+    +'<div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">'
+    +'<h4 class="font-bold text-slate-400 text-xs uppercase mb-2">🔄 Pemain Cadangan (Subs)</h4>'
+    +'<div id="formSubsList" class="space-y-1.5 max-h-[160px] overflow-y-auto pr-1 text-xs"></div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="flex gap-2 mt-4 pt-3 border-t border-slate-800">'
+    +'<button onclick="closeModal()" class="btn-s flex-1">Tutup</button>'
+    +(isEditable?'<button onclick="saveFormationData(\''+teamId+'\')" class="btn-p flex-1">💾 Simpan Susunan Formasi</button>':'')
+    +'</div>'
+  ,'wide');
+
+  renderPitchBoard(teamId,curPreset,isEditable);
+}
+
+function renderPitchBoard(teamId,presetKey,isEditable){
+  var t=TEAMS.find(function(x){return x.id===teamId;});
+  var ps=players.filter(function(p){return p.teamId===teamId;});
+  var preset=FORMATION_PRESETS[presetKey]||FORMATION_PRESETS['2-3-1'];
+  var form=getTeamFormation(teamId);
+  var starters=form.starters||{};
+
+  // Pitch Nodes
+  var nodesHtml=preset.slots.map(function(slot){
+    var pid=starters[slot.key];
+    var p=ps.find(function(x){return x.id===pid;});
+    var isCap=p&&((t&&t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain);
+    var dotClass=slot.isGk?'gk':'outfield';
+    var isUnder35=p&&p.usia&&(Number(p.usia)<35);
+
+    var clickAttr=isEditable?'onclick="showSlotPickerModal(\''+teamId+'\',\''+presetKey+'\',\''+slot.key+'\',\''+slot.label+'\',\''+slot.pos+'\')" title="Klik untuk pilih pemain"':'';
+
+    if(p){
+      return '<div class="pitch-node" style="top:'+slot.top+'%;left:'+slot.left+'%;" '+clickAttr+'>'
+        +'<div class="pitch-node-dot '+dotClass+'">'
+        +'<span class="pitch-node-pos">'+slot.label+'</span>'
+        +'<span class="text-[9px] font-extrabold">'+(p.usia||'')+'</span>'
+        +'</div>'
+        +'<div class="pitch-node-lbl">'+(isCap?'©️ ':'')+esc(p.fullName.split(' ')[0])+(isUnder35?' <span class="text-amber-400 font-bold text-[9px]">U35</span>':'')+'</div>'
+        +'</div>';
+    } else {
+      return '<div class="pitch-node" style="top:'+slot.top+'%;left:'+slot.left+'%;" '+clickAttr+'>'
+        +'<div class="pitch-node-dot empty">'
+        +'<span class="pitch-node-pos text-slate-400">'+slot.label+'</span>'
+        +'<span class="text-[10px] text-slate-500 font-bold">+</span>'
+        +'</div>'
+        +'<div class="pitch-node-lbl text-slate-500 italic">Pilih '+slot.label+'</div>'
+        +'</div>';
+    }
+  }).join('');
+
+  var pitchHtml='<div class="pitch-container">'
+    +'<div class="pitch-line pitch-box-top"></div>'
+    +'<div class="pitch-line pitch-box-top-sm"></div>'
+    +'<div class="pitch-line pitch-arc-top"></div>'
+    +'<div class="pitch-line pitch-center-line"></div>'
+    +'<div class="pitch-line pitch-center-circle"></div>'
+    +'<div class="pitch-line pitch-center-dot"></div>'
+    +'<div class="pitch-line pitch-box-btm"></div>'
+    +'<div class="pitch-line pitch-box-btm-sm"></div>'
+    +'<div class="pitch-line pitch-arc-btm"></div>'
+    +nodesHtml
+    +'</div>';
+
+  var pitchC=document.getElementById('pitchBoardContainer');
+  if(pitchC)pitchC.innerHTML=pitchHtml;
+
+  // Render Starters & Subs lists
+  var starterIds=Object.values(starters).filter(Boolean);
+  var starterPs=starterIds.map(function(id){return ps.find(function(x){return x.id===id;});}).filter(Boolean);
+  var subPs=ps.filter(function(p){return !starterIds.includes(p.id);});
+
+  // Calculate age rule
+  var under35Count=0,over35Count=0;
+  starterPs.forEach(function(p){
+    if(p.usia&&Number(p.usia)<35)under35Count++;
+    else if(p.usia)over35Count++;
+  });
+
+  var ageBadgeEl=document.getElementById('formAgeBadge');
+  if(ageBadgeEl){
+    if(starterPs.length<7){
+      ageBadgeEl.innerHTML='<span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">Starter: '+starterPs.length+'/7 Pemain</span>';
+    } else if(under35Count<=2){
+      ageBadgeEl.innerHTML='<span class="badge-gr py-1 px-2.5">✅ Sesuai Regulasi (<35 thn: '+under35Count+', ≥35 thn: '+over35Count+')</span>';
+    } else {
+      ageBadgeEl.innerHTML='<span class="badge-d py-1 px-2.5 bg-red-500/20 text-red-400 border border-red-500/40 font-bold">⚠️ <35 thn: '+under35Count+' (Maks 2!)</span>';
+    }
+  }
+
+  // Starters list
+  var stListEl=document.getElementById('formStarterList');
+  if(stListEl){
+    if(preset.slots.length===0){stListEl.innerHTML='-';}
+    else {
+      stListEl.innerHTML=preset.slots.map(function(slot){
+        var pid=starters[slot.key];
+        var p=ps.find(function(x){return x.id===pid;});
+        if(p){
+          var isCap=(t&&t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
+          return '<div class="flex items-center justify-between p-1.5 bg-slate-800/60 rounded border border-slate-700/50">'
+            +'<div class="flex items-center gap-2 min-w-0 flex-1">'
+            +'<span class="w-7 text-center font-extrabold text-[10px] text-yellow-400 bg-slate-900 px-1 py-0.5 rounded">'+slot.label+'</span>'
+            +'<span class="font-bold text-white truncate text-xs">'+esc(p.fullName)+(isCap?' <span class="text-cyan-400 font-normal text-[10px]">(C)</span>':'')+'</span>'
+            +'</div>'
+            +'<span class="text-[11px] text-slate-300 ml-2 font-mono flex-shrink-0">'+(p.usia?p.usia+' thn':'-')+'</span>'
+            +'</div>';
+        } else {
+          return '<div class="flex items-center justify-between p-1.5 bg-slate-800/30 rounded border border-dashed border-slate-700 text-slate-500">'
+            +'<div class="flex items-center gap-2">'
+            +'<span class="w-7 text-center font-bold text-[10px] text-slate-500 bg-slate-900/50 px-1 py-0.5 rounded">'+slot.label+'</span>'
+            +'<span class="italic text-xs">Kosong</span>'
+            +'</div>'
+            +(isEditable?'<button class="btn-g text-[9px] py-0.5 px-2" onclick="showSlotPickerModal(\''+teamId+'\',\''+presetKey+'\',\''+slot.key+'\',\''+slot.label+'\',\''+slot.pos+'\')">+ Isi</button>':'')
+            +'</div>';
+        }
+      }).join('');
+    }
+  }
+
+  // Subs list
+  var subsListEl=document.getElementById('formSubsList');
+  if(subsListEl){
+    if(subPs.length===0){
+      subsListEl.innerHTML='<p class="text-slate-500 text-xs italic">Semua pemain masuk starter.</p>';
+    } else {
+      subsListEl.innerHTML=subPs.map(function(p){
+        return '<div class="flex items-center justify-between p-1.5 bg-slate-800/40 rounded border border-slate-700/40 text-xs">'
+          +'<div class="flex items-center gap-2 min-w-0 flex-1">'
+          +'<span class="text-[10px] text-cyan-400 font-bold bg-slate-900 px-1.5 py-0.5 rounded">'+esc(p.pos||'?')+'</span>'
+          +'<span class="text-slate-300 truncate">'+esc(p.fullName)+'</span>'
+          +'</div>'
+          +'<span class="text-[10px] text-slate-400 font-mono ml-2 flex-shrink-0">'+(p.usia?p.usia+' thn':'-')+'</span>'
+          +'</div>';
+      }).join('');
+    }
+  }
+}
+
+function updateFormationPitch(teamId,newPreset,isEditable){
+  if(!formations[teamId])formations[teamId]={preset:'2-3-1',starters:{}};
+  formations[teamId].preset=newPreset;
+  var oldStarters=formations[teamId].starters||{};
+  var newSlots=FORMATION_PRESETS[newPreset].slots;
+  var newStarters={};
+
+  // Re-map compatible slots
+  newSlots.forEach(function(slot){
+    if(oldStarters[slot.key]){
+      newStarters[slot.key]=oldStarters[slot.key];
+    } else {
+      // Pick first unassigned old starter
+      var assigned=Object.values(newStarters);
+      var remId=Object.values(oldStarters).find(function(id){return id&&!assigned.includes(id);});
+      newStarters[slot.key]=remId||'';
+    }
+  });
+  formations[teamId].starters=newStarters;
+  renderPitchBoard(teamId,newPreset,isEditable);
+}
+
+function showSlotPickerModal(teamId,presetKey,slotKey,slotLabel,slotPos){
+  var t=TEAMS.find(function(x){return x.id===teamId;});
+  var ps=players.filter(function(p){return p.teamId===teamId;});
+  var form=getTeamFormation(teamId);
+  var currentPid=form.starters[slotKey]||'';
+
+  var playerOpts=ps.map(function(p){
+    var isAssigned=Object.values(form.starters).includes(p.id)&&p.id!==currentPid;
+    var assignedSlot=Object.keys(form.starters).find(function(k){return form.starters[k]===p.id;});
+    var isMatchPos=p.pos===slotPos;
+    return '<div class="flex items-center justify-between p-2.5 bg-slate-900/80 rounded-xl border border-slate-800 hover:border-cyan-400/50 cursor-pointer transition mb-2" '
+      +'onclick="assignSlotPlayer(\''+teamId+'\',\''+presetKey+'\',\''+slotKey+'\',\''+p.id+'\')">'
+      +'<div class="flex items-center gap-3 min-w-0 flex-1">'
+      +'<div class="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center font-bold text-xs text-cyan-300">'+esc(p.pos||'?')+'</div>'
+      +'<div class="min-w-0 flex-1">'
+      +'<div class="font-bold text-sm text-white truncate">'+esc(p.fullName)+'</div>'
+      +'<div class="text-xs text-slate-400">Usia: <strong class="text-amber-300">'+(p.usia||'-')+' thn</strong> · Unit: '+esc(p.unit||t.unit||'-')+'</div>'
+      +'</div>'
+      +'</div>'
+      +'<div>'
+      +(p.id===currentPid?'<span class="badge-g">Terpilih di Slot Ini</span>':isAssigned?'<span class="badge-c">Pindah dari '+assignedSlot+'</span>':'<button class="btn-p text-xs py-1 px-3">Pilih</button>')
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  var modalHtml='<div class="pb-3 border-b border-slate-800 mb-3">'
+    +'<span class="badge-c">PILIH PEMAIN UNTUK POSISI: '+slotLabel+' ('+slotPos+')</span>'
+    +'<h3 class="font-bold text-white text-base mt-1">'+esc(t.name)+'</h3>'
+    +'</div>'
+    +'<div class="mb-3"><button onclick="assignSlotPlayer(\''+teamId+'\',\''+presetKey+'\',\''+slotKey+'\',\'\')" class="btn-d text-xs w-full py-2">🗑️ Kosongkan Slot Ini</button></div>'
+    +'<div class="max-h-[360px] overflow-y-auto pr-1">'
+    +playerOpts
+    +'</div>'
+    +'<div class="mt-3 pt-3 border-t border-slate-800 text-right"><button onclick="closeSlotPickerModal(\''+teamId+'\',\''+presetKey+'\')" class="btn-s text-xs">Kembali ke Lapangan</button></div>';
+
+  var ov=document.getElementById('modalOverlay'),body=document.getElementById('modalBody');
+  if(body)body.innerHTML=modalHtml;
+}
+
+function assignSlotPlayer(teamId,presetKey,slotKey,playerId){
+  if(!formations[teamId])formations[teamId]={preset:presetKey,starters:{}};
+  formations[teamId].preset=presetKey;
+  if(!formations[teamId].starters)formations[teamId].starters={};
+
+  // If player was assigned to another slot, clear old slot
+  if(playerId){
+    Object.keys(formations[teamId].starters).forEach(function(k){
+      if(formations[teamId].starters[k]===playerId){
+        formations[teamId].starters[k]='';
+      }
+    });
+  }
+  formations[teamId].starters[slotKey]=playerId;
+  closeSlotPickerModal(teamId,presetKey);
+}
+
+function closeSlotPickerModal(teamId,presetKey){
+  showFormationModal(teamId,true);
+}
+
+function saveFormationData(teamId){
+  saveState();
+  closeModal();
+  if(currentView==='manager')renderManager();
+  else if(currentView==='admin')renderAdmin();
+  else renderCurrentView();
+  alert('✅ Susunan formasi dan lineup berhasil disimpan!');
+}
   var t=TEAMS.find(function(x){return x.id===teamId;});
   if(!t){alert('Tim tidak ditemukan.');return;}
   var ps=players.filter(function(p){return p.teamId===teamId;});
@@ -1258,7 +1613,10 @@ function loadTeamPlayers(teamId){
   var teamInfoHtml=t?'<div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 mb-4">'
     +'<div class="flex justify-between items-start flex-wrap gap-2 mb-3">'
     +'<div><span class="badge-c text-[10px]">PROFIL TIM</span><h3 class="font-bold text-white text-base mt-1">'+esc(t.name)+'</h3><p class="text-xs text-slate-400">'+esc(t.unit)+'</p></div>'
-    +'<button class="btn-g" style="font-size:11px;padding:5px 12px;" onclick="showEditTeamModal(\''+teamId+'\',\'adminManage\')">⚙️ Edit Nama Tim &amp; Official</button>'
+    +'<div class="flex gap-2 flex-wrap">'
+    +'<button class="btn-g text-xs py-1.5 px-3 flex items-center gap-1" onclick="showFormationModal(\''+teamId+'\',true)">📋 Atur Formasi (7 vs 7)</button>'
+    +'<button class="btn-s text-xs py-1.5 px-3 flex items-center gap-1" onclick="showEditTeamModal(\''+teamId+'\',\'adminManage\')">⚙️ Edit Profil</button>'
+    +'</div>'
     +'</div>'
     +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-xs">'
     +'<div><span class="text-slate-400 block text-[10px] uppercase font-bold">👔 Manajer</span><strong class="text-white truncate block">'+esc(t.manager||'-')+'</strong></div>'
@@ -1403,7 +1761,10 @@ function renderManager(){
   var teamHeaderHtml=t?'<div class="glass p-5 mb-6 border border-cyan-400/20">'
     +'<div class="flex justify-between items-start flex-wrap gap-3">'
     +'<div><span class="badge-g text-[10px]">PROFIL TIM &amp; OFFICIAL RESMI</span><h3 class="font-extrabold text-white text-xl mt-1.5">'+esc(t.name)+'</h3><p class="text-xs text-slate-300 mt-0.5">'+esc(t.unit)+'</p></div>'
+    +'<div class="flex gap-2 flex-wrap">'
+    +'<button class="btn-g text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="showFormationModal(\''+authTeamId+'\',true)">📋 Atur Formasi (7 vs 7)</button>'
     +'<button class="btn-p text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="showEditTeamModal(\''+authTeamId+'\',\'manager\')">⚙️ Edit Nama Tim &amp; Official</button>'
+    +'</div>'
     +'</div>'
     +'<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 mt-3 border-t border-slate-800 text-xs">'
     +'<div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800"><span class="text-slate-400 block text-[10px] uppercase font-bold">👔 Manajer Tim</span><strong class="text-white text-sm block mt-0.5">'+esc(t.manager||'-')+'</strong></div>'
