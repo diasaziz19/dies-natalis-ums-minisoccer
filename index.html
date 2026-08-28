@@ -1138,7 +1138,149 @@ function confirmResetBracket(){
 function renderManagePanel(){
   var c=document.getElementById('adminManagePanel');if(!c)return;
   var teamOpts=TEAMS.map(function(t){return '<option value="'+t.id+'">'+esc(t.name)+'</option>';}).join('');
-  c.innerHTML='<div class="glass p-5"><h4 class="font-bold text-white mb-4">👤 Manajemen Pemain per Tim</h4><div class="mb-3"><label class="form-lbl">Pilih Tim</label><select class="form-inp" onchange="loadTeamPlayers(this.value)" id="mgrTeamSel"><option value="">-- Pilih Tim --</option>'+teamOpts+'</select></div><div id="mgrTeamPlayers"></div></div>';
+  c.innerHTML='<div class="glass p-5">'
+    +'<div class="flex justify-between items-center mb-4 flex-wrap gap-2">'
+    +'<div><h4 class="font-bold text-white text-base">👤 Manajemen Tim &amp; Pemain</h4><p class="text-xs text-slate-400">Kelola skuad resmi, official, dan penambahan tim peserta turnamen</p></div>'
+    +'<button class="btn-p text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="showAddTeamModal()">➕ Tambah Tim Peserta Baru</button>'
+    +'</div>'
+    +'<div class="mb-3"><label class="form-lbl">Pilih Tim untuk Dikelola</label><select class="form-inp" onchange="loadTeamPlayers(this.value)" id="mgrTeamSel"><option value="">-- Pilih Tim --</option>'+teamOpts+'</select></div>'
+    +'<div id="mgrTeamPlayers"></div>'
+    +'</div>';
+}
+
+function showAddTeamModal(){
+  var nextNum=TEAMS.length+1;
+  // find first available id
+  while(TEAMS.some(function(t){return t.id==='t'+nextNum;})){
+    nextNum++;
+  }
+  var defId='t'+nextNum;
+  var defMgrUser='mgr-t'+nextNum;
+  var defMgrPass='tim'+('0'+nextNum).slice(-2)+'ums';
+
+  openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
+    +'<span class="badge-g">👑 SUPER ADMIN</span>'
+    +'<h2 class="text-base font-bold text-white mt-1">➕ Tambah Tim Peserta Baru</h2>'
+    +'<p class="text-xs text-slate-400">Bagan dan jadwal turnamen akan otomatis menyesuaikan struktur jumlah tim baru.</p>'
+    +'</div>'
+    +'<div class="space-y-3">'
+    +'<div><label class="form-lbl">Nama Tim *</label><input type="text" id="newTmName" class="form-inp font-bold" placeholder="Contoh: RS UMS atau FAKULTAS KEDOKTERAN"></div>'
+    +'<div><label class="form-lbl">Unit / Fakultas / Lembaga *</label><input type="text" id="newTmUnit" class="form-inp" placeholder="Contoh: RS AR FAKHRUDIN UMS"></div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">'
+    +'<div><label class="form-lbl">👔 Nama Manajer Tim</label><input type="text" id="newTmManager" class="form-inp" placeholder="Nama Manajer..."></div>'
+    +'<div><label class="form-lbl">📋 Nama Official Tim</label><input type="text" id="newTmOfficial" class="form-inp" placeholder="Nama Official..."></div>'
+    +'</div>'
+    +'<div class="p-3 bg-slate-900/80 rounded-xl border border-cyan-500/20 text-xs text-slate-300">'
+    +'<div class="font-bold text-cyan-300 mb-1">🔑 Akses Login Manajer Otomatis:</div>'
+    +'<div>Username: <code class="text-yellow-400 font-bold bg-slate-950 px-1.5 py-0.5 rounded">'+defMgrUser+'</code> · Password: <code class="text-yellow-400 font-bold bg-slate-950 px-1.5 py-0.5 rounded">'+defMgrPass+'</code></div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="flex gap-2 mt-5 pt-3 border-t border-slate-800">'
+    +'<button onclick="closeModal()" class="btn-s flex-1">Batal</button>'
+    +'<button onclick="addTeamSubmit(\''+defId+'\')" class="btn-p flex-1">💾 Simpan &amp; Tambahkan Tim</button>'
+    +'</div>'
+  );
+}
+
+function addTeamSubmit(teamId){
+  var name=(document.getElementById('newTmName').value||'').trim();
+  var unit=(document.getElementById('newTmUnit').value||'').trim();
+  var manager=(document.getElementById('newTmManager').value||'').trim();
+  var official=(document.getElementById('newTmOfficial').value||'').trim();
+
+  if(!name){alert('Nama Tim wajib diisi.');return;}
+  if(!unit){alert('Unit/Fakultas wajib diisi.');return;}
+
+  var newTeam={
+    id:teamId,
+    name:name,
+    unit:unit,
+    manager:manager,
+    official:official,
+    captain:''
+  };
+  TEAMS.push(newTeam);
+
+  // Generate 7 starter placeholder players for this new team
+  var nm=['Agus','Budi','Cahyo','Dedi','Eko','Fajar','Galih'];
+  var pos=['GK','CB','CB','CM','CM','FW','FW'];
+  for(var i=0;i<7;i++){
+    players.push({
+      id:teamId+'-p'+(i+1),
+      teamId:teamId,
+      teamName:name,
+      fullName:nm[i]+' ('+name.split(' ')[0]+')',
+      pos:pos[i],
+      unit:unit,
+      usia:35+(i%5)
+    });
+  }
+
+  // Update dynamic MGRS
+  MGRS=getManagerCredentials();
+
+  // Auto adjust matches & bracket for new team count
+  autoAdjustMatchesForTeamCount();
+
+  saveState();
+  closeModal();
+  renderManagePanel();
+  renderCurrentView();
+  alert('✅ Tim "'+name+'" berhasil ditambahkan!\nBagan dan akun manajer ('+teamId+') telah disinkronkan.');
+}
+
+function autoAdjustMatchesForTeamCount(){
+  var numTeams=TEAMS.length;
+  // If > 16 teams, ensure Play-off matches exist
+  if(numTeams===17){
+    var hasPO=matches.some(function(m){return m.stage==='PO';});
+    if(!hasPO){
+      var tLast1=TEAMS[TEAMS.length-2]||{id:'t16',name:'Tim 16'};
+      var tLast2=TEAMS[TEAMS.length-1]||{id:'t17',name:'Tim 17'};
+      var newPoMatch={
+        id:'m0',
+        no:0,
+        stage:'PO',
+        hId:tLast1.id,
+        hName:tLast1.name,
+        aId:tLast2.id,
+        aName:tLast2.name,
+        hScore:0,
+        aScore:0,
+        date:'Senin, 28 Sept 2026',
+        time:'07:00 - 07:25 WIB',
+        venue:'Lap. Psikologi UMS',
+        status:'S',
+        events:[]
+      };
+      matches.unshift(newPoMatch);
+    }
+  } else if(numTeams>17){
+    var neededPOs=numTeams-16;
+    for(var k=0;k<neededPOs;k++){
+      var poId='m0_'+k;
+      var hasThisPo=matches.some(function(m){return m.id===poId||(k===0&&m.id==='m0');});
+      if(!hasThisPo){
+        var poMatch={
+          id:poId,
+          no:'PO'+(k+1),
+          stage:'PO',
+          hId:null,
+          hName:'Belum Ditentukan',
+          aId:null,
+          aName:'Belum Ditentukan',
+          hScore:0,
+          aScore:0,
+          date:'Senin, 28 Sept 2026',
+          time:'07:00 - 07:25 WIB',
+          venue:'Lap. Psikologi UMS',
+          status:'S',
+          events:[]
+        };
+        matches.unshift(poMatch);
+      }
+    }
+  }
 }
 
 // ==================== FORMATION & LINEUP BOARD (7 vs 7) ====================
