@@ -587,22 +587,35 @@ function renderCurrentView(){
 
 // ==================== BRACKET PROGRESSION ====================
 function applyProgression(){
-  // Play-off (PO) -> R16 (Match #8 Away slot)
-  var po0=matches.find(function(m){return m.id==='m0'||m.stage==='PO';});
+  // Play-off (PO) progression:
+  // PO 1 (m0) -> Match #1 (Bagan Atas)
+  // PO 2 (m0_1) -> Match #8 (Bagan Bawah)
+  var po1=matches.find(function(m){return m.id==='m0'||m.no===0||m.no==='PO1';});
+  var po2=matches.find(function(m){return m.id==='m0_1'||m.no==='PO2';});
+  var m1=matches.find(function(m){return m.id==='m1';});
   var m8=matches.find(function(m){return m.id==='m8';});
-  if(po0&&m8&&po0.status==='F'&&m8.status==='S'){
-    m8.aId=po0.hScore>po0.aScore?po0.hId:po0.aId;
-    m8.aName=po0.hScore>po0.aScore?po0.hName:po0.aName;
+
+  if(po1&&m1&&po1.status==='F'&&m1.status==='S'){
+    m1.aId=po1.hScore>po1.aScore?po1.hId:po1.aId;
+    m1.aName=po1.hScore>po1.aScore?po1.hName:po1.aName;
+  }
+  if(po2&&m8&&po2.status==='F'&&m8.status==='S'){
+    m8.aId=po2.hScore>po2.aScore?po2.hId:po2.aId;
+    m8.aName=po2.hScore>po2.aScore?po2.hName:po2.aName;
+  } else if(!po2&&po1&&m8&&m1&&m1.aName!=='Pemenang Play-off #1'&&m8.aName==='Pemenang Play-off #0'&&po1.status==='F'&&m8.status==='S'){
+    // Fallback if single PO was previously targeted to m8
+    m8.aId=po1.hScore>po1.aScore?po1.hId:po1.aId;
+    m8.aName=po1.hScore>po1.aScore?po1.hName:po1.aName;
   }
 
   // R16 -> QF
   var r16Matches=matches.filter(function(m){return m.stage==='R16';});
   [0,1,2,3].forEach(function(qfIdx){
-    var m1=r16Matches[qfIdx*2], m2=r16Matches[qfIdx*2+1];
+    var rm1=r16Matches[qfIdx*2], rm2=r16Matches[qfIdx*2+1];
     var qf=matches.find(function(m){return m.id==='m'+(9+qfIdx);});
     if(!qf)return;
-    if(m1&&m1.status==='F'&&qf.status==='S'){qf.hId=m1.hScore>m1.aScore?m1.hId:m1.aId;qf.hName=m1.hScore>m1.aScore?m1.hName:m1.aName;}
-    if(m2&&m2.status==='F'&&qf.status==='S'){qf.aId=m2.hScore>m2.aScore?m2.hId:m2.aId;qf.aName=m2.hScore>m2.aScore?m2.hName:m2.aName;}
+    if(rm1&&rm1.status==='F'&&qf.status==='S'){qf.hId=rm1.hScore>rm1.aScore?rm1.hId:rm1.aId;qf.hName=rm1.hScore>rm1.aScore?rm1.hName:rm1.aName;}
+    if(rm2&&rm2.status==='F'&&qf.status==='S'){qf.aId=rm2.hScore>rm2.aScore?rm2.hId:rm2.aId;qf.aName=rm2.hScore>rm2.aScore?rm2.hName:rm2.aName;}
   });
   // QF -> SF + 3rd
   [0,1].forEach(function(sfIdx){
@@ -647,15 +660,20 @@ function renderBracket(){
     html+='<div class="bracket-round">'
       +'<div class="bracket-round-label">⚡ Play-off</div>'
       +'<div class="bracket-round-body">';
-    // If only 1 play-off match (e.g. for Match #8), align with bottom R16 slot
+    
     if(poMatches.length===1){
-      html+='<div class="b-cell" style="visibility:hidden;height:1px;"></div>'
-        +'<div class="b-cell" style="flex:7;"></div>'
-        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(poMatches[0])+'</div>';
+      // Single Play-off (PO 1 -> Match 1 / Bagan Atas)
+      html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(poMatches[0])+'</div>'
+        +'<div class="b-cell" style="flex:7;"></div>';
+    } else if(poMatches.length===2){
+      // 2 Play-offs (PO 1 -> Match 1 Bagan Atas, PO 2 -> Match 8 Bagan Bawah)
+      html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(poMatches[0])+'</div>'
+        +'<div class="b-cell" style="flex:6;"></div>'
+        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(poMatches[1])+'</div>';
     } else {
-      // Multiple play-offs (e.g. top and bottom)
+      // Multiple play-offs distributed
       poMatches.forEach(function(m, idx){
-        var isTop=idx%2===0;
+        var isTop=idx<Math.ceil(poMatches.length/2);
         var cls=isTop?'b-pair-top':'b-pair-btm';
         html+='<div class="b-cell '+cls+'">'+bCard(m)+'</div>';
       });
@@ -670,8 +688,12 @@ function renderBracket(){
   r16Matches.forEach(function(m, idx){
     var isTop=idx%2===0;
     var cls=isTop?'b-pair-top':'b-pair-btm';
-    // If Play-off feeds into this match (e.g. Match #8), add b-in-line
-    var hasInLine=poMatches.length>0&&(idx===r16Matches.length-1||idx===0);
+    // Has Play-off feed: Match 1 (idx 0) or Match 8 (idx 7)
+    var hasInLine=false;
+    if(poMatches.length===1&&idx===0) hasInLine=true;
+    else if(poMatches.length===2&&(idx===0||idx===r16Matches.length-1)) hasInLine=true;
+    else if(poMatches.length>2&&(idx===0||idx===r16Matches.length-1)) hasInLine=true;
+
     html+='<div class="b-cell '+cls+(hasInLine?' b-in-line':'')+'">'+bCard(m)+'</div>';
   });
   html+='</div></div>';
