@@ -22,16 +22,28 @@
     .role-badge{padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;background:transparent;transition:all 0.2s;}
     .role-badge:hover{color:#fff;border-color:rgba(255,255,255,0.3);}
     .role-badge.active{background:rgba(0,240,255,0.12);border-color:rgba(0,240,255,0.4);color:#00f0ff;}
-    .bracket-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-    .bracket-tree{display:flex;gap:16px;min-width:900px;padding:8px 0;}
-    .bracket-round{flex:1;display:flex;flex-direction:column;justify-content:space-around;min-width:190px;}
-    .bracket-round-label{text-align:center;font-size:11px;font-weight:800;color:#00f0ff;padding:6px 10px;background:rgba(11,25,60,0.8);border:1px solid rgba(0,240,255,0.25);border-radius:8px;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
-    .b-card{background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px;margin:5px 0;transition:all .2s;}
-    .b-card:hover{border-color:rgba(0,240,255,0.4);}
+    .bracket-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px 0;}
+    .bracket-tree{display:flex;gap:0;min-width:1050px;padding:8px 0;align-items:stretch;}
+    .bracket-round{flex:1;display:flex;flex-direction:column;min-width:180px;position:relative;}
+    .bracket-round-label{text-align:center;font-size:11px;font-weight:800;color:#00f0ff;padding:6px 10px;background:rgba(11,25,60,0.8);border:1px solid rgba(0,240,255,0.25);border-radius:8px;margin:0 8px 16px 8px;text-transform:uppercase;letter-spacing:.5px;}
+    .bracket-round-body{flex:1;display:flex;flex-direction:column;justify-content:space-around;padding:0 8px;}
+    
+    .b-cell{position:relative;display:flex;flex-direction:column;justify-content:center;margin:4px 0;}
+    .b-card{background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px;position:relative;z-index:2;transition:all .2s;}
+    .b-card:hover{border-color:rgba(0,240,255,0.4);box-shadow:0 0 12px rgba(0,240,255,0.15);}
     .b-card.fin{border-color:rgba(245,158,11,0.35);}
     .b-team{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-radius:5px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.03);margin:2px 0;}
     .b-team.win{background:rgba(0,240,255,0.12);color:#22d3ee;border:1px solid rgba(0,240,255,0.25);}
     .b-score{font-size:13px;font-weight:800;color:#ffd700;min-width:18px;text-align:right;}
+    
+    /* Bracket connecting lines */
+    .b-pair-top{position:relative;}
+    .b-pair-top::after{content:'';position:absolute;right:-12px;top:50%;width:12px;height:calc(50% + 8px);border-top:2px solid rgba(0,240,255,0.35);border-right:2px solid rgba(0,240,255,0.35);border-top-right-radius:6px;pointer-events:none;z-index:1;}
+    .b-pair-btm{position:relative;}
+    .b-pair-btm::after{content:'';position:absolute;right:-12px;bottom:50%;width:12px;height:calc(50% + 8px);border-bottom:2px solid rgba(0,240,255,0.35);border-right:2px solid rgba(0,240,255,0.35);border-bottom-right-radius:6px;pointer-events:none;z-index:1;}
+    .b-in-line{position:relative;}
+    .b-in-line::before{content:'';position:absolute;left:-12px;top:50%;width:12px;height:2px;background:rgba(0,240,255,0.35);pointer-events:none;z-index:1;}
+    
     .match-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;margin-bottom:10px;transition:all .2s;}
     .match-card:hover{border-color:rgba(0,240,255,0.3);}
     .btn-p{background:linear-gradient(135deg,#00f0ff,#0ea5e9);color:#070a12;font-weight:800;font-size:13px;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;}
@@ -623,26 +635,78 @@ function switchHomeTab(t){currentHomeTab=t;renderHome();}
 function renderBracket(){
   var c=document.getElementById('bracketTree');if(!c)return;
   var poMatches=matches.filter(function(m){return m.stage==='PO';});
-  var stages=[];
-  if(poMatches.length>0){
-    stages.push({key:'PO',label:'Play-off 16 Besar'});
-  }
-  stages.push(
-    {key:'R16',label:'16 Besar'},
-    {key:'QF',label:'Perempat Final'},
-    {key:'SF',label:'Semi Final'},
-    {key:'LAST',label:'🏆 Final & Juara 3'}
-  );
+  var r16Matches=matches.filter(function(m){return m.stage==='R16';});
+  var qfMatches=matches.filter(function(m){return m.stage==='QF';});
+  var sfMatches=matches.filter(function(m){return m.stage==='SF';});
+  var lastMatches=matches.filter(function(m){return m.stage==='3RD'||m.stage==='FINAL';});
 
   var html='';
-  stages.forEach(function(st){
-    var ms;
-    if(st.key==='LAST')ms=matches.filter(function(m){return m.stage==='3RD'||m.stage==='FINAL';});
-    else ms=matches.filter(function(m){return m.stage===st.key;});
-    html+='<div class="bracket-round"><div class="bracket-round-label">'+st.label+'</div>';
-    ms.forEach(function(m){html+=bCard(m);});
-    html+='</div>';
+
+  // 1. Column: Babak Kualifikasi / Play-off (if any)
+  if(poMatches.length>0){
+    html+='<div class="bracket-round">'
+      +'<div class="bracket-round-label">⚡ Play-off</div>'
+      +'<div class="bracket-round-body">';
+    // If only 1 play-off match (e.g. for Match #8), align with bottom R16 slot
+    if(poMatches.length===1){
+      html+='<div class="b-cell" style="visibility:hidden;height:1px;"></div>'
+        +'<div class="b-cell" style="flex:7;"></div>'
+        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(poMatches[0])+'</div>';
+    } else {
+      // Multiple play-offs (e.g. top and bottom)
+      poMatches.forEach(function(m, idx){
+        var isTop=idx%2===0;
+        var cls=isTop?'b-pair-top':'b-pair-btm';
+        html+='<div class="b-cell '+cls+'">'+bCard(m)+'</div>';
+      });
+    }
+    html+='</div></div>';
+  }
+
+  // 2. Column: Babak 16 Besar
+  html+='<div class="bracket-round">'
+    +'<div class="bracket-round-label">16 Besar</div>'
+    +'<div class="bracket-round-body">';
+  r16Matches.forEach(function(m, idx){
+    var isTop=idx%2===0;
+    var cls=isTop?'b-pair-top':'b-pair-btm';
+    // If Play-off feeds into this match (e.g. Match #8), add b-in-line
+    var hasInLine=poMatches.length>0&&(idx===r16Matches.length-1||idx===0);
+    html+='<div class="b-cell '+cls+(hasInLine?' b-in-line':'')+'">'+bCard(m)+'</div>';
   });
+  html+='</div></div>';
+
+  // 3. Column: Perempat Final (QF)
+  html+='<div class="bracket-round">'
+    +'<div class="bracket-round-label">Perempat Final</div>'
+    +'<div class="bracket-round-body">';
+  qfMatches.forEach(function(m, idx){
+    var isTop=idx%2===0;
+    var cls=isTop?'b-pair-top':'b-pair-btm';
+    html+='<div class="b-cell '+cls+' b-in-line">'+bCard(m)+'</div>';
+  });
+  html+='</div></div>';
+
+  // 4. Column: Semi Final (SF)
+  html+='<div class="bracket-round">'
+    +'<div class="bracket-round-label">Semi Final</div>'
+    +'<div class="bracket-round-body">';
+  sfMatches.forEach(function(m, idx){
+    var isTop=idx%2===0;
+    var cls=isTop?'b-pair-top':'b-pair-btm';
+    html+='<div class="b-cell '+cls+' b-in-line">'+bCard(m)+'</div>';
+  });
+  html+='</div></div>';
+
+  // 5. Column: Final & Juara 3
+  html+='<div class="bracket-round">'
+    +'<div class="bracket-round-label">🏆 Final &amp; Juara 3</div>'
+    +'<div class="bracket-round-body">';
+  lastMatches.forEach(function(m){
+    html+='<div class="b-cell b-in-line">'+bCard(m)+'</div>';
+  });
+  html+='</div></div>';
+
   c.innerHTML=html;
 }
 
