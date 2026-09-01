@@ -588,11 +588,16 @@ function renderCurrentView(){
 // ==================== BRACKET PROGRESSION ====================
 function applyProgression(){
   // Play-off (PO) progression:
-  // PO 1 (m0) -> Match #1 (Bagan Atas)
-  // PO 2 (m0_1) -> Match #8 (Bagan Bawah)
-  var po1=matches.find(function(m){return m.id==='m0'||m.no===0||m.no==='PO1';});
-  var po2=matches.find(function(m){return m.id==='m0_1'||m.no==='PO2';});
+  // PO 1 (m0 / PO1) -> Match #1 (Bagan Atas)
+  // PO 2 (m0_1 / PO2) -> Match #8 (Bagan Bawah)
+  // PO 3 (m0_2 / PO3) -> Match #4 (Bagan Tengah)
+  var poMatches=matches.filter(function(m){return m.stage==='PO';});
+  var po1=poMatches[0]||matches.find(function(m){return m.id==='m0'||m.no===0||m.no==='PO1';});
+  var po2=poMatches[1]||matches.find(function(m){return m.id==='m0_1'||m.no==='PO2';});
+  var po3=poMatches[2]||matches.find(function(m){return m.id==='m0_2'||m.no==='PO3';});
+  
   var m1=matches.find(function(m){return m.id==='m1';});
+  var m4=matches.find(function(m){return m.id==='m4';});
   var m8=matches.find(function(m){return m.id==='m8';});
 
   if(po1&&m1&&po1.status==='F'&&m1.status==='S'){
@@ -602,10 +607,10 @@ function applyProgression(){
   if(po2&&m8&&po2.status==='F'&&m8.status==='S'){
     m8.aId=po2.hScore>po2.aScore?po2.hId:po2.aId;
     m8.aName=po2.hScore>po2.aScore?po2.hName:po2.aName;
-  } else if(!po2&&po1&&m8&&m1&&m1.aName!=='Pemenang Play-off #1'&&m8.aName==='Pemenang Play-off #0'&&po1.status==='F'&&m8.status==='S'){
-    // Fallback if single PO was previously targeted to m8
-    m8.aId=po1.hScore>po1.aScore?po1.hId:po1.aId;
-    m8.aName=po1.hScore>po1.aScore?po1.hName:po1.aName;
+  }
+  if(po3&&m4&&po3.status==='F'&&m4.status==='S'){
+    m4.aId=po3.hScore>po3.aScore?po3.hId:po3.aId;
+    m4.aName=po3.hScore>po3.aScore?po3.hName:po3.aName;
   }
 
   // R16 -> QF
@@ -662,16 +667,27 @@ function renderBracket(){
       +'<div class="bracket-round-body">';
     
     if(poMatches.length===1){
-      // Single Play-off (PO 1 -> Match 1 / Bagan Atas)
+      // 1 Play-off -> Match 1 (Bagan Atas)
       html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(poMatches[0])+'</div>'
         +'<div class="b-cell" style="flex:7;"></div>';
     } else if(poMatches.length===2){
-      // 2 Play-offs (PO 1 -> Match 1 Bagan Atas, PO 2 -> Match 8 Bagan Bawah)
+      // 2 Play-offs: PO 1 -> Match 1 (Atas), PO 2 -> Match 8 (Bawah)
       html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(poMatches[0])+'</div>'
         +'<div class="b-cell" style="flex:6;"></div>'
         +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(poMatches[1])+'</div>';
+    } else if(poMatches.length===3){
+      // 3 Play-offs: PO 1 -> Match 1 (Atas), PO 3 -> Match 4 (Tengah), PO 2 -> Match 8 (Bawah)
+      // Map correctly: poMatches[0] = PO 1, poMatches[1] = PO 2, poMatches[2] = PO 3
+      var p1=poMatches[0];
+      var p2=poMatches[1];
+      var p3=poMatches[2];
+      html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(p1)+'</div>'
+        +'<div class="b-cell" style="flex:2;"></div>'
+        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(p3)+'</div>'
+        +'<div class="b-cell" style="flex:3;"></div>'
+        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(p2)+'</div>';
     } else {
-      // Multiple play-offs distributed
+      // 4+ Play-offs distributed evenly
       poMatches.forEach(function(m, idx){
         var isTop=idx<Math.ceil(poMatches.length/2);
         var cls=isTop?'b-pair-top':'b-pair-btm';
@@ -688,11 +704,15 @@ function renderBracket(){
   r16Matches.forEach(function(m, idx){
     var isTop=idx%2===0;
     var cls=isTop?'b-pair-top':'b-pair-btm';
-    // Has Play-off feed: Match 1 (idx 0) or Match 8 (idx 7)
+    
+    // Has Play-off connector:
+    // Match 1 (idx 0) -> from PO 1
+    // Match 4 (idx 3) -> from PO 3
+    // Match 8 (idx 7) -> from PO 2
     var hasInLine=false;
     if(poMatches.length===1&&idx===0) hasInLine=true;
-    else if(poMatches.length===2&&(idx===0||idx===r16Matches.length-1)) hasInLine=true;
-    else if(poMatches.length>2&&(idx===0||idx===r16Matches.length-1)) hasInLine=true;
+    else if(poMatches.length===2&&(idx===0||idx===7)) hasInLine=true;
+    else if(poMatches.length>=3&&(idx===0||idx===3||idx===7)) hasInLine=true;
 
     html+='<div class="b-cell '+cls+(hasInLine?' b-in-line':'')+'">'+bCard(m)+'</div>';
   });
