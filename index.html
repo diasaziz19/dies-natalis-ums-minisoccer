@@ -19,6 +19,9 @@
     .tab-btn{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.08);color:#94a3b8;background:transparent;transition:all 0.2s;white-space:nowrap;}
     .tab-btn:hover{color:#fff;background:rgba(255,255,255,0.06);}
     .tab-btn.active{background:rgba(0,240,255,0.12);border-color:rgba(0,240,255,0.35);color:#00f0ff;}
+    .day-pill{padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;background:rgba(15,23,42,0.6);transition:all 0.2s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+    .day-pill:hover{color:#fff;background:rgba(255,255,255,0.08);border-color:rgba(0,240,255,0.3);}
+    .day-pill.active{background:linear-gradient(135deg,rgba(0,240,255,0.2),rgba(14,165,233,0.2));border-color:#00f0ff;color:#00f0ff;box-shadow:0 0 12px rgba(0,240,255,0.2);}
     .role-badge{padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;background:transparent;transition:all 0.2s;}
     .role-badge:hover{color:#fff;border-color:rgba(255,255,255,0.3);}
     .role-badge.active{background:rgba(0,240,255,0.12);border-color:rgba(0,240,255,0.4);color:#00f0ff;}
@@ -465,7 +468,7 @@ var FORMATION_PRESETS={
 
 // ==================== STATE ====================
 var matches,players,rules,formations={},authRole=null,authTeamId=null,authTeamName=null;
-var currentView='home',currentHomeTab='bracket',currentAdminTab='matches';
+var currentView='home',currentHomeTab='bracket',currentAdminTab='matches',currentMatchDayFilter='ALL';
 
 function loadState(){
   try{HEADER=JSON.parse(localStorage.getItem('ums_h5'))||null;}catch(e){HEADER=null;}
@@ -767,26 +770,78 @@ function bCard(m){
     +'</div>';
 }
 
+function setMatchDayFilter(dayKey){
+  currentMatchDayFilter=dayKey;
+  renderPublicMatches();
+}
+
 function renderPublicMatches(){
   var c=document.getElementById('matchesList');if(!c)return;
-  var poMatches=matches.filter(function(m){return m.stage==='PO';});
-  var stages=[];
-  if(poMatches.length>0)stages.push({key:'PO',lbl:'Babak Kualifikasi / Play-off'});
-  stages.push(
-    {key:'R16',lbl:'Babak 16 Besar'},
-    {key:'QF',lbl:'Perempat Final'},
-    {key:'SF',lbl:'Semi Final'},
-    {key:'3RD',lbl:'Perebutan Juara 3'},
-    {key:'FINAL',lbl:'Grand Final'}
-  );
-  var html='';
-  stages.forEach(function(st){
-    var ms=matches.filter(function(m){return m.stage===st.key;});
-    if(!ms.length)return;
-    html+='<h3 class="text-sm font-bold text-cyan-400 mb-2 mt-5 uppercase tracking-wider">'+st.lbl+'</h3>';
-    ms.forEach(function(m){html+=pubMatchCard(m);});
+
+  // Extract unique dates preserving order
+  var days=[];
+  matches.forEach(function(m){
+    if(m.date&&days.indexOf(m.date)===-1){
+      days.push(m.date);
+    }
   });
-  c.innerHTML=html||'<p class="text-slate-400">Belum ada pertandingan.</p>';
+
+  // Filter bar
+  var filterHtml='<div class="flex items-center gap-2 mb-5 overflow-x-auto pb-2 -mx-1 px-1">'
+    +'<button type="button" class="day-pill'+(currentMatchDayFilter==='ALL'?' active':'')+'" onclick="setMatchDayFilter(\'ALL\')">🌐 Semua Hari ('+matches.length+')</button>';
+  
+  days.forEach(function(d){
+    var cnt=matches.filter(function(m){return m.date===d;}).length;
+    // Extract short name (e.g., Senin, Selasa, Rabu)
+    var shortName=d.split(',')[0]||d;
+    filterHtml+='<button type="button" class="day-pill'+(currentMatchDayFilter===d?' active':'')+'" onclick="setMatchDayFilter(\''+esc(d)+'\')">📅 '+esc(shortName)+' <span class="text-[10px] opacity-75">('+cnt+')</span></button>';
+  });
+  filterHtml+='</div>';
+
+  var filteredMatches=matches;
+  if(currentMatchDayFilter!=='ALL'){
+    filteredMatches=matches.filter(function(m){return m.date===currentMatchDayFilter;});
+  }
+
+  var html=filterHtml;
+
+  if(currentMatchDayFilter==='ALL'){
+    // Render grouped by Day & Date with collapsible / card style
+    days.forEach(function(d){
+      var dayMatches=matches.filter(function(m){return m.date===d;});
+      if(!dayMatches.length)return;
+      html+='<div class="glass p-4 sm:p-5 mb-5 border-l-4 border-l-cyan-400">'
+        +'<div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800/80 flex-wrap gap-2">'
+        +'<div class="flex items-center gap-2">'
+        +'<span class="text-base sm:text-lg font-extrabold text-white tracking-wide">📅 '+esc(d)+'</span>'
+        +'<span class="badge-c text-[10px]">'+dayMatches.length+' Pertandingan</span>'
+        +'</div>'
+        +'<span class="text-xs text-slate-400 font-medium">📍 Lap. Minisoccer UMS</span>'
+        +'</div>'
+        +'<div class="space-y-3">';
+      dayMatches.forEach(function(m){
+        html+=pubMatchCard(m);
+      });
+      html+='</div></div>';
+    });
+  } else {
+    // Single Day view
+    html+='<div class="glass p-4 sm:p-5 mb-5 border-l-4 border-l-cyan-400">'
+      +'<div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800/80 flex-wrap gap-2">'
+      +'<div class="flex items-center gap-2">'
+      +'<span class="text-base sm:text-lg font-extrabold text-white tracking-wide">📅 '+esc(currentMatchDayFilter)+'</span>'
+      +'<span class="badge-c text-[10px]">'+filteredMatches.length+' Pertandingan</span>'
+      +'</div>'
+      +'<span class="text-xs text-slate-400 font-medium">📍 Lap. Minisoccer UMS</span>'
+      +'</div>'
+      +'<div class="space-y-3">';
+    filteredMatches.forEach(function(m){
+      html+=pubMatchCard(m);
+    });
+    html+='</div></div>';
+  }
+
+  c.innerHTML=html||'<p class="text-slate-400">Belum ada pertandingan pada filter ini.</p>';
 }
 
 function pubMatchCard(m){
