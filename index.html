@@ -44,6 +44,8 @@
     .b-pair-top::after{content:'';position:absolute;right:-12px;top:50%;width:12px;height:calc(50% + 8px);border-top:2px solid rgba(0,240,255,0.35);border-right:2px solid rgba(0,240,255,0.35);border-top-right-radius:6px;pointer-events:none;z-index:1;}
     .b-pair-btm{position:relative;}
     .b-pair-btm::after{content:'';position:absolute;right:-12px;bottom:50%;width:12px;height:calc(50% + 8px);border-bottom:2px solid rgba(0,240,255,0.35);border-right:2px solid rgba(0,240,255,0.35);border-bottom-right-radius:6px;pointer-events:none;z-index:1;}
+    .b-line-right{position:relative;}
+    .b-line-right::after{content:'';position:absolute;right:-12px;top:50%;width:12px;height:2px;background:rgba(0,240,255,0.35);pointer-events:none;z-index:1;}
     .b-in-line{position:relative;}
     .b-in-line::before{content:'';position:absolute;left:-12px;top:50%;width:12px;height:2px;background:rgba(0,240,255,0.35);pointer-events:none;z-index:1;}
     
@@ -289,45 +291,50 @@ var INIT_HEADER={
   heroDesc:'Portal Resmi Turnamen Minisoccer dalam rangka memperingati Dies Natalis ke-68 Universitas Muhammadiyah Surakarta dengan semangat "Sinergi Berdampak Berkelanjutan". Saksikan perebutan gelar juara bergengsi antar unit, fakultas, dan lembaga sivitas akademika UMS!',
   heroDate:'Mulai Senin, 28 Sept 2026 (07:30 WIB)',
   heroVenue:'Lap. Psikologi UMS',
-  heroFormat:'16 Tim (Sistem Gugur)',
+  heroFormat:'19 Tim (Play-off & 16 Besar)',
   cardFooter:'Turnamen Resmi 2026'
 };
 var HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
 
 var INIT_TEAMS=[
-  {id:'t1',  name:'SATPAM',unit:'Unit Keamanan / Satpam UMS',manager:'Ahmad Dahlan',official:'Suratno, S.Pd.',captain:'Bagus Setyawan'},
-  {id:'t2',  name:'PARKIR',unit:'Unit Sarpras & Parkir UMS',manager:'Bambang Supriyanto',official:'Prof. Dr. Sutama',captain:'Ahmad Syukri'},
-  {id:'t3',  name:'CAKAP FC (FKIP)',unit:'Fakultas Keguruan & Ilmu Pendidikan',manager:'Pungki Indarto',official:'Slamet',captain:'Fitri Kurniawan'},
-  {id:'t4',  name:'FKI',unit:'Fak. Komunikasi Informatika',manager:'SIDIQ SETYAWAN',official:'ARIEF SURYA',captain:'SETYAWAN'},
+  {id:'t1',  name:'SATPAM UNITED',unit:'Unit Keamanan / Satpam UMS',manager:'Ahmad Dahlan',official:'Suratno, S.Pd.',captain:'Bagus Setyawan'},
+  {id:'t2',  name:'PARKIR UNITED',unit:'Unit Sarpras & Parkir UMS',manager:'Bambang Supriyanto',official:'Prof. Dr. Sutama',captain:'Ahmad Syukri'},
+  {id:'t3',  name:'CAKAP FC',unit:'Fakultas Keguruan & Ilmu Pendidikan',manager:'Pungki Indarto',official:'Slamet',captain:'Fitri Kurniawan'},
+  {id:'t4',  name:'PERSITEVO',unit:'Fak. Komunikasi Informatika, FT & Vokasi',manager:'SIDIQ SETYAWAN',official:'ARIEF SURYA',captain:'SETYAWAN'},
   {id:'t5',  name:'FEB',unit:'Fakultas Ekonomi & Bisnis UMS',manager:'Muhammad Arifin',official:'Dr. Anton Agus S.',captain:'Oktovianus M.'},
-  {id:'t6',  name:'FG + FHIP + LPMB',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',manager:'Pak Choi',official:'Prof. Dr. Kelik Wardiono, S.H., M.Hum',captain:'Mahyan Danu Kusuma'},
-  {id:'t7',  name:'BPUI',unit:'Badan Pengelola Usaha & Inovasi (AUM, AHAS, SPPG)',manager:'Qomaruddin Hidayat',official:'Drs. Suryadi',captain:'Budi Santoso'},
-  {id:'t8',  name:'FT + VOKASI',unit:'Fakultas Teknik & Vokasi',manager:'Joko Susilo',official:'Dr. Taufik Kasturi',captain:'Cahyo Utomo'},
-  {id:'t9',  name:'RSGM + FKG',unit:'RSGM & Fakultas Kedokteran Gigi UMS',manager:'Hendra Setiawan',official:'drg. Noor Hafida',captain:'Dharma W.'},
+  {id:'t6',  name:'PERSATUAN OLAHRAGA GEDUNG I',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',manager:'Pak Choi',official:'Prof. Dr. Kelik Wardiono, S.H., M.Hum',captain:'Mahyan Danu Kusuma'},
+  {id:'t7',  name:'BPUI (AUM, AHASS, SPPG)',unit:'Badan Pengelola Usaha & Inovasi (AUM, AHASS, SPPG)',manager:'Qomaruddin Hidayat',official:'Drs. Suryadi',captain:'Budi Santoso'},
+  {id:'t8',  name:'TIKUM WONG MUMET FC',unit:'Fakultas Teknik & Vokasi / Unit Terkait',manager:'Joko Susilo',official:'Dr. Taufik Kasturi',captain:'Cahyo Utomo'},
+  {id:'t9',  name:'RSGM SOELASTRI SMILE 4 U_FKG',unit:'RSGM & Fakultas Kedokteran Gigi UMS',manager:'Hendra Setiawan',official:'drg. Noor Hafida',captain:'Dharma W.'},
   {id:'t10', name:'FIK',unit:'Fakultas Ilmu Kesehatan UMS',manager:'Kusuma Wardana',official:'Dr. Umi Budi R.',captain:'Erwin S.'},
   {id:'t11', name:'FAI + SOBRON',unit:'Fakultas Agama Islam & Ponpes Sobron',manager:'Lestari Putri',official:'Dr. Syamsul Hidayat',captain:'Faris M.'},
-  {id:'t12', name:'PERPUSTAKAAN + LPPIK + MAHAD',unit:'Perpustakaan & LPPIK UMS',manager:'Nugroho Adi',official:'Drs. Imron Rosyadi',captain:'Giri K.'},
+  {id:'t12', name:'LIBMA FC',unit:'Perpustakaan, LPPIK & Mahad UMS',manager:'Nugroho Adi',official:'Drs. Imron Rosyadi',captain:'Giri K.'},
   {id:'t13', name:'EDUTORIUM',unit:'Edutorium UMS',manager:'Rahmat Basuki',official:'Dr. M. Farid Wajdi',captain:'Hendra B.'},
-  {id:'t14', name:'BPH + SEK.Univ/HUMAS + DAPEN + dll',unit:'BPH & Sekretariat Universitas',manager:'Oki Kurniawan',official:'Prof. Dr. Anam',captain:'Irfan S.'},
+  {id:'t14', name:'BPH + SEK.Univ/HUMAS + DAPEN + ..',unit:'BPH & Sekretariat Universitas',manager:'Oki Kurniawan',official:'Prof. Dr. Anam',captain:'Irfan S.'},
   {id:'t15', name:'DASP + OUTSOURCING',unit:'Direktorat Aset & Sarana Prasarana / Outsourcing',manager:'Purnomo Shiddiq',official:'Ir. Ahmad Kholid',captain:'Joko W.'},
-  {id:'t16', name:'PESMA + KEDOKTERAN UMUM + RS UMS',unit:'Pesma & Fakultas Kedokteran Umum UMS',manager:'Fitri Handayani',official:'dr. Flora Ramona',captain:'Kurnia D.'},
-  {id:'t17', name:'RS UMS',unit:'RS AR FAKHRUDIN UMS',manager:'',official:'',captain:''}
+  {id:'t16', name:'PESMA + KEDOKTERAN UMUM',unit:'Pesma & Fakultas Kedokteran Umum UMS',manager:'Fitri Handayani',official:'dr. Flora Ramona',captain:'Kurnia D.'},
+  {id:'t17', name:'RS UMS FC',unit:'RS AR FAKHRUDIN UMS',manager:'',official:'',captain:''},
+  {id:'t18', name:'PSYCHOPHARMA FC',unit:'Fakultas Psikologi & Farmasi UMS',manager:'',official:'',captain:''},
+  {id:'t19', name:'DKeu + SAI + DAA + DKPTI + LP3A + ..',unit:'Direktorat Keuangan & Lembaga Universitas',manager:'',official:'',captain:''}
 ];
 var TEAMS=JSON.parse(JSON.stringify(INIT_TEAMS));
 
 var INIT_MATCHES=[
   // HARI 1: SENIN, 28 SEPTEMBER 2026 - PLAY-OFF & 16 BESAR
-  {id:'m0', no:0, stage:'PO', hId:'t16',hName:'PESMA + KEDOKTERAN UMUM + RS UMS',aId:'t17',aName:'RS UMS',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:00 - 07:25 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m1', no:1, stage:'R16',hId:'t1', hName:'SATPAM',aId:'t2', aName:'PARKIR',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m2', no:2, stage:'R16',hId:'t3', hName:'CAKAP FC (FKIP)',aId:'t4', aName:'FKI',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m3', no:3, stage:'R16',hId:'t5', hName:'FEB',aId:'t6', aName:'FG + FHIP + LPMB',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m4', no:4, stage:'R16',hId:'t7', hName:'BPUI',aId:'t8', aName:'FT + VOKASI',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po3', no:'PO3', stage:'PO', hId:'t18',hName:'PSYCHOPHARMA FC',aId:'t12',aName:'LIBMA FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po0', no:'0',   stage:'PO', hId:'t14',hName:'BPH + SEK.Univ/HUMAS + DAPEN + ..',aId:'t17',aName:'RS UMS FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po2', no:'PO2', stage:'PO', hId:'t5', hName:'FEB',aId:'t11',aName:'FAI + SOBRON',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+
+  {id:'m1', no:1, stage:'R16',hId:'t2', hName:'PARKIR UNITED',aId:null, aName:'Belum Ditentukan',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m2', no:2, stage:'R16',hId:'t4', hName:'PERSITEVO',aId:'t16',aName:'PESMA + KEDOKTERAN UMUM',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m3', no:3, stage:'R16',hId:'t6', hName:'PERSATUAN OLAHRAGA GEDUNG I',aId:'t10',aName:'FIK',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m4', no:4, stage:'R16',hId:null, hName:'Belum Ditentukan',aId:'t3', aName:'CAKAP FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
   // HARI 2: SELASA, 29 SEPTEMBER 2026 - 16 BESAR (4 Pertandingan)
-  {id:'m5', no:5, stage:'R16',hId:'t9', hName:'RSGM + FKG',aId:'t10',aName:'FIK',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m6', no:6, stage:'R16',hId:'t11',hName:'FAI + SOBRON',aId:'t12',aName:'PERPUSTAKAAN + LPPIK + MAHAD',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m7', no:7, stage:'R16',hId:'t13',hName:'EDUTORIUM',aId:'t14',aName:'BPH + SEK.Univ/HUMAS + DAPEN + dll',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m8', no:8, stage:'R16',hId:'t15',hName:'DASP + OUTSOURCING',aId:null, aName:'Pemenang Play-off #0',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m5', no:5, stage:'R16',hId:'t15',hName:'DASP + OUTSOURCING',aId:'t13',aName:'EDUTORIUM',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m6', no:6, stage:'R16',hId:'t7', hName:'BPUI (AUM, AHASS, SPPG)',aId:'t8', aName:'TIKUM WONG MUMET FC',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m7', no:7, stage:'R16',hId:'t19',hName:'DKeu + SAI + DAA + DKPTI + LP3A + ..',aId:'t9', aName:'RSGM SOELASTRI SMILE 4 U_FKG',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m8', no:8, stage:'R16',hId:null, hName:'Belum Ditentukan',aId:'t1', aName:'SATPAM UNITED',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
   // HARI 3: RABU, 30 SEPTEMBER 2026 - PEREMPAT FINAL / 8 BESAR (4 Pertandingan)
   {id:'m9', no:9, stage:'QF',hId:null,hName:'Pemenang #1',aId:null,aName:'Pemenang #2',hScore:0,aScore:0,date:'Rabu, 30 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
@@ -341,7 +348,7 @@ var INIT_MATCHES=[
 
   // HARI 5: JUMAT, 2 OKTOBER 2026 - FINAL & JUARA 3 (2 Pertandingan)
   {id:'m15',no:15,stage:'3RD',hId:null,hName:'Kalah SF 1',aId:null,aName:'Kalah SF 2',hScore:0,aScore:0,date:'Jumat, 2 Okt 2026',time:'07:30 - 08:05 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m16',no:16,stage:'FINAL',hId:null,hName:'Pemenang SF 1',aId:null,aName:'Pemenang SF 2',hScore:0,aScore:0,date:'Jumat, 2 Okt 2026',time:'08:15 - 08:55 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m16',no:16,stage:'FINAL',hId:null,hName:'Pemenang SF 1',aId:null,aName:'Pemenang SF 2',hScore:0,aScore:0,date:'Jumat, 2 Okt 2026',time:'08:15 - 08:55 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]}
 ];
 
 var INIT_PLAYERS=(function(){
@@ -590,30 +597,33 @@ function renderCurrentView(){
 
 // ==================== BRACKET PROGRESSION ====================
 function applyProgression(){
-  // Play-off (PO) progression:
-  // PO 1 (m0 / PO1) -> Match #1 (Bagan Atas)
-  // PO 2 (m0_1 / PO2) -> Match #8 (Bagan Bawah)
-  // PO 3 (m0_2 / PO3) -> Match #4 (Bagan Tengah)
+  // Play-off (PO) progression matching official drawing:
+  // PO #PO3 (Psychopharma vs Libma) -> Match #1 (Away / Belum Ditentukan)
+  // PO #0 (BPH vs RS UMS) -> Match #4 (Home / Belum Ditentukan)
+  // PO #PO2 (FEB vs FAI+Sobron) -> Match #8 (Home / Belum Ditentukan)
   var poMatches=matches.filter(function(m){return m.stage==='PO';});
-  var po1=poMatches[0]||matches.find(function(m){return m.id==='m0'||m.no===0||m.no==='PO1';});
-  var po2=poMatches[1]||matches.find(function(m){return m.id==='m0_1'||m.no==='PO2';});
-  var po3=poMatches[2]||matches.find(function(m){return m.id==='m0_2'||m.no==='PO3';});
+  var poTop=poMatches.find(function(m){return m.id==='m0_po3'||m.no==='PO3'||m.no===3;})||poMatches[0];
+  var poMid=poMatches.find(function(m){return m.id==='m0_po0'||m.id==='m0'||m.no==='0'||m.no===0;})||poMatches[1];
+  var poBtm=poMatches.find(function(m){return m.id==='m0_po2'||m.no==='PO2'||m.no===2;})||poMatches[2];
   
   var m1=matches.find(function(m){return m.id==='m1';});
   var m4=matches.find(function(m){return m.id==='m4';});
   var m8=matches.find(function(m){return m.id==='m8';});
 
-  if(po1&&m1&&po1.status==='F'&&m1.status==='S'){
-    m1.aId=po1.hScore>po1.aScore?po1.hId:po1.aId;
-    m1.aName=po1.hScore>po1.aScore?po1.hName:po1.aName;
+  if(poTop&&m1&&poTop.status==='F'&&m1.status==='S'){
+    var w1=poTop.hScore>poTop.aScore?{id:poTop.hId,n:poTop.hName}:{id:poTop.aId,n:poTop.aName};
+    m1.aId=w1.id;
+    m1.aName=w1.n;
   }
-  if(po2&&m8&&po2.status==='F'&&m8.status==='S'){
-    m8.aId=po2.hScore>po2.aScore?po2.hId:po2.aId;
-    m8.aName=po2.hScore>po2.aScore?po2.hName:po2.aName;
+  if(poMid&&m4&&poMid.status==='F'&&m4.status==='S'){
+    var w4=poMid.hScore>poMid.aScore?{id:poMid.hId,n:poMid.hName}:{id:poMid.aId,n:poMid.aName};
+    m4.hId=w4.id;
+    m4.hName=w4.n;
   }
-  if(po3&&m4&&po3.status==='F'&&m4.status==='S'){
-    m4.aId=po3.hScore>po3.aScore?po3.hId:po3.aId;
-    m4.aName=po3.hScore>po3.aScore?po3.hName:po3.aName;
+  if(poBtm&&m8&&poBtm.status==='F'&&m8.status==='S'){
+    var w8=poBtm.hScore>poBtm.aScore?{id:poBtm.hId,n:poBtm.hName}:{id:poBtm.aId,n:poBtm.aName};
+    m8.hId=w8.id;
+    m8.hName=w8.n;
   }
 
   // R16 -> QF
@@ -669,31 +679,27 @@ function renderBracket(){
       +'<div class="bracket-round-label">⚡ Play-off</div>'
       +'<div class="bracket-round-body">';
     
-    if(poMatches.length===1){
-      // 1 Play-off -> Match 1 (Bagan Atas)
-      html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(poMatches[0])+'</div>'
-        +'<div class="b-cell" style="flex:7;"></div>';
-    } else if(poMatches.length===2){
-      // 2 Play-offs: PO 1 -> Match 1 (Atas), PO 2 -> Match 8 (Bawah)
-      html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(poMatches[0])+'</div>'
-        +'<div class="b-cell" style="flex:6;"></div>'
-        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(poMatches[1])+'</div>';
-    } else if(poMatches.length===3){
-      // 3 Play-offs: PO 1 -> Match 1 (Atas), PO 3 -> Match 4 (Tengah), PO 2 -> Match 8 (Bawah)
-      // Map correctly: poMatches[0] = PO 1, poMatches[1] = PO 2, poMatches[2] = PO 3
-      var p1=poMatches[0];
-      var p2=poMatches[1];
-      var p3=poMatches[2];
-      html+='<div class="b-cell b-pair-top" style="flex:1;">'+bCard(p1)+'</div>'
+    // Find specific PO matches or by index
+    var poTop=poMatches.find(function(m){return m.id==='m0_po3'||m.no==='PO3'||m.no===3;})||poMatches[0];
+    var poMid=poMatches.find(function(m){return m.id==='m0_po0'||m.id==='m0'||m.no==='0'||m.no===0;})||poMatches[1];
+    var poBtm=poMatches.find(function(m){return m.id==='m0_po2'||m.no==='PO2'||m.no===2;})||poMatches[2];
+
+    if(poMatches.length===3&&poTop&&poMid&&poBtm){
+      // Exact alignment matching screenshot (8 slots of R16):
+      // slot 1 (Match 1): poTop (PO3)
+      // slot 2-3: gap
+      // slot 4 (Match 4): poMid (PO #0)
+      // slot 5-7: gap
+      // slot 8 (Match 8): poBtm (PO2)
+      html+='<div class="b-cell b-line-right" style="flex:1;">'+bCard(poTop)+'</div>'
         +'<div class="b-cell" style="flex:2;"></div>'
-        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(p3)+'</div>'
+        +'<div class="b-cell b-line-right" style="flex:1;">'+bCard(poMid)+'</div>'
         +'<div class="b-cell" style="flex:3;"></div>'
-        +'<div class="b-cell b-pair-btm" style="flex:1;">'+bCard(p2)+'</div>';
+        +'<div class="b-cell b-line-right" style="flex:1;">'+bCard(poBtm)+'</div>';
     } else {
-      // 4+ Play-offs distributed evenly
+      // General layout
       poMatches.forEach(function(m, idx){
-        var isTop=idx<Math.ceil(poMatches.length/2);
-        var cls=isTop?'b-pair-top':'b-pair-btm';
+        var cls='b-line-right';
         html+='<div class="b-cell '+cls+'">'+bCard(m)+'</div>';
       });
     }
