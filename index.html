@@ -1094,10 +1094,36 @@ function switchAdminTab(t){currentAdminTab=t;renderAdmin();}
 
 function renderAdminMatches(){
   var c=document.getElementById('adminMatchesList');if(!c)return;
-  var stages=[{key:'R16',lbl:'Babak 16 Besar'},{key:'QF',lbl:'Perempat Final'},{key:'SF',lbl:'Semi Final'},{key:'3RD',lbl:'Perebutan Juara 3'},{key:'FINAL',lbl:'Grand Final'}];
+  var stages=[];
+  var poMatches=matches.filter(function(m){return m.stage==='PO';});
+  if(poMatches.length>0)stages.push({key:'PO',lbl:'Babak Kualifikasi / Play-off'});
+  stages.push(
+    {key:'R16',lbl:'Babak 16 Besar'},
+    {key:'QF',lbl:'Perempat Final (8 Besar)'},
+    {key:'SF',lbl:'Semi Final'},
+    {key:'3RD',lbl:'Perebutan Juara 3'},
+    {key:'FINAL',lbl:'Grand Final'}
+  );
   var html='';
   stages.forEach(function(st){
     var ms=matches.filter(function(m){return m.stage===st.key;});if(!ms.length)return;
+    
+    // Sort matches within stage numerically
+    if(st.key==='PO'){
+      // Sort PO 1, PO 2, PO 3
+      ms.sort(function(a,b){
+        var na=String(a.no).replace(/\D/g,'')||'0', nb=String(b.no).replace(/\D/g,'')||'0';
+        return parseInt(na)-parseInt(nb);
+      });
+    } else {
+      // Sort Match 1 to 16 numerically
+      ms.sort(function(a,b){
+        var na=parseInt(a.no)||parseInt(String(a.id).replace('m',''))||0;
+        var nb=parseInt(b.no)||parseInt(String(b.id).replace('m',''))||0;
+        return na-nb;
+      });
+    }
+
     html+='<h3 class="text-sm font-bold text-cyan-400 mb-2 mt-4 uppercase tracking-wider">'+st.lbl+'</h3>';
     ms.forEach(function(m){
       var fin=m.status==='F';
