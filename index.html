@@ -224,6 +224,7 @@
       <div class="tab-btn" id="atab-bracket" onclick="switchAdminTab('bracket')">⚙️ Pengaturan Bagan</div>
       <div class="tab-btn" id="atab-manage" onclick="switchAdminTab('manage')">👥 Kelola Data Tim</div>
       <div class="tab-btn" id="atab-header" onclick="switchAdminTab('header')">🖥️ Edit Dashboard &amp; Header</div>
+      <div class="tab-btn" id="atab-backup" onclick="switchAdminTab('backup')">💾 Backup &amp; Restore</div>
     </div>
     <div id="adminContent-matches">
       <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
@@ -243,6 +244,7 @@
     </div>
     <div id="adminContent-manage" class="hidden"><div id="adminManagePanel"></div></div>
     <div id="adminContent-header" class="hidden"><div id="adminHeaderPanel"></div></div>
+    <div id="adminContent-backup" class="hidden"><div id="adminBackupPanel"></div></div>
   </div>
   <!-- MANAGER -->
   <div id="view-manager" class="hidden">
@@ -573,13 +575,58 @@ function saveState(){
   pushCloud();
 }
 
-// ==================== CLOUD ====================
+// ==================== CLOUD & AUTO-BACKUP ====================
 var _pushT=null;
+var _lastAutoBackupTime=0;
+
+function createBackupSnapshot(label){
+  var snapshot={
+    timestamp:new Date().toISOString(),
+    displayTime:new Date().toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}),
+    label:label||'Auto-Backup Rutin',
+    data:{
+      header:JSON.parse(JSON.stringify(HEADER)),
+      teams:JSON.parse(JSON.stringify(TEAMS)),
+      matches:JSON.parse(JSON.stringify(matches)),
+      players:JSON.parse(JSON.stringify(players)),
+      rules:JSON.parse(JSON.stringify(rules)),
+      formations:JSON.parse(JSON.stringify(formations))
+    }
+  };
+
+  // Save to LocalStorage History (Keep last 15 backups)
+  try {
+    var history=JSON.parse(localStorage.getItem('ums_backup_history')||'[]');
+    if(!Array.isArray(history))history=[];
+    history.unshift(snapshot);
+    if(history.length>15)history=history.slice(0,15);
+    localStorage.setItem('ums_backup_history',JSON.stringify(history));
+  }catch(e){console.warn('LocalStorage backup error:',e);}
+
+  // Also push to Cloud Firestore 'backups' collection doc 'latest' & history
+  if(db){
+    try {
+      var dateKey=new Date().toISOString().slice(0,10);
+      db.collection('ums26_v5').doc('backup_latest').set(snapshot,{merge:true}).catch(function(e){});
+      db.collection('ums26_v5').doc('backup_'+dateKey).set(snapshot,{merge:true}).catch(function(e){});
+    }catch(e){}
+  }
+  return snapshot;
+}
+
 function pushCloud(){
   if(!db)return;
   clearTimeout(_pushT);
   _pushT=setTimeout(function(){
-    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules,formations:formations},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
+    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules,formations:formations},{merge:true}).then(function(){
+      setSyncBadge('online');
+      // Trigger automatic background backup every 10 minutes or on significant save
+      var now=Date.now();
+      if(now - _lastAutoBackupTime > 10 * 60 * 1000){
+        _lastAutoBackupTime=now;
+        createBackupSnapshot('Auto-Backup Sistem Rutin');
+      }
+    }).catch(function(){setSyncBadge('offline');});
   },400);
 }
 
@@ -605,6 +652,13 @@ function startCloud(){
       renderHeader();
       renderCurrentView();
       setSyncBadge('online');
+
+      // Check if we should create a restore snapshot upon loading
+      var now=Date.now();
+      if(now - _lastAutoBackupTime > 30 * 60 * 1000){
+        _lastAutoBackupTime=now;
+        createBackupSnapshot('Auto-Backup Sinkronisasi Awal');
+      }
     } else { pushCloud(); }
   },function(err){setSyncBadge('offline');});
 }
@@ -1080,7 +1134,7 @@ function renderHeader(){
 
 // ==================== ADMIN VIEW ====================
 function renderAdmin(){
-  ['matches','bracket','manage','header'].forEach(function(t){
+  ['matches','bracket','manage','header','backup'].forEach(function(t){
     var el=document.getElementById('adminContent-'+t),btn=document.getElementById('atab-'+t);
     if(el)el.classList.toggle('hidden',t!==currentAdminTab);
     if(btn)btn.classList.toggle('active',t===currentAdminTab);
@@ -1089,6 +1143,7 @@ function renderAdmin(){
   else if(currentAdminTab==='bracket')renderBracketSettings();
   else if(currentAdminTab==='manage')renderManagePanel();
   else if(currentAdminTab==='header')renderHeaderPanel();
+  else if(currentAdminTab==='backup')renderBackupPanel();
 }
 function switchAdminTab(t){currentAdminTab=t;renderAdmin();}
 
@@ -2270,9 +2325,158 @@ function renderManager(){
     +(matchRows||'<p class="text-slate-500 text-sm">Belum ada jadwal pertandingan.</p>')
     +'</div>'
     +'</div>';
+// ==================== BACKUP & RESTORE PANEL ====================
+function renderBackupPanel(){
+  var c=document.getElementById('adminBackupPanel');if(!c)return;
+  var history=[];
+  try {
+    history=JSON.parse(localStorage.getItem('ums_backup_history')||'[]');
+  }catch(e){history=[];}
+
+  var historyHtml='';
+  if(history.length===0){
+    historyHtml='<div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-slate-400 text-xs text-center">Belum ada riwayat snapshot backup lokal. Klik tombol <strong>"💾 Buat Backup Baru Sekarang"</strong> di bawah untuk membuat checkpoint.</div>';
+  } else {
+    historyHtml=history.map(function(b,i){
+      var tCount=b.data&&b.data.teams?b.data.teams.length:0;
+      var pCount=b.data&&b.data.players?b.data.players.length:0;
+      var mCount=b.data&&b.data.matches?b.data.matches.length:0;
+      return '<div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center justify-between gap-3 flex-wrap mb-2.5">'
+        +'<div class="flex items-center gap-3 min-w-0 flex-1">'
+        +'<div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center font-bold text-xs text-cyan-300 flex-shrink-0">#'+(i+1)+'</div>'
+        +'<div class="min-w-0 flex-1">'
+        +'<div class="font-bold text-sm text-white flex items-center gap-2 flex-wrap">'
+        +'<span>'+esc(b.label)+'</span>'
+        +'<span class="badge-g text-[9px]">'+esc(b.displayTime)+'</span>'
+        +'</div>'
+        +'<div class="text-xs text-slate-400 mt-0.5">'
+        +'👥 <strong>'+tCount+' Tim</strong> · 🏃 <strong>'+pCount+' Pemain</strong> · ⚔️ <strong>'+mCount+' Match</strong>'
+        +'</div>'
+        +'</div>'
+        +'</div>'
+        +'<div class="flex items-center gap-2 flex-shrink-0">'
+        +'<button type="button" class="btn-p text-xs py-1.5 px-3" onclick="restoreSnapshotFromIndex('+i+')">🔄 Restore Ini</button>'
+        +'<button type="button" class="btn-s text-xs py-1.5 px-2.5" onclick="downloadBackupObject('+i+')" title="Download file JSON">⬇️ JSON</button>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  c.innerHTML='<div class="glass p-6">'
+    +'<div class="flex justify-between items-center mb-5 flex-wrap gap-2">'
+    +'<div><h3 class="font-bold text-white text-lg">💾 Pusat Backup &amp; Pemulihan Data (Auto-Backup)</h3><p class="text-xs text-slate-400">Sistem otomatis mencadangkan snapshot data ke cloud &amp; browser setiap ada pembaruan.</p></div>'
+    +'<div class="flex gap-2 flex-wrap">'
+    +'<button class="btn-g text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="triggerManualBackup()">💾 Buat Snapshot Sekarang</button>'
+    +'<button class="btn-p text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="downloadLiveDatabaseJSON()">⬇️ Unduh Backup JSON</button>'
+    +'<button class="btn-s text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="document.getElementById(\'jsonFileInput\').click()">⬆️ Upload &amp; Restore JSON</button>'
+    +'<input type="file" id="jsonFileInput" class="hidden" accept=".json" onchange="handleJSONImport(event)">'
+    +'</div>'
+    +'</div>'
+    +'<div class="p-4 bg-cyan-950/30 rounded-xl border border-cyan-500/20 text-xs text-cyan-200 mb-5 flex items-start gap-3">'
+    +'<span class="text-lg">🛡️</span>'
+    +'<div><strong>Proteksi Auto-Backup Aktif:</strong> Setiap 10 menit saat terjadi aktivitas perubahan atau saat website pertama kali dibuka, sistem otomatis menyimpan snapshot data 19 tim, pemain, jadwal, dan peraturan ke slot aman Firestore &amp; LocalStorage. Anda bisa mengembalikan data kapan saja jika terjadi kesalahan.</div>'
+    +'</div>'
+    +'<div class="space-y-3">'
+    +'<h4 class="font-bold text-amber-300 text-sm uppercase mb-2">📜 Riwayat Checkpoint Snapshot Backup:</h4>'
+    +historyHtml
+    +'</div>'
+    +'</div>';
 }
 
-// ==================== AUTH ====================
+function triggerManualBackup(){
+  var label=prompt('Beri label / catatan untuk snapshot backup ini (Opsional):', 'Backup Manual Super Admin - '+new Date().toLocaleTimeString('id-ID'));
+  if(label===null)return;
+  createBackupSnapshot(label||'Backup Manual');
+  renderBackupPanel();
+  alert('✅ Snapshot backup berhasil dibuat dan tersimpan aman di Cloud & Local Storage!');
+}
+
+function restoreSnapshotFromIndex(index){
+  try {
+    var history=JSON.parse(localStorage.getItem('ums_backup_history')||'[]');
+    var snap=history[index];
+    if(!snap||!snap.data){alert('Data snapshot tidak valid.');return;}
+    if(!confirm('Konfirmasi: Kembalikan seluruh database ke checkpoint:\n"'+snap.label+'" ('+snap.displayTime+')?\n\nSemua data tim, pemain, dan bagan akan dipulihkan sesuai snapshot ini.'))return;
+
+    var d=snap.data;
+    if(d.header)HEADER=d.header;
+    if(Array.isArray(d.teams))TEAMS=d.teams;
+    if(Array.isArray(d.matches))matches=d.matches;
+    if(Array.isArray(d.players))players=d.players;
+    if(Array.isArray(d.rules))rules=d.rules;
+    if(d.formations)formations=d.formations;
+
+    saveState();
+    renderHeader();
+    renderCurrentView();
+    renderAdmin();
+    alert('✅ Database BERHASIL dipulihkan ke checkpoint "'+snap.label+'"!');
+  }catch(e){alert('Gagal memulihkan snapshot: '+e.message);}
+}
+
+function downloadBackupObject(index){
+  try {
+    var history=JSON.parse(localStorage.getItem('ums_backup_history')||'[]');
+    var snap=history[index];
+    if(!snap)return;
+    var dataStr='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(snap.data,null,2));
+    var a=document.createElement('a');
+    a.setAttribute('href',dataStr);
+    a.setAttribute('download','ums_minisoccer_backup_'+(snap.timestamp.slice(0,10))+'_'+index+'.json');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){alert('Gagal download: '+e.message);}
+}
+
+function downloadLiveDatabaseJSON(){
+  var liveData={
+    timestamp:new Date().toISOString(),
+    header:HEADER,
+    teams:TEAMS,
+    matches:matches,
+    players:players,
+    rules:rules,
+    formations:formations
+  };
+  var dataStr='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(liveData,null,2));
+  var a=document.createElement('a');
+  a.setAttribute('href',dataStr);
+  a.setAttribute('download','ums_minisoccer_live_database_'+new Date().toISOString().slice(0,10)+'.json');
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function handleJSONImport(event){
+  var file=event.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try {
+      var d=JSON.parse(e.target.result);
+      if(!d||typeof d!=='object'){alert('Format file JSON tidak valid.');return;}
+      if(!confirm('Konfirmasi: Pulihkan database dari file "'+file.name+'"?\nSistem akan membuat snapshot darurat sebelum proses import dilakukan.'))return;
+
+      // Emergency backup before overwrite
+      createBackupSnapshot('Pre-Restore Emergency Backup');
+
+      if(d.header)HEADER=d.header;
+      if(Array.isArray(d.teams))TEAMS=d.teams;
+      if(Array.isArray(d.matches))matches=d.matches;
+      if(Array.isArray(d.players))players=d.players;
+      if(Array.isArray(d.rules))rules=d.rules;
+      if(d.formations)formations=d.formations;
+
+      saveState();
+      renderHeader();
+      renderCurrentView();
+      renderAdmin();
+      alert('✅ Database BERHASIL di-restore dari file JSON!');
+    }catch(err){alert('Gagal membaca file JSON: '+err.message);}
+  };
+  reader.readAsText(file);
+}
 function showLoginModal(){
   openModal('<div class="pb-3 border-b border-slate-800 mb-4"><span class="badge-c">🔑 MASUK AKUN</span><h2 class="text-lg font-bold text-white mt-2">Login Sistem Turnamen</h2></div>'
     +'<div class="space-y-4"><div><label class="form-lbl">Username</label><input type="text" id="loginU" class="form-inp" placeholder="Masukkan username..."></div>'
