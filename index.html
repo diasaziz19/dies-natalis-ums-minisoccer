@@ -320,21 +320,21 @@ var INIT_TEAMS=[
 var TEAMS=JSON.parse(JSON.stringify(INIT_TEAMS));
 
 var INIT_MATCHES=[
-  // HARI 1: SENIN, 28 SEPTEMBER 2026 - PLAY-OFF & 16 BESAR
-  {id:'m0_po3', no:'PO3', stage:'PO', hId:'t18',hName:'PSYCHOPHARMA FC',aId:'t12',aName:'LIBMA FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m0_po0', no:'0',   stage:'PO', hId:'t14',hName:'BPH + SEK.Univ/HUMAS + DAPEN + ..',aId:'t17',aName:'RS UMS FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m0_po2', no:'PO2', stage:'PO', hId:'t5', hName:'FEB',aId:'t11',aName:'FAI + SOBRON',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  // HARI 1: SENIN, 28 SEPTEMBER 2026 - PLAY-OFF & 16 BESAR (6 Pertandingan)
+  {id:'m0_po3', no:'PO 1', stage:'PO', hId:'t18',hName:'PSYCHOPHARMA FC',aId:'t12',aName:'LIBMA FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po2', no:'PO 2', stage:'PO', hId:'t5', hName:'FEB',aId:'t11',aName:'FAI + SOBRON',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po0', no:'PO 3', stage:'PO', hId:'t14',hName:'BPH + SEK.Univ/HUMAS + DAPEN + ..',aId:'t17',aName:'RS UMS FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
-  {id:'m1', no:1, stage:'R16',hId:'t2', hName:'PARKIR UNITED',aId:null, aName:'Belum Ditentukan',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m2', no:2, stage:'R16',hId:'t4', hName:'PERSITEVO',aId:'t16',aName:'PESMA + KEDOKTERAN UMUM',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m3', no:3, stage:'R16',hId:'t6', hName:'PERSATUAN OLAHRAGA GEDUNG I',aId:'t10',aName:'FIK',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m4', no:4, stage:'R16',hId:null, hName:'Belum Ditentukan',aId:'t3', aName:'CAKAP FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m2', no:2, stage:'R16',hId:'t4', hName:'PERSITEVO',aId:'t16',aName:'PESMA + KEDOKTERAN UMUM',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'09:00 - 09:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m3', no:3, stage:'R16',hId:'t6', hName:'PERSATUAN OLAHRAGA GEDUNG I',aId:'t10',aName:'FIK',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'09:30 - 10:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m5', no:5, stage:'R16',hId:'t15',hName:'DASP + OUTSOURCING',aId:'t13',aName:'EDUTORIUM',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'10:00 - 10:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
-  // HARI 2: SELASA, 29 SEPTEMBER 2026 - 16 BESAR (4 Pertandingan)
-  {id:'m5', no:5, stage:'R16',hId:'t15',hName:'DASP + OUTSOURCING',aId:'t13',aName:'EDUTORIUM',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m6', no:6, stage:'R16',hId:'t7', hName:'BPUI (AUM, AHASS, SPPG)',aId:'t8', aName:'TIKUM WONG MUMET FC',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m7', no:7, stage:'R16',hId:'t19',hName:'DKeu + SAI + DAA + DKPTI + LP3A + ..',aId:'t9', aName:'RSGM SOELASTRI SMILE 4 U_FKG',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m8', no:8, stage:'R16',hId:null, hName:'Belum Ditentukan',aId:'t1', aName:'SATPAM UNITED',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  // HARI 2: SELASA, 29 SEPTEMBER 2026 - 16 BESAR (5 Pertandingan)
+  {id:'m1', no:1, stage:'R16',hId:'t2', hName:'PARKIR UNITED',aId:null, aName:'Belum Ditentukan',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m4', no:4, stage:'R16',hId:null, hName:'Belum Ditentukan',aId:'t3', aName:'CAKAP FC',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m6', no:6, stage:'R16',hId:'t7', hName:'BPUI (AUM, AHASS, SPPG)',aId:'t8', aName:'TIKUM WONG MUMET FC',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m7', no:7, stage:'R16',hId:'t19',hName:'DKeu + SAI + DAA + DKPTI + LP3A + ..',aId:'t9', aName:'RSGM SOELASTRI SMILE 4 U_FKG',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'09:00 - 09:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m8', no:8, stage:'R16',hId:null, hName:'Belum Ditentukan',aId:'t1', aName:'SATPAM UNITED',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'09:30 - 10:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
   // HARI 3: RABU, 30 SEPTEMBER 2026 - PEREMPAT FINAL / 8 BESAR (4 Pertandingan)
   {id:'m9', no:9, stage:'QF',hId:null,hName:'Pemenang #1',aId:null,aName:'Pemenang #2',hScore:0,aScore:0,date:'Rabu, 30 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
@@ -598,13 +598,13 @@ function renderCurrentView(){
 // ==================== BRACKET PROGRESSION ====================
 function applyProgression(){
   // Play-off (PO) progression matching official drawing:
-  // PO #PO3 (Psychopharma vs Libma) -> Match #1 (Away / Belum Ditentukan)
-  // PO #0 (BPH vs RS UMS) -> Match #4 (Home / Belum Ditentukan)
-  // PO #PO2 (FEB vs FAI+Sobron) -> Match #8 (Home / Belum Ditentukan)
+  // PO 1 (m0_po3: Psychopharma vs Libma) -> Match #1 (Away / Belum Ditentukan)
+  // PO 3 (m0_po0: BPH vs RS UMS) -> Match #4 (Home / Belum Ditentukan)
+  // PO 2 (m0_po2: FEB vs FAI+Sobron) -> Match #8 (Home / Belum Ditentukan)
   var poMatches=matches.filter(function(m){return m.stage==='PO';});
-  var poTop=poMatches.find(function(m){return m.id==='m0_po3'||m.no==='PO3'||m.no===3;})||poMatches[0];
-  var poMid=poMatches.find(function(m){return m.id==='m0_po0'||m.id==='m0'||m.no==='0'||m.no===0;})||poMatches[1];
-  var poBtm=poMatches.find(function(m){return m.id==='m0_po2'||m.no==='PO2'||m.no===2;})||poMatches[2];
+  var poTop=poMatches.find(function(m){return m.id==='m0_po3'||m.no==='PO 1'||m.no==='PO1'||m.no==='PO3';})||poMatches[0];
+  var poMid=poMatches.find(function(m){return m.id==='m0_po0'||m.no==='PO 3'||m.no==='PO3'||m.no==='0'||m.no===0;})||poMatches[1];
+  var poBtm=poMatches.find(function(m){return m.id==='m0_po2'||m.no==='PO 2'||m.no==='PO2';})||poMatches[2];
   
   var m1=matches.find(function(m){return m.id==='m1';});
   var m4=matches.find(function(m){return m.id==='m4';});
@@ -626,8 +626,11 @@ function applyProgression(){
     m8.hName=w8.n;
   }
 
-  // R16 -> QF
-  var r16Matches=matches.filter(function(m){return m.stage==='R16';});
+  // R16 -> QF (ensure ordered Match #1 to #8)
+  var r16Matches=[1,2,3,4,5,6,7,8].map(function(num){
+    return matches.find(function(m){return m.stage==='R16'&&(m.no===num||m.id==='m'+num);});
+  }).filter(Boolean);
+
   [0,1,2,3].forEach(function(qfIdx){
     var rm1=r16Matches[qfIdx*2], rm2=r16Matches[qfIdx*2+1];
     var qf=matches.find(function(m){return m.id==='m'+(9+qfIdx);});
@@ -666,10 +669,18 @@ function switchHomeTab(t){currentHomeTab=t;renderHome();}
 function renderBracket(){
   var c=document.getElementById('bracketTree');if(!c)return;
   var poMatches=matches.filter(function(m){return m.stage==='PO';});
-  var r16Matches=matches.filter(function(m){return m.stage==='R16';});
-  var qfMatches=matches.filter(function(m){return m.stage==='QF';});
-  var sfMatches=matches.filter(function(m){return m.stage==='SF';});
-  var lastMatches=matches.filter(function(m){return m.stage==='3RD'||m.stage==='FINAL';});
+  var r16Matches=[1,2,3,4,5,6,7,8].map(function(num){
+    return matches.find(function(m){return m.stage==='R16'&&(m.no===num||m.id==='m'+num);});
+  }).filter(Boolean);
+  var qfMatches=[9,10,11,12].map(function(num){
+    return matches.find(function(m){return m.stage==='QF'&&(m.no===num||m.id==='m'+num);});
+  }).filter(Boolean);
+  var sfMatches=[13,14].map(function(num){
+    return matches.find(function(m){return m.stage==='SF'&&(m.no===num||m.id==='m'+num);});
+  }).filter(Boolean);
+  var lastMatches=[15,16].map(function(num){
+    return matches.find(function(m){return (m.stage==='3RD'||m.stage==='FINAL')&&(m.no===num||m.id==='m'+num);});
+  }).filter(Boolean);
 
   var html='';
 
@@ -679,34 +690,31 @@ function renderBracket(){
       +'<div class="bracket-round-label">⚡ Play-off</div>'
       +'<div class="bracket-round-body">';
     
-    // Find specific PO matches or by index
-    var poTop=poMatches.find(function(m){return m.id==='m0_po3'||m.no==='PO3'||m.no===3;})||poMatches[0];
-    var poMid=poMatches.find(function(m){return m.id==='m0_po0'||m.id==='m0'||m.no==='0'||m.no===0;})||poMatches[1];
-    var poBtm=poMatches.find(function(m){return m.id==='m0_po2'||m.no==='PO2'||m.no===2;})||poMatches[2];
+    // Find specific PO matches
+    var poTop=poMatches.find(function(m){return m.id==='m0_po3'||m.no==='PO 1'||m.no==='PO1'||m.no==='PO3';})||poMatches[0];
+    var poMid=poMatches.find(function(m){return m.id==='m0_po0'||m.no==='PO 3'||m.no==='PO3'||m.no==='0'||m.no===0;})||poMatches[1];
+    var poBtm=poMatches.find(function(m){return m.id==='m0_po2'||m.no==='PO 2'||m.no==='PO2';})||poMatches[2];
 
     if(poMatches.length===3&&poTop&&poMid&&poBtm){
-      // Exact alignment matching screenshot (8 slots of R16):
-      // slot 1 (Match 1): poTop (PO3)
+      // slot 1 (Match 1): PO 1
       // slot 2-3: gap
-      // slot 4 (Match 4): poMid (PO #0)
+      // slot 4 (Match 4): PO 3
       // slot 5-7: gap
-      // slot 8 (Match 8): poBtm (PO2)
+      // slot 8 (Match 8): PO 2
       html+='<div class="b-cell b-line-right" style="flex:1;">'+bCard(poTop)+'</div>'
         +'<div class="b-cell" style="flex:2;"></div>'
         +'<div class="b-cell b-line-right" style="flex:1;">'+bCard(poMid)+'</div>'
         +'<div class="b-cell" style="flex:3;"></div>'
         +'<div class="b-cell b-line-right" style="flex:1;">'+bCard(poBtm)+'</div>';
     } else {
-      // General layout
       poMatches.forEach(function(m, idx){
-        var cls='b-line-right';
-        html+='<div class="b-cell '+cls+'">'+bCard(m)+'</div>';
+        html+='<div class="b-cell b-line-right">'+bCard(m)+'</div>';
       });
     }
     html+='</div></div>';
   }
 
-  // 2. Column: Babak 16 Besar
+  // 2. Column: Babak 16 Besar (#1 to #8 in numerical tree order)
   html+='<div class="bracket-round">'
     +'<div class="bracket-round-label">16 Besar</div>'
     +'<div class="bracket-round-body">';
