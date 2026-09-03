@@ -426,9 +426,36 @@ var INIT_PLAYERS=(function(){
 })();
 
 var RULES=[
-  {cat:'Format & Ketentuan Umum',items:['Format Turnamen: Sistem Gugur Tunggal (Single Elimination Knockout) 17 Tim (Babak Play-off & 16 Besar).','Sistem Pertandingan: 7 vs 7 (1 GK + 6 Pemain Lapangan).','Komposisi Usia: Maksimal 2 pemain usia < 35 tahun di lapangan, sisanya minimal 5 pemain usia >= 35 tahun.','Durasi: 2 x 15 menit + jeda 5 menit.','Bila Imbang: Langsung adu penalti (3 penendang + 1 sudden death).','Pergantian Pemain: Rolling substitution, tetap patuh batasan usia.']},
-  {cat:'Persyaratan Pemain & Skuad',items:['Kuota Skuad: Maksimal 14 pemain, 1 manajer, 1 official tim.','Status Pemain: Wajib Dosen Tetap/Tidak Tetap, Tendik, atau Staf Resmi Unit/Fakultas UMS.','Verifikasi: Wajib Surat Tugas Resmi + KTP/Kartu Pegawai saat registrasi.','Perlengkapan: Jersey bernomor, kaos kaki panjang, shin guard, sepatu TF/AG (dilarang pul besi SG).']},
-  {cat:'Akumulasi Kartu & Disiplin',items:['Kartu Kuning 2x (berbeda pertandingan): Suspensi 1 pertandingan berikutnya.','Kartu Kuning Ganda: Keluar lapangan + absen 1 pertandingan.','Kartu Merah Langsung: Keluar lapangan + absen 1 pertandingan. Tim bermain 6 pemain selama 2 menit.','Fair Play: Seluruh pemain dan suporter wajib menjunjung sportivitas dan nilai keislaman UMS.']},
+  {
+    cat:'1. Format & Ketentuan Umum',
+    items:[
+      'Format Turnamen: Sistem Gugur Tunggal (Single Elimination Knockout) 16 Tim.',
+      'Sistem Pertandingan: 7 vs 7 (1 GK + 6 Pemain Lapangan).',
+      'Komposisi Usia: Maksimal 4 pemain usia < 35 tahun di lapangan, sisanya 3 pemain usia >= 35 tahun.',
+      'Durasi: 2 x 15 menit kotor (termasuk jeda babak dan pergantian pertandingan, keputusan waktu ada di wasit)',
+      'Bila Imbang: Langsung adu penalti (3 penendang + 1 sudden death).',
+      'Pergantian Pemain: Rolling substitution tanpa dibatasi, namun harus tetap patuh batasan usia.',
+      'Segala hal-hal teknis merupakan keputusan mutlak dari Wasit dan tidak bisa diganggu gugat'
+    ]
+  },
+  {
+    cat:'2. Persyaratan Pemain & Skuad',
+    items:[
+      'Kuota Skuad: Jumlah pemain tidak dibatasi, 1 manajer, 1 official tim.',
+      'Status Pemain: Wajib Dosen Tetap/Tidak Tetap, Tendik, atau Staf Resmi Unit/Fakultas UMS.',
+      'Verifikasi: Wajib Surat Tugas Resmi + KTP/Kartu Pegawai saat registrasi.',
+      'Perlengkapan: Jersey bernomor, kaos kaki panjang, shin guard, sepatu TF/AG (dilarang pul besi SG).'
+    ]
+  },
+  {
+    cat:'3. Akumulasi Kartu & Disiplin',
+    items:[
+      'Kartu Kuning 2x (berbeda pertandingan): Suspensi 1 pertandingan berikutnya.',
+      'Kartu Kuning Ganda: Keluar lapangan + absen 1 pertandingan.',
+      'Kartu Merah Langsung: Keluar lapangan + absen 1 pertandingan.',
+      'Fair Play: Seluruh pemain dan suporter wajib menjunjung sportivitas dan nilai keislaman UMS.'
+    ]
+  }
 ];
 
 var ADMIN={user:'superadmin',pass:'ums2026admin'};
