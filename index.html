@@ -357,24 +357,62 @@ var INIT_PLAYERS=(function(){
   var ages=[38,36,35,37,40,33,35,39,36,38,37,35,36,40,38,35];
   var arr=[];
   TEAMS.forEach(function(t,ti){
-    if(t.id==='t6'){
+    if(t.id==='t3'){
+      // Skuad Resmi CAKAP FC (FKIP)
+      var t3Arr=[
+        {id:'t3-p1',teamId:'t3',teamName:t.name,fullName:'Fitri Kurniawan',pos:'FW',unit:t.unit,usia:38},
+        {id:'t3-p2',teamId:'t3',teamName:t.name,fullName:'Ardhian Tomi Kurniawan',pos:'GK',unit:t.unit,usia:37},
+        {id:'t3-p3',teamId:'t3',teamName:t.name,fullName:'Agam Akhmad Syaukani',pos:'CB',unit:t.unit,usia:34},
+        {id:'t3-p4',teamId:'t3',teamName:t.name,fullName:'Waluyo',pos:'CB',unit:t.unit,usia:37},
+        {id:'t3-p5',teamId:'t3',teamName:t.name,fullName:'Nurhidayat',pos:'CB',unit:t.unit,usia:37},
+        {id:'t3-p6',teamId:'t3',teamName:t.name,fullName:'Ismail',pos:'CB',unit:t.unit,usia:38},
+        {id:'t3-p7',teamId:'t3',teamName:t.name,fullName:'Muhad Fatoni',pos:'CM',unit:t.unit,usia:36},
+        {id:'t3-p1787545473814',teamId:'t3',teamName:t.name,fullName:'Dias Aziz Pramudita',pos:'CM',unit:t.unit,usia:34},
+        {id:'t3-p1787545487496',teamId:'t3',teamName:t.name,fullName:'Pungki Indarto',pos:'FW',unit:t.unit,usia:40},
+        {id:'t3-p1787545499611',teamId:'t3',teamName:t.name,fullName:'Nur Subekti',pos:'FW',unit:t.unit,usia:37},
+        {id:'t3-p1787545513608',teamId:'t3',teamName:t.name,fullName:'Azlan Khoirur Roziqin',pos:'FW',unit:t.unit,usia:37},
+        {id:'t3-p1787545529164',teamId:'t3',teamName:t.name,fullName:'Sukirman',pos:'FW',unit:t.unit,usia:39},
+        {id:'t3-p1787629868795',teamId:'t3',teamName:t.name,fullName:'Muhammad Bahrul Ulum',pos:'CM',unit:t.unit,usia:35},
+        {id:'t3-p1787629932211',teamId:'t3',teamName:t.name,fullName:'Didik Sooeed',pos:'CM',unit:'FKIP UMS LabSchool',usia:42}
+      ];
+      t3Arr.forEach(function(p){arr.push(p);});
+    } else if(t.id==='t4'){
+      // Skuad Resmi PERSITEVO (FKI, FT & Vokasi)
+      var t4Arr=[
+        {id:'t4-p1',teamId:'t4',teamName:t.name,fullName:'Sidiq Setyawan FKI',pos:'GK',unit:t.unit,usia:37},
+        {id:'t4-p2',teamId:'t4',teamName:t.name,fullName:'Arief Surya FKI',pos:'CM',unit:t.unit,usia:40},
+        {id:'t4-p3',teamId:'t4',teamName:t.name,fullName:'Setyawan Vokasi',pos:'CB',unit:t.unit,usia:33},
+        {id:'t4-p4',teamId:'t4',teamName:t.name,fullName:'Syaiful Romadhon Vokasi',pos:'CM',unit:t.unit,usia:35},
+        {id:'t4-p5',teamId:'t4',teamName:t.name,fullName:'Ahmada Rahman FKI',pos:'CB',unit:t.unit,usia:39},
+        {id:'t4-p6',teamId:'t4',teamName:t.name,fullName:'Laboran T Sipil',pos:'FW',unit:t.unit,usia:36},
+        {id:'t4-p7',teamId:'t4',teamName:t.name,fullName:'Tendik Elektro FT',pos:'FW',unit:t.unit,usia:38},
+        {id:'t4-p1787640214219',teamId:'t4',teamName:t.name,fullName:'Nahrul FT Elektro',pos:'CM',unit:t.unit,usia:35},
+        {id:'t4-p1787640318277',teamId:'t4',teamName:t.name,fullName:'Basith FT Mesin',pos:'CB',unit:t.unit,usia:38},
+        {id:'t4-p1787640407972',teamId:'t4',teamName:t.name,fullName:'Yuda Wirawanda FKI',pos:'CM',unit:t.unit,usia:35},
+        {id:'t4-p1787640464023',teamId:'t4',teamName:t.name,fullName:'Dava FKI',pos:'FW',unit:t.unit,usia:35}
+      ];
+      t4Arr.forEach(function(p){arr.push(p);});
+    } else if(t.id==='t6'){
+      // Skuad Resmi PERSATUAN OLAHRAGA GEDUNG I (FG, FHIP & LPMB)
       var t6Arr=[
-        {id:'t6-p1',teamId:'t6',teamName:t.name,fullName:'Okto (FG)',pos:'GK',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:33},
-        {id:'t6-p2',teamId:'t6',teamName:t.name,fullName:'Pak Choi',pos:'CB',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:35},
-        {id:'t6-p3',teamId:'t6',teamName:t.name,fullName:'Mahyan Danu Kusuma',pos:'CB',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:39,isCaptain:true},
-        {id:'t6-p4',teamId:'t6',teamName:t.name,fullName:'RM Fayyas Failaq',pos:'CM',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:36},
-        {id:'t6-p5',teamId:'t6',teamName:t.name,fullName:'Wahyu Koerniawan',pos:'CM',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:38},
-        {id:'t6-p6',teamId:'t6',teamName:t.name,fullName:'Arif Kancil',pos:'FW',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:37},
-        {id:'t6-p7',teamId:'t6',teamName:t.name,fullName:'Danang Kurniawan',pos:'FW',unit:'Geografi, Hukum, Ilmu Pemerintahan & LBIPU',usia:35},
-        {id:'t6-p8',teamId:'t6',teamName:t.name,fullName:'Pak Iqbal',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:35},
-        {id:'t6-p9',teamId:'t6',teamName:t.name,fullName:'Zaenal',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:34},
-        {id:'t6-p10',teamId:'t6',teamName:t.name,fullName:'Pak Djumadi, Ph.D',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:32},
-        {id:'t6-p11',teamId:'t6',teamName:t.name,fullName:'Ahmad Fauzi Djamaluddin',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:35},
-        {id:'t6-p12',teamId:'t6',teamName:t.name,fullName:'Park Ji Sung',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:33},
-        {id:'t6-p13',teamId:'t6',teamName:t.name,fullName:'Pak Endy',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:40},
-        {id:'t6-p14',teamId:'t6',teamName:t.name,fullName:'Sandya Mahendra',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:33},
-        {id:'t6-p15',teamId:'t6',teamName:t.name,fullName:'Pak Fahmi Fairuzzaman',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:39},
-        {id:'t6-p16',teamId:'t6',teamName:t.name,fullName:'M. Junaidi',pos:'CM',unit:'Geografi, Hukum dan Ilmu Politik & LPMB',usia:42},
+        {id:'t6-p1',teamId:'t6',teamName:t.name,fullName:'Mas Bella',pos:'GK',unit:t.unit,usia:33},
+        {id:'t6-p2',teamId:'t6',teamName:t.name,fullName:'Pak Choi',pos:'CB',unit:t.unit,usia:35},
+        {id:'t6-p3',teamId:'t6',teamName:t.name,fullName:'Mahyan Danu Kusuma',pos:'CB',unit:t.unit,usia:39,isCaptain:true},
+        {id:'t6-p4',teamId:'t6',teamName:t.name,fullName:'RM Fayyas Failaq',pos:'CM',unit:t.unit,usia:36},
+        {id:'t6-p5',teamId:'t6',teamName:t.name,fullName:'Wahyu Koerniawan',pos:'CM',unit:t.unit,usia:38},
+        {id:'t6-p6',teamId:'t6',teamName:t.name,fullName:'Arif Kancil',pos:'FW',unit:t.unit,usia:37},
+        {id:'t6-p7',teamId:'t6',teamName:t.name,fullName:'Danang Kurniawan',pos:'FW',unit:t.unit,usia:35},
+        {id:'t6-p8',teamId:'t6',teamName:t.name,fullName:'Pak Iqbal',pos:'CM',unit:t.unit,usia:35},
+        {id:'t6-p9',teamId:'t6',teamName:t.name,fullName:'Zaenal',pos:'CM',unit:t.unit,usia:34},
+        {id:'t6-p10',teamId:'t6',teamName:t.name,fullName:'Pak Djumadi, Ph.D',pos:'CM',unit:t.unit,usia:32},
+        {id:'t6-p11',teamId:'t6',teamName:t.name,fullName:'Ahmad Fauzi Djamaluddin',pos:'GK',unit:t.unit,usia:35},
+        {id:'t6-p12',teamId:'t6',teamName:t.name,fullName:'Wachid Daga Suryono',pos:'CB',unit:t.unit,usia:33},
+        {id:'t6-p13',teamId:'t6',teamName:t.name,fullName:'Pak Endy',pos:'FW',unit:t.unit,usia:40},
+        {id:'t6-p14',teamId:'t6',teamName:t.name,fullName:'Sandya Mahendra',pos:'CM',unit:t.unit,usia:33},
+        {id:'t6-p15',teamId:'t6',teamName:t.name,fullName:'Pak Fahmi Fairuzzaman',pos:'CM',unit:t.unit,usia:39},
+        {id:'t6-p16',teamId:'t6',teamName:t.name,fullName:'M. Junaidi',pos:'CB',unit:t.unit,usia:42},
+        {id:'t6-p1787708546266',teamId:'t6',teamName:t.name,fullName:'Pak Danar',pos:'FW',unit:t.unit,usia:36},
+        {id:'t6-p1787805662730',teamId:'t6',teamName:t.name,fullName:'Pak Faisal',pos:'CM',unit:t.unit,usia:45}
       ];
       t6Arr.forEach(function(p){arr.push(p);});
     } else {
