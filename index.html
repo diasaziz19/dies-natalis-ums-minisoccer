@@ -1443,7 +1443,10 @@ function renderManagePanel(){
   c.innerHTML='<div class="glass p-5">'
     +'<div class="flex justify-between items-center mb-4 flex-wrap gap-2">'
     +'<div><h4 class="font-bold text-white text-base">👤 Manajemen Tim &amp; Pemain</h4><p class="text-xs text-slate-400">Kelola skuad resmi, official, dan penambahan tim peserta turnamen</p></div>'
+    +'<div class="flex items-center gap-2 flex-wrap">'
+    +'<button class="btn-g text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="exportTeamsAndPlayersExcel()">📊 Export Data Tim &amp; Pemain (.XLS / Excel)</button>'
     +'<button class="btn-p text-xs py-2 px-3.5 flex items-center gap-1.5" onclick="showAddTeamModal()">➕ Tambah Tim Peserta Baru</button>'
+    +'</div>'
     +'</div>'
     +'<div class="mb-3"><label class="form-lbl">Pilih Tim untuk Dikelola</label><select class="form-inp" onchange="loadTeamPlayers(this.value)" id="mgrTeamSel"><option value="">-- Pilih Tim --</option>'+teamOpts+'</select></div>'
     +'<div id="mgrTeamPlayers"></div>'
@@ -2420,6 +2423,79 @@ function downloadManualBackupJSON(){
     a.remove();
     alert('✅ File backup database (.JSON) berhasil diunduh ke komputer Anda!');
   }catch(err){alert('Gagal download backup: '+err.message);}
+}
+
+// ==================== EXCEL EXPORT HELPER ====================
+function exportTeamsAndPlayersExcel(){
+  try {
+    var posFullNames={GK:'Penjaga Gawang (GK)',CB:'Bek (CB)',CM:'Gelandang (CM)',FW:'Penyerang (FW)'};
+    var exportDate=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+    // 1. Table 1: Ringkasan 19 Tim
+    var teamsRowsHtml=TEAMS.map(function(t,i){
+      var ps=players.filter(function(p){return p.teamId===t.id;});
+      var u35=ps.filter(function(p){return p.usia&&Number(p.usia)<35;}).length;
+      var o35=ps.filter(function(p){return p.usia&&Number(p.usia)>=35;}).length;
+      return '<tr>'
+        +'<td style="text-align:center;">'+(i+1)+'</td>'
+        +'<td><strong>'+esc(t.name)+'</strong></td>'
+        +'<td>'+esc(t.unit)+'</td>'
+        +'<td>'+esc(t.manager||'-')+'</td>'
+        +'<td>'+esc(t.official||'-')+'</td>'
+        +'<td>'+esc(t.captain||'-')+'</td>'
+        +'<td style="text-align:center;"><strong>'+ps.length+'</strong></td>'
+        +'<td style="text-align:center;">'+u35+'</td>'
+        +'<td style="text-align:center;">'+o35+'</td>'
+        +'</tr>';
+    }).join('');
+
+    // 2. Table 2: Detail Seluruh Pemain
+    var playersRowsHtml=players.map(function(p,i){
+      var t=TEAMS.find(function(x){return x.id===p.teamId;})||{};
+      var isCap=(t&&t.captain&&t.captain.toLowerCase().trim()===p.fullName.toLowerCase().trim())||p.isCaptain;
+      var kategAge=(p.usia&&Number(p.usia)<35)?'Usia < 35 Thn':'Usia ≥ 35 Thn';
+      return '<tr>'
+        +'<td style="text-align:center;">'+(i+1)+'</td>'
+        +'<td><strong>'+esc(t.name||p.teamName||'-')+'</strong></td>'
+        +'<td>'+esc(p.fullName)+(isCap?' (Kapten)':'')+'</td>'
+        +'<td style="text-align:center;">'+(isCap?'KAPTEN':'-')+'</td>'
+        +'<td>'+esc(posFullNames[p.pos]||p.pos||'-')+'</td>'
+        +'<td style="text-align:center;">'+(p.usia||'-')+'</td>'
+        +'<td>'+kategAge+'</td>'
+        +'<td>'+esc(p.unit||t.unit||'-')+'</td>'
+        +'</tr>';
+    }).join('');
+
+    var excelHtml='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'
+      +'<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Data Skuad Tim</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>table{border-collapse:collapse;font-family:Arial,sans-serif;font-size:12px;} th{background-color:#0f766e;color:#ffffff;font-weight:bold;padding:8px;border:1px solid #cbd5e1;} td{padding:6px 8px;border:1px solid #cbd5e1;vertical-align:middle;} .header-title{font-size:16px;font-weight:bold;color:#0f172a;margin-bottom:4px;} .header-sub{font-size:12px;color:#475569;margin-bottom:15px;}</style></head>'
+      +'<body>'
+      +'<div class="header-title">DATA RESMI TIM &amp; SKUAD PEMAIN - DIES NATALIS KE-68 UMS</div>'
+      +'<div class="header-sub">Turnamen Minisoccer Champions League 2026 · Diekspor pada: '+exportDate+' · Total: '+TEAMS.length+' Tim, '+players.length+' Pemain</div>'
+      +'<br>'
+      +'<h3 style="color:#0f766e;margin-bottom:6px;">1. DAFTAR PROFIL &amp; OFFICIAL 19 TIM PESERTA</h3>'
+      +'<table>'
+      +'<thead><tr><th>No</th><th>Nama Tim</th><th>Unit / Fakultas</th><th>Manajer Tim</th><th>Official Tim</th><th>Kapten Tim</th><th>Total Pemain</th><th>Pemain &lt; 35 Thn</th><th>Pemain ≥ 35 Thn</th></tr></thead>'
+      +'<tbody>'+teamsRowsHtml+'</tbody>'
+      +'</table>'
+      +'<br><br>'
+      +'<h3 style="color:#0f766e;margin-bottom:6px;">2. DAFTAR LENGKAP DETAIL SKUAD PEMAIN ('+players.length+' PEMAIN)</h3>'
+      +'<table>'
+      +'<thead><tr><th>No</th><th>Tim</th><th>Nama Lengkap Pemain</th><th>Peran</th><th>Posisi</th><th>Usia (Tahun)</th><th>Kategori Usia</th><th>Unit / Fakultas</th></tr></thead>'
+      +'<tbody>'+playersRowsHtml+'</tbody>'
+      +'</table>'
+      +'</body></html>';
+
+    var blob=new Blob([excelHtml],{type:'application/vnd.ms-excel;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='Data_Tim_dan_Pemain_DiesNatalis68_UMS_'+new Date().toISOString().slice(0,10)+'.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('✅ Data 19 Tim dan '+players.length+' Pemain berhasil diekspor dalam format Excel (.XLS)!');
+  }catch(err){alert('Gagal mengekspor data Excel: '+err.message);}
 }
 
 // ==================== HELPER ====================
