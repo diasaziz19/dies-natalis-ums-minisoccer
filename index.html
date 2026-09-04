@@ -575,11 +575,38 @@ function saveState(){
 
 // ==================== CLOUD ====================
 var _pushT=null;
+var _lastBackupDateKey='';
+
+function triggerSilentDailyBackup(){
+  if(!db)return;
+  try{
+    var now=new Date();
+    var dateKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    if(_lastBackupDateKey===dateKey)return;
+    _lastBackupDateKey=dateKey;
+    var snapData={
+      timestamp:now.toISOString(),
+      dateKey:dateKey,
+      header:HEADER,
+      teams:TEAMS,
+      matches:matches,
+      players:players,
+      rules:rules,
+      formations:formations
+    };
+    db.collection('ums26_v5').doc('backup_'+dateKey).set(snapData,{merge:true}).catch(function(){});
+    db.collection('ums26_v5').doc('backup_latest').set(snapData,{merge:true}).catch(function(){});
+  }catch(err){}
+}
+
 function pushCloud(){
   if(!db)return;
   clearTimeout(_pushT);
   _pushT=setTimeout(function(){
-    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules,formations:formations},{merge:true}).then(function(){setSyncBadge('online');}).catch(function(){setSyncBadge('offline');});
+    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules,formations:formations},{merge:true}).then(function(){
+      setSyncBadge('online');
+      triggerSilentDailyBackup();
+    }).catch(function(){setSyncBadge('offline');});
   },400);
 }
 
@@ -605,6 +632,7 @@ function startCloud(){
       renderHeader();
       renderCurrentView();
       setSyncBadge('online');
+      triggerSilentDailyBackup();
     } else { pushCloud(); }
   },function(err){setSyncBadge('offline');});
 }
