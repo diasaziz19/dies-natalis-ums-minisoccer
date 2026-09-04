@@ -228,7 +228,10 @@
     <div id="adminContent-matches">
       <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
         <h3 class="font-bold text-white">Daftar Pertandingan</h3>
-        <button class="btn-d" onclick="confirmResetAllScores()">🔄 Reset Semua Skor (0-0)</button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="btn-g text-xs py-1.5 px-3 flex items-center gap-1" onclick="downloadManualBackupJSON()">💾 Download Backup Database (.JSON)</button>
+          <button class="btn-d" onclick="confirmResetAllScores()">🔄 Reset Semua Skor (0-0)</button>
+        </div>
       </div>
       <div id="adminMatchesList"></div>
     </div>
@@ -2365,6 +2368,31 @@ function closeModal(){
 }
 function overlayClose(e){if(e.target.id==='modalOverlay')closeModal();}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+
+// ==================== MANUAL BACKUP HELPER ====================
+function downloadManualBackupJSON(){
+  try {
+    var snapData={
+      timestamp:new Date().toISOString(),
+      dateKey:new Date().toISOString().slice(0,10),
+      exportedBy:'Super Admin',
+      header:HEADER,
+      teams:TEAMS,
+      matches:matches,
+      players:players,
+      rules:rules,
+      formations:formations
+    };
+    var dataStr='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(snapData,null,2));
+    var a=document.createElement('a');
+    a.setAttribute('href',dataStr);
+    a.setAttribute('download','ums_minisoccer_backup_'+new Date().toISOString().slice(0,10)+'.json');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    alert('✅ File backup database (.JSON) berhasil diunduh ke komputer Anda!');
+  }catch(err){alert('Gagal download backup: '+err.message);}
+}
 
 // ==================== HELPER ====================
 function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
