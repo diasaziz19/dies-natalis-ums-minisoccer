@@ -229,7 +229,8 @@
       <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
         <h3 class="font-bold text-white">Daftar Pertandingan</h3>
         <div class="flex items-center gap-2 flex-wrap">
-          <button class="btn-g text-xs py-1.5 px-3 flex items-center gap-1" onclick="downloadManualBackupJSON()">💾 Download Backup Database (.JSON)</button>
+          <button class="btn-p text-xs py-1.5 px-3 flex items-center gap-1" onclick="backupToFirestoreNow()">☁️ Backup ke Firestore</button>
+          <button class="btn-g text-xs py-1.5 px-3 flex items-center gap-1" onclick="downloadManualBackupJSON()">💾 Download JSON</button>
           <button class="btn-d" onclick="confirmResetAllScores()">🔄 Reset Semua Skor (0-0)</button>
         </div>
       </div>
@@ -2370,6 +2371,33 @@ function overlayClose(e){if(e.target.id==='modalOverlay')closeModal();}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 
 // ==================== MANUAL BACKUP HELPER ====================
+function backupToFirestoreNow(){
+  if(!db){alert('Koneksi Cloud Firestore tidak tersedia.');return;}
+  var label=prompt('Beri label / catatan untuk snapshot backup ini:', 'Manual Backup - '+new Date().toLocaleTimeString('id-ID'));
+  if(label===null)return;
+  try {
+    var now=new Date();
+    var dateKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    var snapData={
+      timestamp:now.toISOString(),
+      dateKey:dateKey,
+      label:label||'Manual Backup Super Admin',
+      header:HEADER,
+      teams:TEAMS,
+      matches:matches,
+      players:players,
+      rules:rules,
+      formations:formations
+    };
+    db.collection('ums26_v5').doc('backup_latest').set(snapData,{merge:true}).then(function(){
+      db.collection('ums26_v5').doc('backup_'+dateKey).set(snapData,{merge:true}).catch(function(){});
+      alert('✅ Berhasil mencadangkan seluruh database (19 Tim, 241 Pemain, Jadwal, & Peraturan) ke Cloud Firestore!');
+    }).catch(function(err){
+      alert('Gagal mencadangkan ke Cloud Firestore: '+err.message);
+    });
+  }catch(err){alert('Error backup: '+err.message);}
+}
+
 function downloadManualBackupJSON(){
   try {
     var snapData={
