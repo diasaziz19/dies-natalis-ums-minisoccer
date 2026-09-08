@@ -257,17 +257,22 @@
     <div id="managerContent"></div>
   </div>
   <!-- FOOTER DECORATION -->
-  <div class="mt-12 pt-8 pb-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+  <div class="mt-12 pt-8 pb-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left relative">
     <div class="flex items-center gap-3">
       <img src="./assets/logo-dies-natalis-68-ums.png" alt="Dies Natalis 68 UMS" style="height:36px;width:auto;object-fit:contain;" class="drop-shadow-md">
       <div>
-        <div class="text-xs font-bold text-white tracking-wide">PANITIA DIES NATALIS KE-68 UMS 2026</div>
-        <div class="text-[11px] text-cyan-400 font-semibold">Turnamen Minisoccer Antar Sivitas Akademika</div>
+        <div class="text-xs font-bold text-white tracking-wide" id="footerOrgDisplay">PANITIA DIES NATALIS KE-68 UMS 2026</div>
+        <div class="text-[11px] text-cyan-400 font-semibold" id="footerSubDisplay">Turnamen Minisoccer Antar Sivitas Akademika</div>
       </div>
     </div>
-    <div class="text-xs text-slate-400">
-      <div>© 2026 Universitas Muhammadiyah Surakarta</div>
-      <div class="text-[10px] text-slate-500 mt-0.5 font-medium">Sinergi Berdampak Berkelanjutan</div>
+    <div class="flex flex-col sm:flex-row items-center gap-3">
+      <div class="text-xs text-slate-400 text-center sm:text-right">
+        <div id="footerCopyDisplay">© 2026 Universitas Muhammadiyah Surakarta</div>
+        <div class="text-[10px] text-slate-500 mt-0.5 font-medium" id="footerTaglineDisplay">Sinergi Berdampak Berkelanjutan</div>
+      </div>
+      <button id="adminFooterEditBtn" class="btn-g hidden text-[11px] py-1.5 px-3 flex items-center gap-1 shadow-sm" onclick="showEditFooterModal()">
+        ✏️ Edit Footer
+      </button>
     </div>
   </div>
 </div>
@@ -296,7 +301,11 @@ var INIT_HEADER={
   heroDate:'Mulai Senin, 28 Sept 2026 (07:30 WIB)',
   heroVenue:'Lap. Psikologi UMS',
   heroFormat:'19 Tim (Play-off & 16 Besar)',
-  cardFooter:'Turnamen Resmi 2026'
+  cardFooter:'Turnamen Resmi 2026',
+  footerOrg:'PANITIA DIES NATALIS KE-68 UMS 2026',
+  footerSubtitle:'Turnamen Minisoccer Antar Sivitas Akademika',
+  footerCopyright:'© 2026 Universitas Muhammadiyah Surakarta',
+  footerTagline:'Sinergi Berdampak Berkelanjutan'
 };
 var HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
 
@@ -1265,6 +1274,10 @@ function renderHeader(){
   var hVen=document.getElementById('heroVenueDisplay');if(hVen)hVen.textContent=HEADER.heroVenue||INIT_HEADER.heroVenue;
   var hFmt=document.getElementById('heroFormatDisplay');if(hFmt)hFmt.textContent=HEADER.heroFormat||INIT_HEADER.heroFormat;
   var cFoot=document.getElementById('cardFooterDisplay');if(cFoot)cFoot.textContent=HEADER.cardFooter||INIT_HEADER.cardFooter;
+  var fOrg=document.getElementById('footerOrgDisplay');if(fOrg)fOrg.textContent=HEADER.footerOrg||INIT_HEADER.footerOrg;
+  var fSub=document.getElementById('footerSubDisplay');if(fSub)fSub.textContent=HEADER.footerSubtitle||INIT_HEADER.footerSubtitle;
+  var fCopy=document.getElementById('footerCopyDisplay');if(fCopy)fCopy.textContent=HEADER.footerCopyright||INIT_HEADER.footerCopyright;
+  var fTag=document.getElementById('footerTaglineDisplay');if(fTag)fTag.textContent=HEADER.footerTagline||INIT_HEADER.footerTagline;
 }
 
 // ==================== ADMIN VIEW ====================
@@ -2198,14 +2211,17 @@ function saveEditTeam(teamId,returnFn){
 }
 
 // ==================== DASHBOARD & HEADER SETTINGS ====================
+// ==================== DASHBOARD & HEADER SETTINGS ====================
 function renderHeaderPanel(){
   var c=document.getElementById('adminHeaderPanel');if(!c)return;
   var h=HEADER||INIT_HEADER;
   c.innerHTML='<div class="glass p-6">'
     +'<div class="flex justify-between items-center mb-5 flex-wrap gap-2">'
-    +'<div><h3 class="font-bold text-white text-lg">🖥️ Pengaturan Header &amp; Dashboard Utama</h3><p class="text-xs text-slate-400">Ubah seluruh teks, judul, banner, dan informasi turnamen pada beranda utama.</p></div>'
-    +'<button class="btn-d text-xs py-1.5 px-3" onclick="confirmResetHeader()">🔄 Reset Teks ke Default</button>'
-    +'</div>'
+    +'<div><h3 class="font-bold text-white text-lg">🖥️ Pengaturan Header, Dashboard &amp; Footer</h3><p class="text-xs text-slate-400">Ubah seluruh teks, judul, banner, informasi turnamen, dan footer pada website.</p></div>'
+    +'<div class="flex items-center gap-2 flex-wrap">'
+    +'<button class="btn-g text-xs py-1.5 px-3" onclick="showEditFooterModal()">🦶 Edit Footer Khusus</button>'
+    +'<button class="btn-d text-xs py-1.5 px-3" onclick="confirmResetHeader()">🔄 Reset ke Default</button>'
+    +'</div></div>'
     +'<div class="space-y-4">'
     +'<div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">'
     +'<h4 class="font-bold text-cyan-400 text-sm mb-3">🏷️ Teks Navigation Bar (Header Atas)</h4>'
@@ -2232,9 +2248,20 @@ function renderHeaderPanel(){
     +'</div>'
     +'<div><label class="form-lbl">Label Kartu Logo (Footer Kartu)</label><input type="text" id="admCardFoot" class="form-inp" value="'+esc(h.cardFooter||'')+'"></div>'
     +'</div>'
+    +'<div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">'
+    +'<h4 class="font-bold text-emerald-400 text-sm mb-3">🦶 Teks Footer Halaman Bawah</h4>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">'
+    +'<div><label class="form-lbl">Nama Panitia / Organisasi</label><input type="text" id="admFootOrg" class="form-inp" value="'+esc(h.footerOrg||INIT_HEADER.footerOrg)+'"></div>'
+    +'<div><label class="form-lbl">Subjudul Panitia / Turnamen</label><input type="text" id="admFootSub" class="form-inp" value="'+esc(h.footerSubtitle||INIT_HEADER.footerSubtitle)+'"></div>'
+    +'</div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">'
+    +'<div><label class="form-lbl">Teks Copyright</label><input type="text" id="admFootCopy" class="form-inp" value="'+esc(h.footerCopyright||INIT_HEADER.footerCopyright)+'"></div>'
+    +'<div><label class="form-lbl">Tagline / Motto</label><input type="text" id="admFootTagline" class="form-inp" value="'+esc(h.footerTagline||INIT_HEADER.footerTagline)+'"></div>'
+    +'</div>'
+    +'</div>'
     +'</div>'
     +'<div class="flex gap-2 mt-5">'
-    +'<button class="btn-p py-2 px-6 text-sm" onclick="saveHeaderSettingsFromPanel()">💾 Simpan Perubahan Dashboard &amp; Header</button>'
+    +'<button class="btn-p py-2 px-6 text-sm" onclick="saveHeaderSettingsFromPanel()">💾 Simpan Perubahan Dashboard, Header &amp; Footer</button>'
     +'</div>'
     +'</div>';
 }
@@ -2243,8 +2270,8 @@ function showEditHeaderModal(){
   var h=HEADER||INIT_HEADER;
   openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
     +'<span class="badge-g">👑 SUPER ADMIN</span>'
-    +'<h2 class="text-base font-bold text-white mt-2">Edit Dashboard Utama &amp; Header</h2>'
-    +'<p class="text-xs text-slate-400 mt-1">Ubah teks dan identitas turnamen yang tampil di beranda dan header web.</p>'
+    +'<h2 class="text-base font-bold text-white mt-2">Edit Dashboard Utama, Header &amp; Footer</h2>'
+    +'<p class="text-xs text-slate-400 mt-1">Ubah teks dan identitas turnamen yang tampil di beranda, header, dan footer web.</p>'
     +'</div>'
     +'<div class="space-y-3 max-h-[70vh] overflow-y-auto pr-1">'
     +'<div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">'
@@ -2272,12 +2299,55 @@ function showEditHeaderModal(){
     +'</div>'
     +'<div><label class="form-lbl">Label Kartu Logo</label><input type="text" id="modCardFoot" class="form-inp" value="'+esc(h.cardFooter||'')+'"></div>'
     +'</div></div>'
+    +'<div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">'
+    +'<div class="text-xs font-bold text-emerald-400 mb-2">🦶 FOOTER HALAMAN</div>'
+    +'<div class="space-y-2">'
+    +'<div><label class="form-lbl">Nama Panitia / Organisasi</label><input type="text" id="modFootOrg" class="form-inp" value="'+esc(h.footerOrg||INIT_HEADER.footerOrg)+'"></div>'
+    +'<div><label class="form-lbl">Subjudul Panitia / Turnamen</label><input type="text" id="modFootSub" class="form-inp" value="'+esc(h.footerSubtitle||INIT_HEADER.footerSubtitle)+'"></div>'
+    +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">'
+    +'<div><label class="form-lbl">Copyright</label><input type="text" id="modFootCopy" class="form-inp" value="'+esc(h.footerCopyright||INIT_HEADER.footerCopyright)+'"></div>'
+    +'<div><label class="form-lbl">Tagline</label><input type="text" id="modFootTagline" class="form-inp" value="'+esc(h.footerTagline||INIT_HEADER.footerTagline)+'"></div>'
+    +'</div>'
+    +'</div></div>'
     +'</div>'
     +'<div class="flex gap-2 mt-4 pt-3 border-t border-slate-800">'
     +'<button onclick="closeModal()" class="btn-s flex-1">Batal</button>'
     +'<button onclick="saveHeaderSettingsFromModal()" class="btn-p flex-1">💾 Simpan Perubahan</button>'
     +'</div>'
   ,'wide');
+}
+
+function showEditFooterModal(){
+  var h=HEADER||INIT_HEADER;
+  openModal('<div class="pb-3 border-b border-slate-800 mb-4">'
+    +'<span class="badge-g">👑 SUPER ADMIN</span>'
+    +'<h2 class="text-base font-bold text-white mt-2">Edit Teks Footer Halaman</h2>'
+    +'<p class="text-xs text-slate-400 mt-1">Ubah teks informasi organisasi, kepanitiaan, hak cipta, dan tagline pada bagian paling bawah halaman.</p>'
+    +'</div>'
+    +'<div class="space-y-3">'
+    +'<div><label class="form-lbl">Nama Panitia / Organisasi</label><input type="text" id="quickFootOrg" class="form-inp" value="'+esc(h.footerOrg||INIT_HEADER.footerOrg)+'"></div>'
+    +'<div><label class="form-lbl">Subjudul Panitia / Turnamen</label><input type="text" id="quickFootSub" class="form-inp" value="'+esc(h.footerSubtitle||INIT_HEADER.footerSubtitle)+'"></div>'
+    +'<div><label class="form-lbl">Teks Hak Cipta (Copyright)</label><input type="text" id="quickFootCopy" class="form-inp" value="'+esc(h.footerCopyright||INIT_HEADER.footerCopyright)+'"></div>'
+    +'<div><label class="form-lbl">Tagline / Motto</label><input type="text" id="quickFootTagline" class="form-inp" value="'+esc(h.footerTagline||INIT_HEADER.footerTagline)+'"></div>'
+    +'</div>'
+    +'<div class="flex gap-2 mt-5 pt-3 border-t border-slate-800">'
+    +'<button onclick="closeModal()" class="btn-s flex-1">Batal</button>'
+    +'<button onclick="saveFooterSettings()" class="btn-p flex-1">💾 Simpan Perubahan Footer</button>'
+    +'</div>'
+  );
+}
+
+function saveFooterSettings(){
+  if(!HEADER) HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
+  HEADER.footerOrg=(document.getElementById('quickFootOrg').value||'').trim()||INIT_HEADER.footerOrg;
+  HEADER.footerSubtitle=(document.getElementById('quickFootSub').value||'').trim()||INIT_HEADER.footerSubtitle;
+  HEADER.footerCopyright=(document.getElementById('quickFootCopy').value||'').trim()||INIT_HEADER.footerCopyright;
+  HEADER.footerTagline=(document.getElementById('quickFootTagline').value||'').trim()||INIT_HEADER.footerTagline;
+  saveState();
+  renderHeader();
+  renderAdmin();
+  closeModal();
+  alert('✅ Teks footer berhasil diperbarui!');
 }
 
 function saveHeaderSettingsFromModal(){
@@ -2293,13 +2363,17 @@ function saveHeaderSettingsFromModal(){
     heroDate:(document.getElementById('modHeroDate').value||'').trim()||INIT_HEADER.heroDate,
     heroVenue:(document.getElementById('modHeroVenue').value||'').trim()||INIT_HEADER.heroVenue,
     heroFormat:(document.getElementById('modHeroFormat').value||'').trim()||INIT_HEADER.heroFormat,
-    cardFooter:(document.getElementById('modCardFoot').value||'').trim()||INIT_HEADER.cardFooter
+    cardFooter:(document.getElementById('modCardFoot').value||'').trim()||INIT_HEADER.cardFooter,
+    footerOrg:document.getElementById('modFootOrg')?(document.getElementById('modFootOrg').value||'').trim()||INIT_HEADER.footerOrg:(HEADER.footerOrg||INIT_HEADER.footerOrg),
+    footerSubtitle:document.getElementById('modFootSub')?(document.getElementById('modFootSub').value||'').trim()||INIT_HEADER.footerSubtitle:(HEADER.footerSubtitle||INIT_HEADER.footerSubtitle),
+    footerCopyright:document.getElementById('modFootCopy')?(document.getElementById('modFootCopy').value||'').trim()||INIT_HEADER.footerCopyright:(HEADER.footerCopyright||INIT_HEADER.footerCopyright),
+    footerTagline:document.getElementById('modFootTagline')?(document.getElementById('modFootTagline').value||'').trim()||INIT_HEADER.footerTagline:(HEADER.footerTagline||INIT_HEADER.footerTagline)
   };
   saveState();
   renderHeader();
   renderCurrentView();
   closeModal();
-  alert('✅ Informasi Dashboard & Header berhasil diperbarui!');
+  alert('✅ Informasi Dashboard, Header & Footer berhasil diperbarui!');
 }
 
 function saveHeaderSettingsFromPanel(){
@@ -2315,21 +2389,25 @@ function saveHeaderSettingsFromPanel(){
     heroDate:(document.getElementById('admHeroDate').value||'').trim()||INIT_HEADER.heroDate,
     heroVenue:(document.getElementById('admHeroVenue').value||'').trim()||INIT_HEADER.heroVenue,
     heroFormat:(document.getElementById('admHeroFormat').value||'').trim()||INIT_HEADER.heroFormat,
-    cardFooter:(document.getElementById('admCardFoot').value||'').trim()||INIT_HEADER.cardFooter
+    cardFooter:(document.getElementById('admCardFoot').value||'').trim()||INIT_HEADER.cardFooter,
+    footerOrg:document.getElementById('admFootOrg')?(document.getElementById('admFootOrg').value||'').trim()||INIT_HEADER.footerOrg:(HEADER.footerOrg||INIT_HEADER.footerOrg),
+    footerSubtitle:document.getElementById('admFootSub')?(document.getElementById('admFootSub').value||'').trim()||INIT_HEADER.footerSubtitle:(HEADER.footerSubtitle||INIT_HEADER.footerSubtitle),
+    footerCopyright:document.getElementById('admFootCopy')?(document.getElementById('admFootCopy').value||'').trim()||INIT_HEADER.footerCopyright:(HEADER.footerCopyright||INIT_HEADER.footerCopyright),
+    footerTagline:document.getElementById('admFootTagline')?(document.getElementById('admFootTagline').value||'').trim()||INIT_HEADER.footerTagline:(HEADER.footerTagline||INIT_HEADER.footerTagline)
   };
   saveState();
   renderHeader();
   renderCurrentView();
-  alert('✅ Informasi Dashboard & Header berhasil disimpan!');
+  alert('✅ Informasi Dashboard, Header & Footer berhasil disimpan!');
 }
 
 function confirmResetHeader(){
-  if(!confirm('Kembalikan semua teks header dan dashboard ke default?'))return;
+  if(!confirm('Kembalikan semua teks header, dashboard dan footer ke default?'))return;
   HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
   saveState();
   renderHeader();
   renderAdmin();
-  alert('✅ Teks header dan dashboard dikembalikan ke default.');
+  alert('✅ Teks header, dashboard dan footer dikembalikan ke default.');
 }
 
 function loadTeamPlayers(teamId){
@@ -2568,24 +2646,28 @@ function updateNavAuth(){
   var lb=document.getElementById('navLoginBtn'),at=document.getElementById('navAdmin'),mt=document.getElementById('navManager');
   var eb=document.getElementById('editRulesBtn');
   var aBar=document.getElementById('adminHomeEditBar'),aHeroBtn=document.getElementById('adminHeroEditBtn');
+  var aFootBtn=document.getElementById('adminFooterEditBtn');
   if(authRole==='admin'){
     if(at)at.classList.remove('hidden');if(mt)mt.classList.add('hidden');
     if(lb){lb.textContent='👑 Super Admin (Keluar)';lb.onclick=doLogout;}
     if(eb)eb.classList.remove('hidden');
     if(aBar)aBar.classList.remove('hidden');
     if(aHeroBtn)aHeroBtn.classList.remove('hidden');
+    if(aFootBtn)aFootBtn.classList.remove('hidden');
   } else if(authRole==='manager'){
     if(mt)mt.classList.remove('hidden');if(at)at.classList.add('hidden');
     if(lb){lb.textContent='⚽ '+(authTeamName?authTeamName.split(' ')[0]:'Manajer')+' (Keluar)';lb.onclick=doLogout;}
     if(eb)eb.classList.add('hidden');
     if(aBar)aBar.classList.add('hidden');
     if(aHeroBtn)aHeroBtn.classList.add('hidden');
+    if(aFootBtn)aFootBtn.classList.add('hidden');
   } else {
     if(at)at.classList.add('hidden');if(mt)mt.classList.add('hidden');
     if(lb){lb.textContent='🔑 Masuk Akun';lb.onclick=showLoginModal;}
     if(eb)eb.classList.add('hidden');
     if(aBar)aBar.classList.add('hidden');
     if(aHeroBtn)aHeroBtn.classList.add('hidden');
+    if(aFootBtn)aFootBtn.classList.add('hidden');
   }
 }
 
