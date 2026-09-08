@@ -325,34 +325,34 @@ var TEAMS=JSON.parse(JSON.stringify(INIT_TEAMS));
 
 var INIT_MATCHES=[
   // HARI 1: SENIN, 28 SEPTEMBER 2026 - PLAY-OFF & 16 BESAR (6 Pertandingan)
-  {id:'m0_po3', no:1,  stage:'PO',  hId:'t18',hName:'PSYCHOPHARMA FC',aId:'t12',aName:'LIBMA FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m0_po0', no:2,  stage:'PO',  hId:'t14',hName:'BPH + SEK.Univ/HUMAS + DAPEN + ..',aId:'t17',aName:'RS UMS FC',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m0_po2', no:3,  stage:'PO',  hId:'t5', hName:'FEB',aId:'t11',aName:'FAI + SOBRON',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po3', no:1,  stage:'PO',  hId:'t18',hName:'PSYCHOPHARMA FC',aId:'t12',aName:'LIBMA FC',hScore:0,aScore:0,hPen:null,aPen:null,date:'Senin, 28 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po0', no:2,  stage:'PO',  hId:'t14',hName:'BPH + SEK.Univ/HUMAS + DAPEN + ..',aId:'t17',aName:'RS UMS FC',hScore:0,aScore:0,hPen:null,aPen:null,date:'Senin, 28 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m0_po2', no:3,  stage:'PO',  hId:'t5', hName:'FEB',aId:'t11',aName:'FAI + SOBRON',hScore:0,aScore:0,hPen:null,aPen:null,date:'Senin, 28 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
-  {id:'m2',     no:4,  stage:'R16', hId:'t4', hName:'PERSITEVO',aId:'t16',aName:'PESMA + KEDOKTERAN UMUM',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'09:00 - 09:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m3',     no:5,  stage:'R16', hId:'t6', hName:'PERSATUAN OLAHRAGA GEDUNG I',aId:'t10',aName:'FIK',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'09:30 - 10:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m5',     no:6,  stage:'R16', hId:'t15',hName:'DASP + OUTSOURCING',aId:'t13',aName:'EDUTORIUM',hScore:0,aScore:0,date:'Senin, 28 Sept 2026',time:'10:00 - 10:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m2',     no:4,  stage:'R16', hId:'t4', hName:'PERSITEVO',aId:'t16',aName:'PESMA + KEDOKTERAN UMUM',hScore:0,aScore:0,hPen:null,aPen:null,date:'Senin, 28 Sept 2026',time:'09:00 - 09:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m3',     no:5,  stage:'R16', hId:'t6', hName:'PERSATUAN OLAHRAGA GEDUNG I',aId:'t10',aName:'FIK',hScore:0,aScore:0,hPen:null,aPen:null,date:'Senin, 28 Sept 2026',time:'09:30 - 10:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m5',     no:6,  stage:'R16', hId:'t15',hName:'DASP + OUTSOURCING',aId:'t13',aName:'EDUTORIUM',hScore:0,aScore:0,hPen:null,aPen:null,date:'Senin, 28 Sept 2026',time:'10:00 - 10:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
   // HARI 2: SELASA, 29 SEPTEMBER 2026 - 16 BESAR (5 Pertandingan)
-  {id:'m1',     no:7,  stage:'R16', hId:'t2', hName:'PARKIR UNITED',aId:null, aName:'Belum Ditentukan',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m4',     no:8,  stage:'R16', hId:null, hName:'Belum Ditentukan',aId:'t3', aName:'CAKAP FC',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m6',     no:9,  stage:'R16', hId:'t7', hName:'BPUI (AUM, AHASS, SPPG)',aId:'t8', aName:'TIKUM WONG MUMET FC',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m7',     no:10, stage:'R16', hId:'t19',hName:'DKeu + SAI + DAA + DKPTI + LP3A + ..',aId:'t9', aName:'RSGM SOELASTRI SMILE 4 U_FKG',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'09:00 - 09:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m8',     no:11, stage:'R16', hId:null, hName:'Belum Ditentukan',aId:'t1', aName:'SATPAM UNITED',hScore:0,aScore:0,date:'Selasa, 29 Sept 2026',time:'09:30 - 10:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m1',     no:7,  stage:'R16', hId:'t2', hName:'PARKIR UNITED',aId:null, aName:'Belum Ditentukan',hScore:0,aScore:0,hPen:null,aPen:null,date:'Selasa, 29 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m4',     no:8,  stage:'R16', hId:null, hName:'Belum Ditentukan',aId:'t3', aName:'CAKAP FC',hScore:0,aScore:0,hPen:null,aPen:null,date:'Selasa, 29 Sept 2026',time:'08:00 - 08:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m6',     no:9,  stage:'R16', hId:'t7', hName:'BPUI (AUM, AHASS, SPPG)',aId:'t8', aName:'TIKUM WONG MUMET FC',hScore:0,aScore:0,hPen:null,aPen:null,date:'Selasa, 29 Sept 2026',time:'08:30 - 09:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m7',     no:10, stage:'R16', hId:'t19',hName:'DKeu + SAI + DAA + DKPTI + LP3A + ..',aId:'t9', aName:'RSGM SOELASTRI SMILE 4 U_FKG',hScore:0,aScore:0,hPen:null,aPen:null,date:'Selasa, 29 Sept 2026',time:'09:00 - 09:30 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m8',     no:11, stage:'R16', hId:null, hName:'Belum Ditentukan',aId:'t1', aName:'SATPAM UNITED',hScore:0,aScore:0,hPen:null,aPen:null,date:'Selasa, 29 Sept 2026',time:'09:30 - 10:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
   // HARI 3: RABU, 30 SEPTEMBER 2026 - PEREMPAT FINAL / 8 BESAR (4 Pertandingan)
-  {id:'m9',     no:12, stage:'QF',  hId:null,hName:'Pemenang #7',aId:null,aName:'Pemenang #4',hScore:0,aScore:0,date:'Rabu, 30 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m10',    no:13, stage:'QF',  hId:null,hName:'Pemenang #5',aId:null,aName:'Pemenang #8',hScore:0,aScore:0,date:'Rabu, 30 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m11',    no:14, stage:'QF',  hId:null,hName:'Pemenang #6',aId:null,aName:'Pemenang #9',hScore:0,aScore:0,date:'Rabu, 30 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m12',    no:15, stage:'QF',  hId:null,hName:'Pemenang #10',aId:null,aName:'Pemenang #11',hScore:0,aScore:0,date:'Rabu, 30 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m9',     no:12, stage:'QF',  hId:null,hName:'Pemenang #7',aId:null,aName:'Pemenang #4',hScore:0,aScore:0,hPen:null,aPen:null,date:'Rabu, 30 Sept 2026',time:'07:30 - 08:00 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m10',    no:13, stage:'QF',  hId:null,hName:'Pemenang #5',aId:null,aName:'Pemenang #8',hScore:0,aScore:0,hPen:null,aPen:null,date:'Rabu, 30 Sept 2026',time:'08:05 - 08:35 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m11',    no:14, stage:'QF',  hId:null,hName:'Pemenang #6',aId:null,aName:'Pemenang #9',hScore:0,aScore:0,hPen:null,aPen:null,date:'Rabu, 30 Sept 2026',time:'08:40 - 09:10 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m12',    no:15, stage:'QF',  hId:null,hName:'Pemenang #10',aId:null,aName:'Pemenang #11',hScore:0,aScore:0,hPen:null,aPen:null,date:'Rabu, 30 Sept 2026',time:'09:15 - 09:45 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
   // HARI 4: KAMIS, 1 OKTOBER 2026 - SEMI FINAL (2 Pertandingan)
-  {id:'m13',    no:16, stage:'SF',  hId:null,hName:'Pemenang QF 1',aId:null,aName:'Pemenang QF 2',hScore:0,aScore:0,date:'Kamis, 1 Okt 2026',time:'07:30 - 08:05 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m14',    no:17, stage:'SF',  hId:null,hName:'Pemenang QF 3',aId:null,aName:'Pemenang QF 4',hScore:0,aScore:0,date:'Kamis, 1 Okt 2026',time:'08:15 - 08:50 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m13',    no:16, stage:'SF',  hId:null,hName:'Pemenang QF 1',aId:null,aName:'Pemenang QF 2',hScore:0,aScore:0,hPen:null,aPen:null,date:'Kamis, 1 Okt 2026',time:'07:30 - 08:05 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m14',    no:17, stage:'SF',  hId:null,hName:'Pemenang QF 3',aId:null,aName:'Pemenang QF 4',hScore:0,aScore:0,hPen:null,aPen:null,date:'Kamis, 1 Okt 2026',time:'08:15 - 08:50 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
 
   // HARI 5: JUMAT, 2 OKTOBER 2026 - FINAL & JUARA 3 (2 Pertandingan)
-  {id:'m15',    no:18, stage:'3RD', hId:null,hName:'Kalah SF 1',aId:null,aName:'Kalah SF 2',hScore:0,aScore:0,date:'Jumat, 2 Okt 2026',time:'07:30 - 08:05 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
-  {id:'m16',    no:19, stage:'FINAL',hId:null,hName:'Pemenang SF 1',aId:null,aName:'Pemenang SF 2',hScore:0,aScore:0,date:'Jumat, 2 Okt 2026',time:'08:15 - 08:55 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]}
+  {id:'m15',    no:18, stage:'3RD', hId:null,hName:'Kalah SF 1',aId:null,aName:'Kalah SF 2',hScore:0,aScore:0,hPen:null,aPen:null,date:'Jumat, 2 Okt 2026',time:'07:30 - 08:05 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]},
+  {id:'m16',    no:19, stage:'FINAL',hId:null,hName:'Pemenang SF 1',aId:null,aName:'Pemenang SF 2',hScore:0,aScore:0,hPen:null,aPen:null,date:'Jumat, 2 Okt 2026',time:'08:15 - 08:55 WIB',venue:'Lap. Psikologi UMS',status:'S',events:[]}
 ];
 
 var INIT_PLAYERS=(function(){
@@ -692,7 +692,29 @@ function renderCurrentView(){
   else if(currentView==='manager')renderManager();
 }
 
-// ==================== BRACKET PROGRESSION ====================
+// ==================== MATCH WINNER & PROGRESSION ====================
+function getMatchWinner(m){
+  if(!m || m.status !== 'F') return null;
+  if(m.hScore > m.aScore) return { id: m.hId, name: m.hName, side: 'home' };
+  if(m.aScore > m.hScore) return { id: m.aId, name: m.aName, side: 'away' };
+  if(m.hPen != null && m.aPen != null){
+    if(m.hPen > m.aPen) return { id: m.hId, name: m.hName, side: 'home' };
+    if(m.aPen > m.hPen) return { id: m.aId, name: m.aName, side: 'away' };
+  }
+  return null;
+}
+
+function getMatchLoser(m){
+  if(!m || m.status !== 'F') return null;
+  if(m.hScore > m.aScore) return { id: m.aId, name: m.aName, side: 'away' };
+  if(m.aScore > m.hScore) return { id: m.hId, name: m.hName, side: 'home' };
+  if(m.hPen != null && m.aPen != null){
+    if(m.hPen > m.aPen) return { id: m.aId, name: m.aName, side: 'away' };
+    if(m.aPen > m.hPen) return { id: m.hId, name: m.hName, side: 'home' };
+  }
+  return null;
+}
+
 function applyProgression(){
   // Play-off (PO) progression matching official drawing:
   // PO 1 (m0_po3: Psychopharma vs Libma) -> Match #7 (m1, Away)
@@ -707,10 +729,10 @@ function applyProgression(){
   var m8=matches.find(function(m){return m.id==='m8';});
 
   if(m1&&m1.status==='S'){
-    if(poTop&&poTop.status==='F'){
-      var w1=poTop.hScore>poTop.aScore?{id:poTop.hId,n:poTop.hName}:{id:poTop.aId,n:poTop.aName};
+    var w1=getMatchWinner(poTop);
+    if(w1){
       m1.aId=w1.id;
-      m1.aName=w1.n;
+      m1.aName=w1.name;
     }else{
       m1.aId=null;
       m1.aName='Belum Ditentukan';
@@ -718,10 +740,10 @@ function applyProgression(){
   }
 
   if(m4&&m4.status==='S'){
-    if(poMid&&poMid.status==='F'){
-      var w4=poMid.hScore>poMid.aScore?{id:poMid.hId,n:poMid.hName}:{id:poMid.aId,n:poMid.aName};
+    var w4=getMatchWinner(poMid);
+    if(w4){
       m4.hId=w4.id;
-      m4.hName=w4.n;
+      m4.hName=w4.name;
     }else{
       m4.hId=null;
       m4.hName='Belum Ditentukan';
@@ -729,10 +751,10 @@ function applyProgression(){
   }
 
   if(m8&&m8.status==='S'){
-    if(poBtm&&poBtm.status==='F'){
-      var w8=poBtm.hScore>poBtm.aScore?{id:poBtm.hId,n:poBtm.hName}:{id:poBtm.aId,n:poBtm.aName};
+    var w8=getMatchWinner(poBtm);
+    if(w8){
       m8.hId=w8.id;
-      m8.hName=w8.n;
+      m8.hName=w8.name;
     }else{
       m8.hId=null;
       m8.hName='Belum Ditentukan';
@@ -749,16 +771,18 @@ function applyProgression(){
     var qf=matches.find(function(m){return m.id==='m'+(9+qfIdx);});
     if(!qf)return;
     if(qf.status==='S'){
-      if(rm1&&rm1.status==='F'){
-        qf.hId=rm1.hScore>rm1.aScore?rm1.hId:rm1.aId;
-        qf.hName=rm1.hScore>rm1.aScore?rm1.hName:rm1.aName;
+      var wRm1=getMatchWinner(rm1);
+      var wRm2=getMatchWinner(rm2);
+      if(wRm1){
+        qf.hId=wRm1.id;
+        qf.hName=wRm1.name;
       }else{
         qf.hId=null;
         qf.hName='Pemenang #'+(rm1?rm1.no:(qfIdx*2+1));
       }
-      if(rm2&&rm2.status==='F'){
-        qf.aId=rm2.hScore>rm2.aScore?rm2.hId:rm2.aId;
-        qf.aName=rm2.hScore>rm2.aScore?rm2.hName:rm2.aName;
+      if(wRm2){
+        qf.aId=wRm2.id;
+        qf.aName=wRm2.name;
       }else{
         qf.aId=null;
         qf.aName='Pemenang #'+(rm2?rm2.no:(qfIdx*2+2));
@@ -775,16 +799,18 @@ function applyProgression(){
   var q4=matches.find(function(m){return m.id==='m12';});
 
   if(sf1&&sf1.status==='S'){
-    if(q1&&q1.status==='F'){
-      sf1.hId=q1.hScore>q1.aScore?q1.hId:q1.aId;
-      sf1.hName=q1.hScore>q1.aScore?q1.hName:q1.aName;
+    var wQ1=getMatchWinner(q1);
+    var wQ2=getMatchWinner(q2);
+    if(wQ1){
+      sf1.hId=wQ1.id;
+      sf1.hName=wQ1.name;
     }else{
       sf1.hId=null;
       sf1.hName='Pemenang QF 1';
     }
-    if(q2&&q2.status==='F'){
-      sf1.aId=q2.hScore>q2.aScore?q2.hId:q2.aId;
-      sf1.aName=q2.hScore>q2.aScore?q2.hName:q2.aName;
+    if(wQ2){
+      sf1.aId=wQ2.id;
+      sf1.aName=wQ2.name;
     }else{
       sf1.aId=null;
       sf1.aName='Pemenang QF 2';
@@ -792,16 +818,18 @@ function applyProgression(){
   }
 
   if(sf2&&sf2.status==='S'){
-    if(q3&&q3.status==='F'){
-      sf2.hId=q3.hScore>q3.aScore?q3.hId:q3.aId;
-      sf2.hName=q3.hScore>q3.aScore?q3.hName:q3.aName;
+    var wQ3=getMatchWinner(q3);
+    var wQ4=getMatchWinner(q4);
+    if(wQ3){
+      sf2.hId=wQ3.id;
+      sf2.hName=wQ3.name;
     }else{
       sf2.hId=null;
       sf2.hName='Pemenang QF 3';
     }
-    if(q4&&q4.status==='F'){
-      sf2.aId=q4.hScore>q4.aScore?q4.hId:q4.aId;
-      sf2.aName=q4.hScore>q4.aScore?q4.hName:q4.aName;
+    if(wQ4){
+      sf2.aId=wQ4.id;
+      sf2.aName=wQ4.name;
     }else{
       sf2.aId=null;
       sf2.aName='Pemenang QF 4';
@@ -813,16 +841,18 @@ function applyProgression(){
   var m3rd=matches.find(function(m){return m.id==='m15'||m.stage==='3RD';});
 
   if(fin&&fin.status==='S'){
-    if(sf1&&sf1.status==='F'){
-      fin.hId=sf1.hScore>sf1.aScore?sf1.hId:sf1.aId;
-      fin.hName=sf1.hScore>sf1.aScore?sf1.hName:sf1.aName;
+    var wSf1=getMatchWinner(sf1);
+    var wSf2=getMatchWinner(sf2);
+    if(wSf1){
+      fin.hId=wSf1.id;
+      fin.hName=wSf1.name;
     }else{
       fin.hId=null;
       fin.hName='Pemenang SF 1';
     }
-    if(sf2&&sf2.status==='F'){
-      fin.aId=sf2.hScore>sf2.aScore?sf2.hId:sf2.aId;
-      fin.aName=sf2.hScore>sf2.aScore?sf2.hName:sf2.aName;
+    if(wSf2){
+      fin.aId=wSf2.id;
+      fin.aName=wSf2.name;
     }else{
       fin.aId=null;
       fin.aName='Pemenang SF 2';
@@ -830,16 +860,18 @@ function applyProgression(){
   }
 
   if(m3rd&&m3rd.status==='S'){
-    if(sf1&&sf1.status==='F'){
-      m3rd.hId=sf1.hScore>sf1.aScore?sf1.aId:sf1.hId;
-      m3rd.hName=sf1.hScore>sf1.aScore?sf1.aName:sf1.hName;
+    var lSf1=getMatchLoser(sf1);
+    var lSf2=getMatchLoser(sf2);
+    if(lSf1){
+      m3rd.hId=lSf1.id;
+      m3rd.hName=lSf1.name;
     }else{
       m3rd.hId=null;
       m3rd.hName='Kalah SF 1';
     }
-    if(sf2&&sf2.status==='F'){
-      m3rd.aId=sf2.hScore>sf2.aScore?sf2.aId:sf2.hId;
-      m3rd.aName=sf2.hScore>sf2.aScore?sf2.hName:sf2.hName;
+    if(lSf2){
+      m3rd.aId=lSf2.id;
+      m3rd.aName=lSf2.name;
     }else{
       m3rd.aId=null;
       m3rd.aName='Kalah SF 2';
@@ -969,16 +1001,24 @@ function renderBracket(){
 
 function bCard(m){
   var fin=m.status==='F';
-  var hW=fin&&m.hScore>m.aScore,aW=fin&&m.aScore>m.hScore;
+  var winner=getMatchWinner(m);
+  var hW=fin&&winner&&winner.side==='home';
+  var aW=fin&&winner&&winner.side==='away';
+  var hasPen=fin&&m.hScore===m.aScore&&m.hPen!=null&&m.aPen!=null;
   var lbl=m.stage==='FINAL'?'🏆 FINAL #'+m.no:m.stage==='3RD'?'🥉 JUARA 3 #'+m.no:m.stage==='PO'?'⚡ PO #'+m.no:'MATCH #'+m.no;
   var hIsPlace=!m.hId||m.hName==='Belum Ditentukan';
   var aIsPlace=!m.aId||m.aName==='Belum Ditentukan';
   var hDisplay='<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;'+(hIsPlace?'color:#64748b;font-style:italic;':'')+'">'+esc(m.hName)+'</span>';
   var aDisplay='<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;'+(aIsPlace?'color:#64748b;font-style:italic;':'')+'">'+esc(m.aName)+'</span>';
+  
+  var hScoreDisplay=fin ? (hasPen ? m.hScore + ' <span style="font-size:9px;color:#fbbf24;font-weight:700;">('+m.hPen+')</span>' : m.hScore) : '-';
+  var aScoreDisplay=fin ? (hasPen ? m.aScore + ' <span style="font-size:9px;color:#fbbf24;font-weight:700;">('+m.aPen+')</span>' : m.aScore) : '-';
+  var penBadge=hasPen?'<span style="font-size:8px;padding:1px 4px;border-radius:4px;background:rgba(245,158,11,0.2);color:#fbbf24;font-weight:800;border:1px solid rgba(245,158,11,0.3);">PEN '+m.hPen+'-'+m.aPen+'</span>':'';
+
   return '<div class="b-card'+(fin?' fin':'')+'">'
-    +'<div style="font-size:10px;color:#64748b;margin-bottom:4px;font-weight:700;">'+lbl+' · '+m.time+'</div>'
-    +'<div class="b-team'+(hW?' win':'')+'">'+hDisplay+'<span class="b-score">'+(fin?m.hScore:'-')+'</span></div>'
-    +'<div class="b-team'+(aW?' win':'')+'">'+aDisplay+'<span class="b-score">'+(fin?m.aScore:'-')+'</span></div>'
+    +'<div style="font-size:10px;color:#64748b;margin-bottom:4px;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:4px;"><span>'+lbl+' · '+m.time+'</span>'+penBadge+'</div>'
+    +'<div class="b-team'+(hW?' win':'')+'">'+hDisplay+'<span class="b-score" style="display:inline-flex;align-items:center;gap:3px;">'+hScoreDisplay+'</span></div>'
+    +'<div class="b-team'+(aW?' win':'')+'">'+aDisplay+'<span class="b-score" style="display:inline-flex;align-items:center;gap:3px;">'+aScoreDisplay+'</span></div>'
     +'</div>';
 }
 
@@ -1058,10 +1098,13 @@ function renderPublicMatches(){
 
 function pubMatchCard(m){
   var fin=m.status==='F';
-  var hW=fin&&m.hScore>m.aScore,aW=fin&&m.aScore>m.hScore;
+  var winner=getMatchWinner(m);
+  var hW=fin&&winner&&winner.side==='home';
+  var aW=fin&&winner&&winner.side==='away';
+  var hasPen=fin&&m.hScore===m.aScore&&m.hPen!=null&&m.aPen!=null;
   var hIsPlace=!m.hId||m.hName==='Belum Ditentukan';
   var aIsPlace=!m.aId||m.aName==='Belum Ditentukan';
-  var badge=fin?'<span class="badge-g">✅ Selesai</span>':'<span class="badge-c">🕐 Terjadwal</span>';
+  var badge=fin?(hasPen?'<span class="badge-g">✅ Selesai (Adu Penalti)</span>':'<span class="badge-g">✅ Selesai</span>'):'<span class="badge-c">🕐 Terjadwal</span>';
   var evHtml='';
   if(fin&&m.events&&m.events.length>0){
     var goals=m.events.filter(function(e){return e.type==='goal';});
@@ -1075,12 +1118,25 @@ function pubMatchCard(m){
       evHtml+='</div>';
     }
   }
+
+  var penInfoHtml='';
+  if(hasPen){
+    var winName=winner?winner.name:(m.hPen>m.aPen?m.hName:m.aName);
+    penInfoHtml='<div class="mt-2.5 text-center">'
+      +'<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm">'
+      +'🥅 Adu Penalti: <strong>'+m.hPen+' - '+m.aPen+'</strong> · Menang: <span class="text-white font-extrabold">'+esc(winName)+'</span>'
+      +'</span>'
+      +'</div>';
+  }
+
   return '<div class="match-card"><div class="flex justify-between items-start mb-3 flex-wrap gap-2"><div class="text-xs text-slate-400">'+badge+' · Match #'+m.no+' · '+m.date+' · '+m.time+' · '+m.venue+'</div></div>'
     +'<div class="flex items-center gap-2">'
-    +'<div class="flex-1 text-right font-bold text-sm'+(hW?' text-cyan-300':'')+(hIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.hName)+'</div>'
+    +'<div class="flex-1 text-right font-bold text-sm'+(hW?' text-cyan-300 font-extrabold':'')+(hIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.hName)+'</div>'
     +'<div class="flex items-center gap-1 flex-shrink-0"><div class="score-box">'+(fin?m.hScore:'-')+'</div><div style="color:#64748b;font-weight:800;">:</div><div class="score-box">'+(fin?m.aScore:'-')+'</div></div>'
-    +'<div class="flex-1 font-bold text-sm'+(aW?' text-cyan-300':'')+(aIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.aName)+'</div>'
-    +'</div>'+evHtml+'</div>';
+    +'<div class="flex-1 font-bold text-sm'+(aW?' text-cyan-300 font-extrabold':'')+(aIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.aName)+'</div>'
+    +'</div>'
+    +penInfoHtml
+    +evHtml+'</div>';
 }
 
 function renderStats(){
@@ -1260,6 +1316,17 @@ function renderAdminMatches(){
     html+='<h3 class="text-sm font-bold text-cyan-400 mb-2 mt-4 uppercase tracking-wider">'+st.lbl+'</h3>';
     ms.forEach(function(m){
       var fin=m.status==='F';
+      var winner=getMatchWinner(m);
+      var hasPen=fin&&m.hScore===m.aScore&&m.hPen!=null&&m.aPen!=null;
+      var scoreDisplay='vs';
+      if(fin){
+        scoreDisplay=m.hScore+' - '+m.aScore;
+        if(hasPen){
+          scoreDisplay+=' <span class="text-amber-400 font-bold">(Pen: '+m.hPen+'-'+m.aPen+')</span>';
+        }
+      }
+      var hW=fin&&winner&&winner.side==='home';
+      var aW=fin&&winner&&winner.side==='away';
       html+='<div class="match-card flex items-center justify-between gap-3 flex-wrap">'
         +'<div class="flex-1 min-w-0">'
         +'<div class="text-xs text-slate-400 mb-1 flex items-center gap-2 flex-wrap">'
@@ -1267,11 +1334,12 @@ function renderAdminMatches(){
         +'<span>· 📅 '+esc(m.date)+'</span>'
         +'<span>· ⏰ '+esc(m.time)+'</span>'
         +'<span>· 📍 '+esc(m.venue||'Lap. Psikologi UMS')+'</span>'
+        +(hasPen?'<span class="badge-g" style="font-size:10px;padding:2px 7px;background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);">🥅 Penalti: '+m.hPen+'-'+m.aPen+'</span>':'')
         +'</div>'
         +'<div class="flex items-center gap-2 text-sm">'
-        +'<span class="font-bold text-white" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(m.hName)+'</span>'
-        +'<span class="text-slate-500 font-bold">'+(fin?m.hScore+' - '+m.aScore:'vs')+'</span>'
-        +'<span class="font-bold text-white" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(m.aName)+'</span>'
+        +'<span class="font-bold text-white'+(hW?' text-cyan-300':'')+'" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(m.hName)+'</span>'
+        +'<span class="text-slate-400 font-bold">'+scoreDisplay+'</span>'
+        +'<span class="font-bold text-white'+(aW?' text-cyan-300':'')+'" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(m.aName)+'</span>'
         +'</div></div>'
         +'<div class="flex gap-2 flex-shrink-0 flex-wrap">'
         +'<button class="btn-g" style="font-size:11px;padding:5px 10px;" onclick="showEditScheduleModal(\''+m.id+'\')">📅 Edit Jadwal</button>'
@@ -1343,21 +1411,50 @@ function showInputScoreModal(matchId){
   var existingEvents=(m.events||[]).filter(function(e){return e.type==='goal';});
   var evHtml=existingEvents.length>0?existingEvents.map(function(e,i){return goalRowHtml(i,e,allOpts);}).join(''):'';
 
-  var matchObj=JSON.stringify({id:matchId,allOpts:allOpts}).replace(/"/g,'&quot;');
+  var isTie=(m.hScore===m.aScore);
+  var hPenVal=(m.hPen!=null)?m.hPen:(isTie?0:'');
+  var aPenVal=(m.aPen!=null)?m.aPen:(isTie?0:'');
 
-  openModal('<div class="pb-3 border-b border-slate-800 mb-4"><span class="badge-g">✏️ INPUT HASIL</span><h2 class="text-base font-bold text-white mt-2">Match #'+m.no+'</h2><p class="text-xs text-slate-400 mt-1">'+esc(m.hName)+' vs '+esc(m.aName)+'</p></div>'
-    +'<div class="grid grid-cols-3 gap-3 mb-5">'
-    +'<div><label class="form-lbl">'+esc(m.hName.split(' ')[0])+'</label><input type="number" id="scoreHome" class="form-inp text-center text-xl font-extrabold" min="0" value="'+m.hScore+'"></div>'
+  openModal('<div class="pb-3 border-b border-slate-800 mb-4"><span class="badge-g">✏️ INPUT HASIL PERTANDINGAN</span><h2 class="text-base font-bold text-white mt-2">Match #'+m.no+' ('+m.stage+')</h2><p class="text-xs text-slate-400 mt-1">'+esc(m.hName)+' vs '+esc(m.aName)+'</p></div>'
+    +'<div class="mb-4">'
+    +'<div class="text-xs font-bold text-slate-300 mb-2 uppercase tracking-wide">⏱️ Skor Waktu Normal (2x15 Menit)</div>'
+    +'<div class="grid grid-cols-3 gap-3">'
+    +'<div><label class="form-lbl">'+esc(m.hName.split(' ')[0])+'</label><input type="number" id="scoreHome" class="form-inp text-center text-xl font-extrabold" min="0" value="'+m.hScore+'" oninput="checkPenaltyVisibility()"></div>'
     +'<div class="flex items-end justify-center pb-2 text-slate-400 font-bold text-2xl">:</div>'
-    +'<div><label class="form-lbl">'+esc(m.aName.split(' ')[0])+'</label><input type="number" id="scoreAway" class="form-inp text-center text-xl font-extrabold" min="0" value="'+m.aScore+'"></div>'
+    +'<div><label class="form-lbl">'+esc(m.aName.split(' ')[0])+'</label><input type="number" id="scoreAway" class="form-inp text-center text-xl font-extrabold" min="0" value="'+m.aScore+'" oninput="checkPenaltyVisibility()"></div>'
     +'</div>'
-    +'<div class="flex justify-between items-center mb-2"><div class="font-bold text-sm text-white">⚽ Pencetak Gol & Assist</div><button type="button" class="btn-s" style="font-size:11px;padding:4px 10px;" onclick="addGoalRow(\''+matchId+'\')">+ Tambah</button></div>'
+    +'</div>'
+    +'<div id="penaltySection" class="p-3.5 mb-4 rounded-xl bg-amber-500/10 border border-amber-500/30 '+(isTie?'':'hidden')+'">'
+    +'<div class="flex items-center justify-between mb-2 flex-wrap gap-1">'
+    +'<div class="text-xs font-bold text-amber-300 flex items-center gap-1.5"><span>🥅 Adu Penalti (Penentuan Pemenang)</span></div>'
+    +'<span class="text-[10px] text-amber-300 font-semibold bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/30">Knockout Stage</span>'
+    +'</div>'
+    +'<p class="text-[11px] text-slate-300 mb-3">Jika skor normal berakhir seri, masukkan jumlah gol adu penalti untuk menentukan tim yang lolos.</p>'
+    +'<div class="grid grid-cols-3 gap-3">'
+    +'<div><label class="form-lbl text-amber-200">Penalti '+esc(m.hName.split(' ')[0])+'</label><input type="number" id="scoreHomePen" class="form-inp text-center text-lg font-extrabold border-amber-500/40 bg-amber-950/20" min="0" value="'+hPenVal+'" placeholder="0"></div>'
+    +'<div class="flex items-end justify-center pb-2 text-amber-400 font-bold text-lg">pen.</div>'
+    +'<div><label class="form-lbl text-amber-200">Penalti '+esc(m.aName.split(' ')[0])+'</label><input type="number" id="scoreAwayPen" class="form-inp text-center text-lg font-extrabold border-amber-500/40 bg-amber-950/20" min="0" value="'+aPenVal+'" placeholder="0"></div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="flex justify-between items-center mb-2"><div class="font-bold text-sm text-white">⚽ Pencetak Gol &amp; Assist (Waktu Normal)</div><button type="button" class="btn-s" style="font-size:11px;padding:4px 10px;" onclick="addGoalRow(\''+matchId+'\')">+ Tambah</button></div>'
     +'<div id="goalEvCon">'+(evHtml||'<p class="text-slate-500 text-xs" id="noGoalMsg">Belum ada gol.</p>')+'</div>'
     +'<div style="display:none;" id="goalAllOpts">'+allOpts+'</div>'
     +'<div id="goalHName" style="display:none;">'+esc(m.hName)+'</div>'
     +'<div id="goalAName" style="display:none;">'+esc(m.aName)+'</div>'
     +'<div class="flex gap-2 mt-5 pt-3 border-t border-slate-800"><button onclick="closeModal()" class="btn-s flex-1">Batal</button><button onclick="saveScore(\''+matchId+'\')" class="btn-p flex-1">💾 Simpan Hasil</button></div>'
   ,'wide');
+}
+
+function checkPenaltyVisibility(){
+  var shEl=document.getElementById('scoreHome'), saEl=document.getElementById('scoreAway');
+  var pSec=document.getElementById('penaltySection');
+  if(!shEl||!saEl||!pSec)return;
+  var sh=parseInt(shEl.value)||0, sa=parseInt(saEl.value)||0;
+  if(sh===sa){
+    pSec.classList.remove('hidden');
+  } else {
+    pSec.classList.add('hidden');
+  }
 }
 
 function goalRowHtml(idx,ev,allOpts){
@@ -1393,8 +1490,30 @@ function removeGoalRow(idx){
 
 function saveScore(matchId){
   var m=matches.find(function(x){return x.id===matchId;});if(!m)return;
-  m.hScore=parseInt(document.getElementById('scoreHome').value)||0;
-  m.aScore=parseInt(document.getElementById('scoreAway').value)||0;
+  var sh=parseInt(document.getElementById('scoreHome').value)||0;
+  var sa=parseInt(document.getElementById('scoreAway').value)||0;
+  
+  m.hScore=sh;
+  m.aScore=sa;
+  
+  if(sh===sa){
+    var hpEl=document.getElementById('scoreHomePen');
+    var apEl=document.getElementById('scoreAwayPen');
+    var hp=hpEl?parseInt(hpEl.value):0;
+    var ap=apEl?parseInt(apEl.value):0;
+    if(isNaN(hp)) hp=0;
+    if(isNaN(ap)) ap=0;
+    if(hp===ap){
+      alert('⚠️ Pertandingan berakhir seri ('+sh+'-'+sa+').\nPada sistem gugur, skor adu penalti harus menentukan pemenang (skor penalti tim kandang dan tandang tidak boleh bernilai sama).');
+      return;
+    }
+    m.hPen=hp;
+    m.aPen=ap;
+  } else {
+    m.hPen=null;
+    m.aPen=null;
+  }
+
   m.status='F';
   var hName=document.getElementById('goalHName')?document.getElementById('goalHName').textContent:'';
   var aName=document.getElementById('goalAName')?document.getElementById('goalAName').textContent:'';
@@ -1418,7 +1537,7 @@ function saveScore(matchId){
 function resetMatchScore(matchId){
   var m=matches.find(function(x){return x.id===matchId;});if(!m)return;
   if(!confirm('Reset skor Match #'+m.no+' ke 0-0?'))return;
-  m.hScore=0;m.aScore=0;m.status='S';m.events=[];
+  m.hScore=0;m.aScore=0;m.hPen=null;m.aPen=null;m.status='S';m.events=[];
   applyProgression();
   saveState();
   renderAdmin();
@@ -1427,7 +1546,7 @@ function resetMatchScore(matchId){
 
 function confirmResetAllScores(){
   if(!confirm('Reset SEMUA skor ke 0-0? Ini akan menghapus semua gol dan assist.'))return;
-  matches.forEach(function(m){m.hScore=0;m.aScore=0;m.status='S';m.events=[];});
+  matches.forEach(function(m){m.hScore=0;m.aScore=0;m.hPen=null;m.aPen=null;m.status='S';m.events=[];});
   var orig=JSON.parse(JSON.stringify(INIT_MATCHES));
   matches.filter(function(m){return m.stage!=='R16'&&m.stage!=='PO';}).forEach(function(m){
     var o=orig.find(function(x){return x.id===m.id;});
@@ -1525,6 +1644,8 @@ function confirmResetBracket(){
   matches.forEach(function(m){
     m.hScore=0;
     m.aScore=0;
+    m.hPen=null;
+    m.aPen=null;
     m.status='S';
     m.events=[];
     m.hId=null;
