@@ -695,35 +695,51 @@ function renderCurrentView(){
 // ==================== BRACKET PROGRESSION ====================
 function applyProgression(){
   // Play-off (PO) progression matching official drawing:
-  // PO 1 (m0_po3: Psychopharma vs Libma) -> Match #1 (Away / Belum Ditentukan)
-  // PO 3 (m0_po0: BPH vs RS UMS) -> Match #4 (Home / Belum Ditentukan)
-  // PO 2 (m0_po2: FEB vs FAI+Sobron) -> Match #8 (Home / Belum Ditentukan)
-  var poMatches=matches.filter(function(m){return m.stage==='PO';});
-  var poTop=poMatches.find(function(m){return m.id==='m0_po3'||m.no==='PO 1'||m.no==='PO1'||m.no==='PO3';})||poMatches[0];
-  var poMid=poMatches.find(function(m){return m.id==='m0_po0'||m.no==='PO 3'||m.no==='PO3'||m.no==='0'||m.no===0;})||poMatches[1];
-  var poBtm=poMatches.find(function(m){return m.id==='m0_po2'||m.no==='PO 2'||m.no==='PO2';})||poMatches[2];
+  // PO 1 (m0_po3: Psychopharma vs Libma) -> Match #7 (m1, Away)
+  // PO 2 (m0_po0: BPH vs RS UMS) -> Match #8 (m4, Home)
+  // PO 3 (m0_po2: FEB vs FAI+Sobron) -> Match #11 (m8, Home)
+  var poTop=matches.find(function(m){return m.id==='m0_po3'||m.no===1||m.no==='1';});
+  var poMid=matches.find(function(m){return m.id==='m0_po0'||m.no===2||m.no==='2';});
+  var poBtm=matches.find(function(m){return m.id==='m0_po2'||m.no===3||m.no==='3';});
   
   var m1=matches.find(function(m){return m.id==='m1';});
   var m4=matches.find(function(m){return m.id==='m4';});
   var m8=matches.find(function(m){return m.id==='m8';});
 
-  if(poTop&&m1&&poTop.status==='F'&&m1.status==='S'){
-    var w1=poTop.hScore>poTop.aScore?{id:poTop.hId,n:poTop.hName}:{id:poTop.aId,n:poTop.aName};
-    m1.aId=w1.id;
-    m1.aName=w1.n;
-  }
-  if(poMid&&m4&&poMid.status==='F'&&m4.status==='S'){
-    var w4=poMid.hScore>poMid.aScore?{id:poMid.hId,n:poMid.hName}:{id:poMid.aId,n:poMid.aName};
-    m4.hId=w4.id;
-    m4.hName=w4.n;
-  }
-  if(poBtm&&m8&&poBtm.status==='F'&&m8.status==='S'){
-    var w8=poBtm.hScore>poBtm.aScore?{id:poBtm.hId,n:poBtm.hName}:{id:poBtm.aId,n:poBtm.aName};
-    m8.hId=w8.id;
-    m8.hName=w8.n;
+  if(m1&&m1.status==='S'){
+    if(poTop&&poTop.status==='F'){
+      var w1=poTop.hScore>poTop.aScore?{id:poTop.hId,n:poTop.hName}:{id:poTop.aId,n:poTop.aName};
+      m1.aId=w1.id;
+      m1.aName=w1.n;
+    }else{
+      m1.aId=null;
+      m1.aName='Belum Ditentukan';
+    }
   }
 
-  // R16 -> QF (m1 to m8 in bracket tree order)
+  if(m4&&m4.status==='S'){
+    if(poMid&&poMid.status==='F'){
+      var w4=poMid.hScore>poMid.aScore?{id:poMid.hId,n:poMid.hName}:{id:poMid.aId,n:poMid.aName};
+      m4.hId=w4.id;
+      m4.hName=w4.n;
+    }else{
+      m4.hId=null;
+      m4.hName='Belum Ditentukan';
+    }
+  }
+
+  if(m8&&m8.status==='S'){
+    if(poBtm&&poBtm.status==='F'){
+      var w8=poBtm.hScore>poBtm.aScore?{id:poBtm.hId,n:poBtm.hName}:{id:poBtm.aId,n:poBtm.aName};
+      m8.hId=w8.id;
+      m8.hName=w8.n;
+    }else{
+      m8.hId=null;
+      m8.hName='Belum Ditentukan';
+    }
+  }
+
+  // R16 -> QF (m1 to m8 in bracket tree order feed m9 to m12)
   var r16Matches=['m1','m2','m3','m4','m5','m6','m7','m8'].map(function(mid){
     return matches.find(function(m){return m.id===mid;});
   }).filter(Boolean);
@@ -732,22 +748,103 @@ function applyProgression(){
     var rm1=r16Matches[qfIdx*2], rm2=r16Matches[qfIdx*2+1];
     var qf=matches.find(function(m){return m.id==='m'+(9+qfIdx);});
     if(!qf)return;
-    if(rm1&&rm1.status==='F'&&qf.status==='S'){qf.hId=rm1.hScore>rm1.aScore?rm1.hId:rm1.aId;qf.hName=rm1.hScore>rm1.aScore?rm1.hName:rm1.aName;}
-    if(rm2&&rm2.status==='F'&&qf.status==='S'){qf.aId=rm2.hScore>rm2.aScore?rm2.hId:rm2.aId;qf.aName=rm2.hScore>rm2.aScore?rm2.hName:rm2.aName;}
+    if(qf.status==='S'){
+      if(rm1&&rm1.status==='F'){
+        qf.hId=rm1.hScore>rm1.aScore?rm1.hId:rm1.aId;
+        qf.hName=rm1.hScore>rm1.aScore?rm1.hName:rm1.aName;
+      }else{
+        qf.hId=null;
+        qf.hName='Pemenang #'+(rm1?rm1.no:(qfIdx*2+1));
+      }
+      if(rm2&&rm2.status==='F'){
+        qf.aId=rm2.hScore>rm2.aScore?rm2.hId:rm2.aId;
+        qf.aName=rm2.hScore>rm2.aScore?rm2.hName:rm2.aName;
+      }else{
+        qf.aId=null;
+        qf.aName='Pemenang #'+(rm2?rm2.no:(qfIdx*2+2));
+      }
+    }
   });
-  // QF -> SF + 3rd
-  [0,1].forEach(function(sfIdx){
-    var q1=matches.find(function(m){return m.id==='m'+(9+sfIdx*2);}), q2=matches.find(function(m){return m.id==='m'+(10+sfIdx*2);});
-    var sf=matches.find(function(m){return m.id==='m'+(13+sfIdx);});
-    var m3rd=matches.find(function(m){return m.id==='m15'||m.stage==='3RD';});
-    if(!sf)return;
-    if(q1&&q1.status==='F'&&sf.status==='S'){var w=q1.hScore>q1.aScore?{id:q1.hId,n:q1.hName}:{id:q1.aId,n:q1.aName};sf.hId=w.id;sf.hName=w.n;var l=q1.hScore>q1.aScore?{id:q1.aId,n:q1.aName}:{id:q1.hId,n:q1.hName};if(m3rd&&m3rd.status==='S'){m3rd.hId=l.id;m3rd.hName=l.n;}}
-    if(q2&&q2.status==='F'&&sf.status==='S'){var w2=q2.hScore>q2.aScore?{id:q2.hId,n:q2.hName}:{id:q2.aId,n:q2.aName};sf.aId=w2.id;sf.aName=w2.n;var l2=q2.hScore>q2.aScore?{id:q2.aId,n:q2.aName}:{id:q2.hId,n:q2.hName};if(m3rd&&m3rd.status==='S'){m3rd.aId=l2.id;m3rd.aName=l2.n;}}
-  });
-  // SF -> Final
-  var sf1=matches.find(function(m){return m.id==='m13';}),sf2=matches.find(function(m){return m.id==='m14';}),fin=matches.find(function(m){return m.id==='m16'||m.stage==='FINAL';});
-  if(fin&&sf1&&sf1.status==='F'&&fin.status==='S'){fin.hId=sf1.hScore>sf1.aScore?sf1.hId:sf1.aId;fin.hName=sf1.hScore>sf1.aScore?sf1.hName:sf1.aName;}
-  if(fin&&sf2&&sf2.status==='F'&&fin.status==='S'){fin.aId=sf2.hScore>sf2.aScore?sf2.hId:sf2.aId;fin.aName=sf2.hScore>sf2.aScore?sf2.hName:sf2.aName;}
+
+  // QF -> SF (m13, m14)
+  var sf1=matches.find(function(m){return m.id==='m13';});
+  var sf2=matches.find(function(m){return m.id==='m14';});
+  var q1=matches.find(function(m){return m.id==='m9';});
+  var q2=matches.find(function(m){return m.id==='m10';});
+  var q3=matches.find(function(m){return m.id==='m11';});
+  var q4=matches.find(function(m){return m.id==='m12';});
+
+  if(sf1&&sf1.status==='S'){
+    if(q1&&q1.status==='F'){
+      sf1.hId=q1.hScore>q1.aScore?q1.hId:q1.aId;
+      sf1.hName=q1.hScore>q1.aScore?q1.hName:q1.aName;
+    }else{
+      sf1.hId=null;
+      sf1.hName='Pemenang QF 1';
+    }
+    if(q2&&q2.status==='F'){
+      sf1.aId=q2.hScore>q2.aScore?q2.hId:q2.aId;
+      sf1.aName=q2.hScore>q2.aScore?q2.hName:q2.aName;
+    }else{
+      sf1.aId=null;
+      sf1.aName='Pemenang QF 2';
+    }
+  }
+
+  if(sf2&&sf2.status==='S'){
+    if(q3&&q3.status==='F'){
+      sf2.hId=q3.hScore>q3.aScore?q3.hId:q3.aId;
+      sf2.hName=q3.hScore>q3.aScore?q3.hName:q3.aName;
+    }else{
+      sf2.hId=null;
+      sf2.hName='Pemenang QF 3';
+    }
+    if(q4&&q4.status==='F'){
+      sf2.aId=q4.hScore>q4.aScore?q4.hId:q4.aId;
+      sf2.aName=q4.hScore>q4.aScore?q4.hName:q4.aName;
+    }else{
+      sf2.aId=null;
+      sf2.aName='Pemenang QF 4';
+    }
+  }
+
+  // SF -> FINAL (m16) & 3RD (m15)
+  var fin=matches.find(function(m){return m.id==='m16'||m.stage==='FINAL';});
+  var m3rd=matches.find(function(m){return m.id==='m15'||m.stage==='3RD';});
+
+  if(fin&&fin.status==='S'){
+    if(sf1&&sf1.status==='F'){
+      fin.hId=sf1.hScore>sf1.aScore?sf1.hId:sf1.aId;
+      fin.hName=sf1.hScore>sf1.aScore?sf1.hName:sf1.aName;
+    }else{
+      fin.hId=null;
+      fin.hName='Pemenang SF 1';
+    }
+    if(sf2&&sf2.status==='F'){
+      fin.aId=sf2.hScore>sf2.aScore?sf2.hId:sf2.aId;
+      fin.aName=sf2.hScore>sf2.aScore?sf2.hName:sf2.aName;
+    }else{
+      fin.aId=null;
+      fin.aName='Pemenang SF 2';
+    }
+  }
+
+  if(m3rd&&m3rd.status==='S'){
+    if(sf1&&sf1.status==='F'){
+      m3rd.hId=sf1.hScore>sf1.aScore?sf1.aId:sf1.hId;
+      m3rd.hName=sf1.hScore>sf1.aScore?sf1.aName:sf1.hName;
+    }else{
+      m3rd.hId=null;
+      m3rd.hName='Kalah SF 1';
+    }
+    if(sf2&&sf2.status==='F'){
+      m3rd.aId=sf2.hScore>sf2.aScore?sf2.aId:sf2.hId;
+      m3rd.aName=sf2.hScore>sf2.aScore?sf2.hName:sf2.hName;
+    }else{
+      m3rd.aId=null;
+      m3rd.aName='Kalah SF 2';
+    }
+  }
 }
 
 // ==================== HOME VIEW ====================
@@ -1311,25 +1408,36 @@ function saveScore(matchId){
     var side=selOpt?selOpt.getAttribute('data-side'):'home';
     m.events.push({type:'goal',player:pSel.value,minute:parseInt(minEl?minEl.value:0)||0,assist:aSel?aSel.value:'',team:side,teamName:side==='home'?m.hName:m.aName});
   });
-  saveState();renderAdmin();closeModal();
+  applyProgression();
+  saveState();
+  renderAdmin();
+  if(currentView==='home')renderHome();
+  closeModal();
 }
 
 function resetMatchScore(matchId){
   var m=matches.find(function(x){return x.id===matchId;});if(!m)return;
   if(!confirm('Reset skor Match #'+m.no+' ke 0-0?'))return;
   m.hScore=0;m.aScore=0;m.status='S';m.events=[];
-  saveState();renderAdmin();
+  applyProgression();
+  saveState();
+  renderAdmin();
+  if(currentView==='home')renderHome();
 }
 
 function confirmResetAllScores(){
   if(!confirm('Reset SEMUA skor ke 0-0? Ini akan menghapus semua gol dan assist.'))return;
   matches.forEach(function(m){m.hScore=0;m.aScore=0;m.status='S';m.events=[];});
   var orig=JSON.parse(JSON.stringify(INIT_MATCHES));
-  matches.filter(function(m){return m.stage!=='R16';}).forEach(function(m){
+  matches.filter(function(m){return m.stage!=='R16'&&m.stage!=='PO';}).forEach(function(m){
     var o=orig.find(function(x){return x.id===m.id;});
     if(o){m.hId=o.hId;m.hName=o.hName;m.aId=o.aId;m.aName=o.aName;}
   });
-  saveState();renderAdmin();alert('Semua skor berhasil direset ke 0-0.');
+  applyProgression();
+  saveState();
+  renderAdmin();
+  if(currentView==='home')renderHome();
+  alert('Semua skor berhasil direset ke 0-0.');
 }
 
 // ==================== BRACKET SETTINGS ====================
