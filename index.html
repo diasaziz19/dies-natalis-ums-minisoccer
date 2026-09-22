@@ -94,6 +94,51 @@
     .pitch-node-dot.empty{background:rgba(15,23,42,0.85);color:#94a3b8;border:2px dashed rgba(255,255,255,0.5);}
     .pitch-node-lbl{background:rgba(7,10,18,0.92);backdrop-filter:blur(4px);color:#f8fafc;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:700;margin-top:3px;max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;border:1px solid rgba(255,255,255,0.15);box-shadow:0 2px 4px rgba(0,0,0,0.5);}
     .pitch-node-pos{font-size:8px;font-weight:800;color:#fde047;text-transform:uppercase;letter-spacing:0.5px;}
+
+    /* Carousel Styles */
+    .carousel-container{position:relative;width:100%;border-radius:18px;overflow:hidden;background:#0b132b;border:1px solid rgba(0,240,255,0.25);box-shadow:0 10px 30px rgba(0,0,0,0.6);}
+    .carousel-track{display:flex;transition:transform 0.5s cubic-bezier(0.25,1,0.5,1);width:100%;}
+    .carousel-slide{min-width:100%;position:relative;height:320px;background-size:cover;background-position:center;display:flex;align-items:flex-end;cursor:pointer;}
+    @media(min-width:640px){.carousel-slide{height:380px;}}
+    .carousel-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,10,18,0.95) 0%,rgba(7,10,18,0.55) 45%,rgba(7,10,18,0.15) 100%);}
+    .carousel-content{position:relative;z-index:2;padding:20px 24px;width:100%;}
+    .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:38px;height:38px;border-radius:50%;background:rgba(11,25,60,0.8);border:1px solid rgba(0,240,255,0.4);color:#00f0ff;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-size:16px;}
+    .carousel-btn:hover{background:rgba(0,240,255,0.25);color:#fff;transform:translateY(-50%) scale(1.1);}
+    .carousel-btn.prev{left:12px;}
+    .carousel-btn.next{right:12px;}
+    .carousel-dots{position:absolute;bottom:14px;right:20px;z-index:10;display:flex;gap:6px;}
+    .carousel-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.3s;}
+    .carousel-dot.active{width:24px;border-radius:12px;background:#00f0ff;box-shadow:0 0 10px rgba(0,240,255,0.6);}
+
+    /* Gallery Card Styles */
+    .doc-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;transition:all 0.25s;display:flex;flex-direction:column;}
+    .doc-card:hover{transform:translateY(-4px);border-color:rgba(0,240,255,0.4);box-shadow:0 12px 25px rgba(0,240,255,0.12);}
+    .doc-img-wrap{position:relative;width:100%;height:190px;overflow:hidden;background:#0b132b;cursor:pointer;}
+    .doc-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease;}
+    .doc-card:hover .doc-img-wrap img{transform:scale(1.05);}
+    .doc-badge-pos{position:absolute;top:10px;left:10px;z-index:2;display:flex;gap:6px;flex-wrap:wrap;}
+    .doc-count-badge{position:absolute;bottom:10px;right:10px;z-index:2;background:rgba(7,10,18,0.85);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);color:#f1f5f9;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:flex;align-items:center;gap:4px;}
+    .gallery-cat-pill{padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;background:rgba(15,23,42,0.6);transition:all 0.2s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+    .gallery-cat-pill:hover{color:#fff;background:rgba(255,255,255,0.08);border-color:rgba(0,240,255,0.3);}
+    .gallery-cat-pill.active{background:linear-gradient(135deg,rgba(0,240,255,0.2),rgba(14,165,233,0.2));border-color:#00f0ff;color:#00f0ff;box-shadow:0 0 12px rgba(0,240,255,0.2);}
+
+    /* Fullscreen Lightbox */
+    #docLightboxModal{position:fixed;inset:0;background:rgba(3,7,18,0.96);backdrop-filter:blur(16px);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:16px;}
+    .lightbox-main{position:relative;flex:1;width:100%;max-width:1100px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .lightbox-main img{max-height:72vh;max-width:92vw;object-fit:contain;border-radius:12px;box-shadow:0 15px 40px rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.1);}
+    .lightbox-nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(15,23,42,0.85);border:1px solid rgba(0,240,255,0.3);color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all 0.2s;z-index:20;}
+    .lightbox-nav-btn:hover{background:rgba(0,240,255,0.3);color:#00f0ff;transform:translateY(-50%) scale(1.1);}
+    .lightbox-nav-btn.prev{left:10px;}
+    .lightbox-nav-btn.next{right:10px;}
+    .lightbox-thumbs{display:flex;gap:8px;overflow-x:auto;padding:8px;max-width:100%;scrollbar-width:thin;}
+    .lightbox-thumb{width:56px;height:42px;border-radius:6px;object-fit:cover;cursor:pointer;opacity:0.5;border:2px solid transparent;transition:all 0.2s;flex-shrink:0;}
+    .lightbox-thumb.active{opacity:1;border-color:#00f0ff;transform:scale(1.05);}
+
+    /* Photo Upload Thumbnails */
+    .photo-thumb-item{position:relative;width:80px;height:65px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);background:#070a12;flex-shrink:0;}
+    .photo-thumb-item img{width:100%;height:100%;object-fit:cover;}
+    .photo-thumb-del{position:absolute;top:2px;right:2px;background:rgba(239,68,68,0.85);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+    .photo-thumb-del:hover{background:#dc2626;}
   </style>
 </head>
 <body>
@@ -118,6 +163,7 @@
     <span class="role-badge active" onclick="goTo('home')">🏆 Bagan &amp; Jadwal</span>
     <span class="role-badge" onclick="goTo('teams')">👥 Tim &amp; Skuad</span>
     <span class="role-badge" onclick="goTo('rules')">📜 Peraturan</span>
+    <span class="role-badge" onclick="goTo('gallery')">📸 Dokumentasi</span>
     <span class="role-badge hidden" id="navAdmin" onclick="goTo('admin')">👑 Super Admin</span>
     <span class="role-badge hidden" id="navManager" onclick="goTo('manager')">⚽ Manajer</span>
     <span class="role-badge" id="navLoginBtn" onclick="showLoginModal()">🔑 Masuk Akun</span>
@@ -177,6 +223,9 @@
         </div>
       </div>
     </div>
+
+    <!-- CAROUSEL DOKUMENTASI & HIGHLIGHT -->
+    <div id="homeCarouselContainer" class="mb-6"></div>
     <div class="flex gap-2 mb-5 flex-wrap border-b border-slate-800 pb-3">
       <div class="tab-btn active" id="htab-bracket" onclick="switchHomeTab('bracket')">🌳 Bagan 16 Tim</div>
       <div class="tab-btn" id="htab-matches" onclick="switchHomeTab('matches')">📅 Jadwal &amp; Hasil</div>
@@ -213,6 +262,26 @@
     </div>
     <div id="rulesList"></div>
   </div>
+  <!-- GALLERY & DOKUMENTASI -->
+  <div id="view-gallery" class="hidden">
+    <div class="flex justify-between items-center mb-5 flex-wrap gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="badge-g">📸 GALERI &amp; BERITA</span>
+          <span class="badge-c">DIES NATALIS 68 UMS</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Dokumentasi &amp; Liputan Turnamen</h2>
+        <p class="text-xs sm:text-sm text-slate-300 mt-0.5">Kumpulan foto, liputan berita, sorotan pertandingan, dan momen terbaik turnamen Minisoccer UMS 2026.</p>
+      </div>
+      <div id="adminGalleryActionBtn" class="hidden">
+        <button class="btn-g text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-md" onclick="showDocModal()">
+          ➕ Tambah Dokumentasi
+        </button>
+      </div>
+    </div>
+    <div id="galleryFilterContainer" class="mb-6"></div>
+    <div id="galleryCardsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  </div>
   <!-- ADMIN -->
   <div id="view-admin" class="hidden">
     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
@@ -223,6 +292,7 @@
       <div class="tab-btn active" id="atab-matches" onclick="switchAdminTab('matches')">📋 Input Hasil</div>
       <div class="tab-btn" id="atab-bracket" onclick="switchAdminTab('bracket')">⚙️ Pengaturan Bagan</div>
       <div class="tab-btn" id="atab-manage" onclick="switchAdminTab('manage')">👥 Kelola Data Tim</div>
+      <div class="tab-btn" id="atab-docs" onclick="switchAdminTab('docs')">📸 Dokumentasi &amp; Berita</div>
       <div class="tab-btn" id="atab-header" onclick="switchAdminTab('header')">🖥️ Edit Dashboard &amp; Header</div>
     </div>
     <div id="adminContent-matches">
@@ -246,6 +316,7 @@
       <button class="btn-p mt-4" onclick="saveBracketSettings()">💾 Simpan Perubahan Bagan</button>
     </div>
     <div id="adminContent-manage" class="hidden"><div id="adminManagePanel"></div></div>
+    <div id="adminContent-docs" class="hidden"><div id="adminDocsPanel"></div></div>
     <div id="adminContent-header" class="hidden"><div id="adminHeaderPanel"></div></div>
   </div>
   <!-- MANAGER -->
@@ -283,6 +354,25 @@
     <div id="modalBody"></div>
   </div>
 </div>
+<!-- LIGHTBOX MODAL -->
+<div id="docLightboxModal" class="hidden" onclick="handleLightboxBackdropClick(event)">
+  <div class="w-full flex items-center justify-between px-4 py-2 border-b border-slate-800">
+    <div>
+      <div id="lightboxTitle" class="text-white font-bold text-sm"></div>
+      <div id="lightboxSubtitle" class="text-xs text-cyan-400"></div>
+    </div>
+    <button onclick="closeLightbox()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:24px;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&times;</button>
+  </div>
+  <div class="lightbox-main">
+    <button class="lightbox-nav-btn prev" onclick="prevLightboxImg(event)">‹</button>
+    <img id="lightboxImg" src="" alt="Dokumentasi Turnamen">
+    <button class="lightbox-nav-btn next" onclick="nextLightboxImg(event)">›</button>
+  </div>
+  <div class="w-full flex flex-col items-center gap-2">
+    <div id="lightboxCounter" class="text-xs text-slate-400 font-mono"></div>
+    <div id="lightboxThumbs" class="lightbox-thumbs"></div>
+  </div>
+</div>
 <script>
 // ==================== FIREBASE ====================
 var fbConfig={apiKey:"AIzaSyB5ggfDs3r3hdzQGGrteiZtW4vFgWVtVCI",authDomain:"dies-natalis-ums-2026.firebaseapp.com",projectId:"dies-natalis-ums-2026",storageBucket:"dies-natalis-ums-2026.firebasestorage.app",messagingSenderId:"912617266657",appId:"1:912617266657:web:c6d163bd67cd5b83e506a0"};
@@ -308,6 +398,55 @@ var INIT_HEADER={
   footerTagline:'Sinergi Berdampak Berkelanjutan'
 };
 var HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
+
+var INIT_DOCUMENTATIONS=[
+  {
+    id:'doc_1',
+    title:'Seremoni Pembukaan & Drawing Resmi Minisoccer Dies Natalis ke-68 UMS',
+    date:'Senin, 22 September 2026',
+    category:'Seremoni & Acara',
+    matchTag:'Umum',
+    pinCarousel:true,
+    author:'Humas Panitia Dies Natalis 68',
+    summary:'Pembukaan megah turnamen Minisoccer Sivitas Akademika UMS 2026 yang diikuti 19 tim perwakilan fakultas, lembaga, dan unit kerja se-UMS.',
+    content:'Surakarta – Semarak perayaan Dies Natalis ke-68 Universitas Muhammadiyah Surakarta resmi dimulai dengan digelarnya turnamen bergengsi Minisoccer Champions League 2026 bertempat di Lapangan Minisoccer Kampus 4 UMS.\n\nSebanyak 19 tim resmi terdaftar dan telah menyelesaikan drawing penempatan bagan turnamen. Pertandingan kualifikasi Play-off mempertemukan 6 tim sebelum melangkah ke putaran utama 16 besar.\n\nTurnamen ini mengusung tema "Sinergi Berdampak Berkelanjutan" sebagai wadah mempererat silaturahmi, sportivitas, dan kebersamaan seluruh dosen, tenaga kependidikan, serta karyawan di lingkungan UMS.',
+    images:[
+      'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=1200&q=80'
+    ]
+  },
+  {
+    id:'doc_2',
+    title:'Kesiapan Arena & Rumput Sintetis Standar Lapangan Minisoccer Kampus 4',
+    date:'Sabtu, 20 September 2026',
+    category:'Berita & Liputan',
+    matchTag:'Umum',
+    pinCarousel:true,
+    author:'Tim Sarpras & IT',
+    summary:'Pemeriksaan akhir kondisi lapangan, pencahayaan LED malam hari, serta sistem digitalisasi skor dan live streaming turnamen.',
+    content:'Panitia pelaksana memastikan seluruh fasilitas pertandingan telah siap 100%. Mulai dari kondisi rumput sintetis berstandar tinggi, pencahayaan lapangan, ruang ganti pemain, hingga integrasi papan skor digital interaktif real-time.\n\nSetiap pertandingan akan dimonitor secara ketat oleh wasit berlisensi resmi dan tim medis siaga untuk menjamin keselamatan dan kenyamanan bertanding seluruh atlet civitas akademika.',
+    images:[
+      'https://images.unsplash.com/photo-1529900245534-5e69eef02d9a?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=1200&q=80'
+    ]
+  },
+  {
+    id:'doc_3',
+    title:'Technical Meeting & Pengesahan Regulasi Pertandingan 7 vs 7',
+    date:'Jumat, 19 September 2026',
+    category:'Seremoni & Acara',
+    matchTag:'Umum',
+    pinCarousel:true,
+    author:'Komisi Disiplin & Pertandingan',
+    summary:'Rapat koordinasi manajer tim membahas aturan kategori usia pemain (minimal 2 pemain usia 35+ di lapangan) dan sistem adu penalti.',
+    content:'Bertempat di Gedung Induk Siti Walidah UMS, perwakilan dari seluruh manajer 19 tim menyepakati regulasi teknis turnamen. Format 7 vs 7 dengan durasi 2x15 menit serta kewajiban memainkan minimal 2 pemain di atas usia 35 tahun secara simultan menjadi aturan wajib demi menjaga semangat inklusivitas dan sportivitas sivitas akademika.',
+    images:[
+      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1200&q=80'
+    ]
+  }
+];
 
 var INIT_TEAMS=[
   {id:'t1',  name:'SATPAM UNITED',unit:'Unit Keamanan / Satpam UMS',manager:'Ahmad Hindayang',official:'Suratno, S.Pd.',captain:'Ahmad Hindayang'},
@@ -552,8 +691,8 @@ var FORMATION_PRESETS={
 };
 
 // ==================== STATE ====================
-var matches,players,rules,formations={},authRole=null,authTeamId=null,authTeamName=null;
-var currentView='home',currentHomeTab='bracket',currentAdminTab='matches',currentMatchDayFilter='ALL';
+var matches,players,rules,formations={},documentations=[],authRole=null,authTeamId=null,authTeamName=null;
+var currentView='home',currentHomeTab='bracket',currentAdminTab='matches',currentMatchDayFilter='ALL',currentGalleryCat='Semua',gallerySearchQuery='';
 
 function loadState(){
   try{HEADER=JSON.parse(localStorage.getItem('ums_h5'))||null;}catch(e){HEADER=null;}
@@ -568,6 +707,8 @@ function loadState(){
   if(!Array.isArray(rules)||rules.length===0)rules=JSON.parse(JSON.stringify(RULES));
   try{formations=JSON.parse(localStorage.getItem('ums_f5'))||{};}catch(e){formations={};}
   if(!formations||typeof formations!=='object')formations={};
+  try{documentations=JSON.parse(localStorage.getItem('ums_d5'))||null;}catch(e){documentations=null;}
+  if(!Array.isArray(documentations)||documentations.length===0)documentations=JSON.parse(JSON.stringify(INIT_DOCUMENTATIONS));
   authRole=localStorage.getItem('ums_role5')||null;
   authTeamId=localStorage.getItem('ums_tid5')||null;
   authTeamName=localStorage.getItem('ums_tname5')||null;
@@ -580,6 +721,7 @@ function saveState(){
   localStorage.setItem('ums_p5',JSON.stringify(players));
   localStorage.setItem('ums_r5',JSON.stringify(rules));
   localStorage.setItem('ums_f5',JSON.stringify(formations));
+  localStorage.setItem('ums_d5',JSON.stringify(documentations));
   if(authRole)localStorage.setItem('ums_role5',authRole);
   if(authTeamId)localStorage.setItem('ums_tid5',authTeamId);
   if(authTeamName)localStorage.setItem('ums_tname5',authTeamName);
@@ -605,7 +747,8 @@ function triggerSilentDailyBackup(){
       matches:matches,
       players:players,
       rules:rules,
-      formations:formations
+      formations:formations,
+      documentations:documentations
     };
     db.collection('ums26_v5').doc('backup_'+dateKey).set(snapData,{merge:true}).catch(function(){});
     db.collection('ums26_v5').doc('backup_latest').set(snapData,{merge:true}).catch(function(){});
@@ -616,7 +759,7 @@ function pushCloud(){
   if(!db)return;
   clearTimeout(_pushT);
   _pushT=setTimeout(function(){
-    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules,formations:formations},{merge:true}).then(function(){
+    db.collection('ums26_v5').doc('main').set({header:HEADER,teams:TEAMS,matches:matches,players:players,rules:rules,formations:formations,documentations:documentations},{merge:true}).then(function(){
       setSyncBadge('online');
       triggerSilentDailyBackup();
     }).catch(function(){setSyncBadge('offline');});
@@ -636,12 +779,14 @@ function startCloud(){
       if(Array.isArray(d.players)&&d.players.length>0)players=d.players;
       if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
       if(d.formations&&typeof d.formations==='object')formations=d.formations;
+      if(Array.isArray(d.documentations)&&d.documentations.length>0)documentations=d.documentations;
       localStorage.setItem('ums_h5',JSON.stringify(HEADER));
       localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
       localStorage.setItem('ums_m5',JSON.stringify(matches));
       localStorage.setItem('ums_p5',JSON.stringify(players));
       localStorage.setItem('ums_r5',JSON.stringify(rules));
       localStorage.setItem('ums_f5',JSON.stringify(formations));
+      localStorage.setItem('ums_d5',JSON.stringify(documentations));
       renderHeader();
       renderCurrentView();
       setSyncBadge('online');
@@ -670,6 +815,8 @@ function syncNow(){
         if(Array.isArray(d.matches)&&d.matches.length>=16)matches=d.matches;
         if(Array.isArray(d.players)&&d.players.length>0)players=d.players;
         if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
+        if(d.formations&&typeof d.formations==='object')formations=d.formations;
+        if(Array.isArray(d.documentations)&&d.documentations.length>0)documentations=d.documentations;
         saveState();
         renderHeader();
         renderCurrentView();
@@ -687,7 +834,7 @@ function goTo(v){
   var el=document.getElementById('view-'+v);
   if(el)el.classList.remove('hidden');
   document.querySelectorAll('#navMenu .role-badge').forEach(function(b){b.classList.remove('active');});
-  var m={home:'Bagan',teams:'Tim',rules:'Peraturan',admin:'Super',manager:'Manajer'};
+  var m={home:'Bagan',teams:'Tim',rules:'Peraturan',gallery:'Dokumentasi',admin:'Super',manager:'Manajer'};
   document.querySelectorAll('#navMenu .role-badge').forEach(function(b){if(m[v]&&b.textContent.indexOf(m[v])>=0)b.classList.add('active');});
   renderCurrentView();
 }
@@ -697,6 +844,7 @@ function renderCurrentView(){
   if(currentView==='home')renderHome();
   else if(currentView==='teams')renderTeams();
   else if(currentView==='rules')renderRules();
+  else if(currentView==='gallery')renderGallery();
   else if(currentView==='admin')renderAdmin();
   else if(currentView==='manager')renderManager();
 }
@@ -888,8 +1036,168 @@ function applyProgression(){
   }
 }
 
+// ==================== IMAGE COMPRESSION ====================
+function compressImage(file, maxWidth, maxHeight, quality, callback){
+  try {
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var canvas = document.createElement('canvas');
+        var width = img.width;
+        var height = img.height;
+        if(width > maxWidth || height > maxHeight){
+          if(width > height){
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        var dataUrl = canvas.toDataURL('image/jpeg', quality || 0.82);
+        callback(dataUrl);
+      };
+      img.onerror = function(){ callback(e.target.result); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ callback(null); };
+    reader.readAsDataURL(file);
+  } catch(err){ callback(null); }
+}
+
+// ==================== HOME CAROUSEL ====================
+var _carouselTimer = null;
+var _currentCarouselIdx = 0;
+var _carouselDocs = [];
+
+function renderHomeCarousel(){
+  var container = document.getElementById('homeCarouselContainer');
+  if(!container) return;
+  
+  _carouselDocs = (documentations || []).filter(function(d){ return d.pinCarousel; });
+  if(_carouselDocs.length === 0){
+    _carouselDocs = (documentations || []).slice(0, 4);
+  }
+  
+  if(_carouselDocs.length === 0){
+    container.innerHTML = '';
+    container.classList.add('hidden');
+    stopCarouselTimer();
+    return;
+  }
+  
+  container.classList.remove('hidden');
+  if(_currentCarouselIdx >= _carouselDocs.length) _currentCarouselIdx = 0;
+  
+  var slidesHtml = _carouselDocs.map(function(doc, idx){
+    var bgImg = (doc.images && doc.images.length > 0) ? doc.images[0] : './assets/logo-dies-natalis-68-ums.png';
+    var imgCount = doc.images ? doc.images.length : 0;
+    return '<div class="carousel-slide" style="background-image:url(\''+esc(bgImg)+'\');" onclick="openDocDetailModal(\''+esc(doc.id)+'\')">'
+      + '<div class="carousel-overlay"></div>'
+      + '<div class="carousel-content">'
+      + '  <div class="flex items-center gap-2 mb-2 flex-wrap">'
+      + '    <span class="badge-g font-bold">🌟 HIGHLIGHT</span>'
+      + '    <span class="badge-c font-bold">'+esc(doc.category)+'</span>'
+      + (doc.matchTag && doc.matchTag !== 'Umum' ? '    <span class="badge-gr font-bold">⚽ '+esc(doc.matchTag)+'</span>' : '')
+      + '    <span class="text-xs text-slate-300 ml-auto">📅 '+esc(doc.date)+'</span>'
+      + '  </div>'
+      + '  <h2 class="text-lg sm:text-2xl font-extrabold text-white tracking-tight leading-snug drop-shadow-md mb-1.5">'
+      + esc(doc.title)
+      + '  </h2>'
+      + '  <p class="text-xs sm:text-sm text-slate-200 line-clamp-2 max-w-3xl drop-shadow mb-3">'
+      + esc(doc.summary || doc.content || '')
+      + '  </p>'
+      + '  <div class="flex items-center gap-3">'
+      + '    <button class="btn-p text-xs py-1.5 px-3.5 flex items-center gap-1.5 shadow-lg" onclick="event.stopPropagation(); openDocDetailModal(\''+esc(doc.id)+'\')">'
+      + '      📖 Baca Liputan'
+      + '    </button>'
+      + (imgCount > 0 ? '    <button class="btn-s text-xs py-1.5 px-3 flex items-center gap-1.5 shadow-lg" onclick="event.stopPropagation(); openLightbox(\''+esc(doc.id)+'\', 0)">'
+      + '      🖼️ Lihat Galeri ('+imgCount+' Foto)'
+      + '    </button>' : '')
+      + '  </div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  var dotsHtml = _carouselDocs.map(function(doc, idx){
+    return '<div class="carousel-dot '+(idx === _currentCarouselIdx ? 'active' : '')+'" onclick="setCarouselSlide('+idx+')"></div>';
+  }).join('');
+
+  var html = '<div class="flex items-center justify-between mb-3">'
+    + '<div class="flex items-center gap-2">'
+    + '  <span class="text-amber-400 font-extrabold text-sm sm:text-base">📸 DOKUMENTASI &amp; HIGHLIGHT TURNAMEN</span>'
+    + '</div>'
+    + '<a href="#" onclick="goTo(\'gallery\'); return false;" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 transition">'
+    + '  Buka Halaman Galeri Lengkap ➔'
+    + '</a>'
+    + '</div>'
+    + '<div class="carousel-container" onmouseenter="stopCarouselTimer()" onmouseleave="startCarouselTimer()">'
+    + '  <div class="carousel-track" id="carouselTrack" style="transform: translateX(-'+(_currentCarouselIdx * 100)+'%);">'
+    + slidesHtml
+    + '  </div>'
+    + (_carouselDocs.length > 1 ? '  <button class="carousel-btn prev" onclick="prevCarouselSlide()">‹</button>' : '')
+    + (_carouselDocs.length > 1 ? '  <button class="carousel-btn next" onclick="nextCarouselSlide()">›</button>' : '')
+    + (_carouselDocs.length > 1 ? '  <div class="carousel-dots">'+dotsHtml+'</div>' : '')
+    + '</div>';
+
+  container.innerHTML = html;
+  startCarouselTimer();
+}
+
+function startCarouselTimer(){
+  stopCarouselTimer();
+  if(!_carouselDocs || _carouselDocs.length <= 1) return;
+  _carouselTimer = setInterval(function(){
+    nextCarouselSlide();
+  }, 5500);
+}
+
+function stopCarouselTimer(){
+  if(_carouselTimer){
+    clearInterval(_carouselTimer);
+    _carouselTimer = null;
+  }
+}
+
+function nextCarouselSlide(){
+  if(!_carouselDocs || _carouselDocs.length <= 1) return;
+  _currentCarouselIdx = (_currentCarouselIdx + 1) % _carouselDocs.length;
+  updateCarouselDOM();
+}
+
+function prevCarouselSlide(){
+  if(!_carouselDocs || _carouselDocs.length <= 1) return;
+  _currentCarouselIdx = (_currentCarouselIdx - 1 + _carouselDocs.length) % _carouselDocs.length;
+  updateCarouselDOM();
+}
+
+function setCarouselSlide(idx){
+  _currentCarouselIdx = idx;
+  updateCarouselDOM();
+}
+
+function updateCarouselDOM(){
+  var track = document.getElementById('carouselTrack');
+  if(track){
+    track.style.transform = 'translateX(-' + (_currentCarouselIdx * 100) + '%)';
+  }
+  var container = document.getElementById('homeCarouselContainer');
+  if(container){
+    var dots = container.querySelectorAll('.carousel-dot');
+    dots.forEach(function(d, i){
+      d.classList.toggle('active', i === _currentCarouselIdx);
+    });
+  }
+}
+
 // ==================== HOME VIEW ====================
 function renderHome(){
+  renderHomeCarousel();
   ['bracket','matches','stats'].forEach(function(t){
     var c=document.getElementById('htabContent-'+t),b=document.getElementById('htab-'+t);
     if(c)c.classList.toggle('hidden',t!==currentHomeTab);
@@ -1260,6 +1568,532 @@ function saveRules(){
   saveState();renderRules();closeModal();
 }
 
+// ==================== GALLERY & DOKUMENTASI VIEW ====================
+var DOC_CATEGORIES=['Semua','Seremoni & Acara','Berita & Liputan','Play-off','16 Besar','Perempat Final','Semi Final & Final','Highlight Pertandingan'];
+
+function renderGallery(){
+  var container=document.getElementById('galleryCardsList');
+  var filterCon=document.getElementById('galleryFilterContainer');
+  var galActionBtn=document.getElementById('adminGalleryActionBtn');
+  if(galActionBtn)galActionBtn.classList.toggle('hidden',authRole!=='admin');
+  if(!container)return;
+
+  // Render Filter Pills and Search Input
+  if(filterCon){
+    var pillsHtml=DOC_CATEGORIES.map(function(cat){
+      var active=cat===currentGalleryCat?'active':'';
+      return '<button class="gallery-cat-pill '+active+'" onclick="setGalleryCat(\''+esc(cat)+'\')">'+esc(cat)+'</button>';
+    }).join('');
+
+    filterCon.innerHTML='<div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3.5 glass mb-2">'
+      +'<div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">'
+      +pillsHtml
+      +'</div>'
+      +'<div class="flex-shrink-0 w-full md:w-64">'
+      +'  <input type="text" placeholder="🔍 Cari berita / foto..." value="'+esc(gallerySearchQuery)+'" oninput="setGallerySearch(this.value)" class="form-inp py-1.5 text-xs">'
+      +'</div>'
+      +'</div>';
+  }
+
+  // Filter docs
+  var filtered=(documentations||[]).filter(function(doc){
+    if(currentGalleryCat!=='Semua'&&doc.category!==currentGalleryCat)return false;
+    if(gallerySearchQuery){
+      var q=gallerySearchQuery.toLowerCase().trim();
+      var matchTitle=(doc.title||'').toLowerCase().indexOf(q)>=0;
+      var matchCat=(doc.category||'').toLowerCase().indexOf(q)>=0;
+      var matchTag=(doc.matchTag||'').toLowerCase().indexOf(q)>=0;
+      var matchSummary=(doc.summary||'').toLowerCase().indexOf(q)>=0;
+      var matchContent=(doc.content||'').toLowerCase().indexOf(q)>=0;
+      var matchAuthor=(doc.author||'').toLowerCase().indexOf(q)>=0;
+      if(!matchTitle&&!matchCat&&!matchTag&&!matchSummary&&!matchContent&&!matchAuthor)return false;
+    }
+    return true;
+  });
+
+  if(filtered.length===0){
+    container.innerHTML='<div class="col-span-full glass p-10 text-center text-slate-400">'
+      +'<div class="text-4xl mb-2">📸</div>'
+      +'<div class="font-bold text-white text-base mb-1">Belum Ada Dokumentasi Ditemukan</div>'
+      +'<div class="text-xs">Tidak ada postingan dokumentasi atau berita yang cocok dengan filter kategori/pencarian Anda.</div>'
+      +(authRole==='admin'?'<button class="btn-g mt-4 text-xs py-1.5 px-3.5" onclick="showDocModal()">➕ Tambah Dokumentasi Sekarang</button>':'')
+      +'</div>';
+    return;
+  }
+
+  container.innerHTML=filtered.map(function(doc){
+    var coverImg=(doc.images&&doc.images.length>0)?doc.images[0]:'./assets/logo-dies-natalis-68-ums.png';
+    var imgCount=doc.images?doc.images.length:0;
+    return '<div class="doc-card">'
+      +'<div class="doc-img-wrap" onclick="openDocDetailModal(\''+esc(doc.id)+'\')">'
+      +'  <img src="'+esc(coverImg)+'" alt="'+esc(doc.title)+'">'
+      +'  <div class="doc-badge-pos">'
+      +'    <span class="badge-g font-bold">'+esc(doc.category)+'</span>'
+      +(doc.matchTag&&doc.matchTag!=='Umum'?'    <span class="badge-gr font-bold">⚽ '+esc(doc.matchTag)+'</span>':'')
+      +'  </div>'
+      +(imgCount>0?'  <div class="doc-count-badge" onclick="event.stopPropagation(); openLightbox(\''+esc(doc.id)+'\', 0)">📷 '+imgCount+' Foto</div>':'')
+      +'</div>'
+      +'<div class="p-4 flex-1 flex flex-col justify-between">'
+      +'  <div>'
+      +'    <div class="text-[11px] text-slate-400 mb-1 flex items-center justify-between">'
+      +'      <span>📅 '+esc(doc.date)+'</span>'
+      +'      <span>✍️ '+esc(doc.author||'Panitia')+'</span>'
+      +'    </div>'
+      +'    <h3 class="text-base font-bold text-white leading-snug hover:text-cyan-300 cursor-pointer transition mb-2" onclick="openDocDetailModal(\''+esc(doc.id)+'\')">'
+      +esc(doc.title)
+      +'    </h3>'
+      +'    <p class="text-xs text-slate-300 line-clamp-3 leading-relaxed mb-4">'
+      +esc(doc.summary||doc.content||'')
+      +'    </p>'
+      +'  </div>'
+      +'  <div class="flex items-center gap-2 pt-3 border-t border-slate-800">'
+      +'    <button class="btn-p text-xs py-1 px-3 flex-1 flex items-center justify-center gap-1" onclick="openDocDetailModal(\''+esc(doc.id)+'\')">'
+      +'      📖 Baca Liputan'
+      +'    </button>'
+      +(imgCount>0?'    <button class="btn-s text-xs py-1 px-2.5 flex items-center gap-1" title="Lihat Slideshow Foto" onclick="openLightbox(\''+esc(doc.id)+'\', 0)">'
+      +'      🖼️ Galeri'
+      +'    </button>':'')
+      +(authRole==='admin'?'    <button class="btn-g text-xs py-1 px-2.5" title="Edit Dokumentasi" onclick="showDocModal(\''+esc(doc.id)+'\')">✏️</button>':'')
+      +'  </div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function setGalleryCat(cat){
+  currentGalleryCat=cat;
+  renderGallery();
+}
+
+function setGallerySearch(val){
+  gallerySearchQuery=val;
+  renderGallery();
+}
+
+function openDocDetailModal(docId){
+  var doc=(documentations||[]).find(function(d){return d.id===docId;});
+  if(!doc)return;
+  var imagesHtml='';
+  if(doc.images&&doc.images.length>0){
+    imagesHtml='<div class="mt-5 pt-4 border-t border-slate-800">'
+      +'<div class="flex items-center justify-between mb-3">'
+      +'  <h4 class="text-sm font-bold text-white flex items-center gap-1.5">📷 Galeri Foto ('+doc.images.length+' Foto)</h4>'
+      +'  <span class="text-[11px] text-cyan-400 cursor-pointer font-bold hover:underline" onclick="openLightbox(\''+esc(doc.id)+'\', 0)">🔍 Buka Slideshow Layar Penuh</span>'
+      +'</div>'
+      +'<div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">'
+      +doc.images.map(function(imgUrl,idx){
+          return '<div class="relative rounded-lg overflow-hidden cursor-pointer group" style="height:110px; background:#070a12; border:1px solid rgba(255,255,255,0.1);" onclick="openLightbox(\''+esc(doc.id)+'\', '+idx+')">'
+            +'<img src="'+esc(imgUrl)+'" alt="Dokumentasi '+idx+'" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">'
+            +'<div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">🔍 Perbesar</div>'
+            +'</div>';
+        }).join('')
+      +'</div>'
+      +'</div>';
+  }
+
+  // Format content paragraphs with proper newlines
+  var formattedContent=esc(doc.content||doc.summary||'')
+    .split('\n\n')
+    .map(function(para){return '<p class="mb-3 text-slate-200 leading-relaxed text-sm">'+para.replace(/\n/g,'<br>')+'</p>';})
+    .join('');
+
+  var html='<div class="pb-3 border-b border-slate-800 mb-4">'
+    +'<div class="flex items-center gap-2 flex-wrap mb-2">'
+    +'  <span class="badge-g font-bold">'+esc(doc.category)+'</span>'
+    +(doc.matchTag&&doc.matchTag!=='Umum'?'  <span class="badge-gr font-bold">⚽ '+esc(doc.matchTag)+'</span>':'')
+    +(doc.pinCarousel?'  <span class="badge-c font-bold">📌 Pinned Carousel</span>':'')
+    +'</div>'
+    +'<h2 class="text-xl sm:text-2xl font-black text-white leading-tight mb-2">'+esc(doc.title)+'</h2>'
+    +'<div class="flex items-center gap-3 text-xs text-slate-400 flex-wrap">'
+    +'  <span>📅 '+esc(doc.date)+'</span>'
+    +'  <span>✍️ '+esc(doc.author||'Panitia Dies Natalis 68')+'</span>'
+    +'</div>'
+    +'</div>'
+    +'<div class="max-h-[65vh] overflow-y-auto pr-1">'
+    +(doc.images&&doc.images.length>0?'<div class="mb-4 rounded-xl overflow-hidden border border-slate-700 max-h-72"><img src="'+esc(doc.images[0])+'" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(\''+esc(doc.id)+'\', 0)"></div>':'')
+    +'<div class="prose prose-invert max-w-none">'
+    +formattedContent
+    +'</div>'
+    +imagesHtml
+    +'</div>'
+    +'<div class="flex gap-2 mt-4 pt-3 border-t border-slate-800">'
+    +'  <button onclick="closeModal()" class="btn-s flex-1">Tutup</button>'
+    +(doc.images&&doc.images.length>0?'  <button onclick="openLightbox(\''+esc(doc.id)+'\', 0)" class="btn-p flex-1">🖼️ Buka Slideshow ('+doc.images.length+' Foto)</button>':'')
+    +'</div>';
+
+  openModal(html,'wide');
+}
+
+// ==================== LIGHTBOX SLIDESHOW ====================
+var _lightboxDoc=null;
+var _lightboxIdx=0;
+
+function openLightbox(docId,imgIdx){
+  var doc=(documentations||[]).find(function(d){return d.id===docId;});
+  if(!doc||!doc.images||doc.images.length===0)return;
+  _lightboxDoc=doc;
+  _lightboxIdx=imgIdx||0;
+  var lb=document.getElementById('docLightboxModal');
+  if(!lb)return;
+  lb.classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  renderLightbox();
+}
+
+function renderLightbox(){
+  if(!_lightboxDoc||!_lightboxDoc.images||_lightboxDoc.images.length===0)return;
+  if(_lightboxIdx>=_lightboxDoc.images.length)_lightboxIdx=0;
+  if(_lightboxIdx<0)_lightboxIdx=_lightboxDoc.images.length-1;
+
+  var titleEl=document.getElementById('lightboxTitle');
+  var subEl=document.getElementById('lightboxSubtitle');
+  var imgEl=document.getElementById('lightboxImg');
+  var counterEl=document.getElementById('lightboxCounter');
+  var thumbsEl=document.getElementById('lightboxThumbs');
+
+  if(titleEl)titleEl.textContent=_lightboxDoc.title;
+  if(subEl)subEl.textContent=_lightboxDoc.category+' · '+_lightboxDoc.date+(_lightboxDoc.author?' · Oleh '+_lightboxDoc.author:'');
+  if(imgEl)imgEl.src=_lightboxDoc.images[_lightboxIdx];
+  if(counterEl)counterEl.textContent='Foto '+(_lightboxIdx+1)+' dari '+_lightboxDoc.images.length;
+
+  if(thumbsEl){
+    thumbsEl.innerHTML=_lightboxDoc.images.map(function(url,idx){
+      var active=idx===_lightboxIdx?'active':'';
+      return '<img src="'+esc(url)+'" class="lightbox-thumb '+active+'" onclick="setLightboxImg('+idx+')">';
+    }).join('');
+  }
+}
+
+function setLightboxImg(idx){
+  _lightboxIdx=idx;
+  renderLightbox();
+}
+
+function nextLightboxImg(e){
+  if(e)e.stopPropagation();
+  if(!_lightboxDoc||!_lightboxDoc.images)return;
+  _lightboxIdx=(_lightboxIdx+1)%_lightboxDoc.images.length;
+  renderLightbox();
+}
+
+function prevLightboxImg(e){
+  if(e)e.stopPropagation();
+  if(!_lightboxDoc||!_lightboxDoc.images)return;
+  _lightboxIdx=(_lightboxIdx-1+_lightboxDoc.images.length)%_lightboxDoc.images.length;
+  renderLightbox();
+}
+
+function closeLightbox(){
+  var lb=document.getElementById('docLightboxModal');
+  if(lb)lb.classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function handleLightboxBackdropClick(e){
+  if(e.target.id==='docLightboxModal'||e.target.classList.contains('lightbox-main')){
+    closeLightbox();
+  }
+}
+
+document.addEventListener('keydown',function(e){
+  var lb=document.getElementById('docLightboxModal');
+  if(lb&&!lb.classList.contains('hidden')){
+    if(e.key==='Escape')closeLightbox();
+    else if(e.key==='ArrowLeft')prevLightboxImg();
+    else if(e.key==='ArrowRight')nextLightboxImg();
+  }
+});
+
+// ==================== ADMIN DOCUMENTATION PANEL ====================
+var _tempDocImages=[];
+
+function renderAdminDocs(){
+  var c=document.getElementById('adminDocsPanel');
+  if(!c)return;
+  
+  var html='<div class="flex justify-between items-center mb-4 flex-wrap gap-2">'
+    +'  <div>'
+    +'    <h3 class="font-bold text-white text-base">📸 Kelola Galeri &amp; Dokumentasi Berita</h3>'
+    +'    <p class="text-xs text-slate-400">Total '+(documentations||[]).length+' dokumentasi terbit. Unggah foto kompresi otomatis &amp; atur banner carousel beranda.</p>'
+    +'  </div>'
+    +'  <button class="btn-g text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-md" onclick="showDocModal()">'
+    +'    ➕ Tambah Dokumentasi Baru'
+    +'  </button>'
+    +'</div>';
+
+  if(!documentations||documentations.length===0){
+    html+='<div class="glass p-8 text-center text-slate-400">'
+      +'<div class="text-3xl mb-2">📸</div>'
+      +'<div class="font-bold text-white mb-1">Belum Ada Dokumentasi</div>'
+      +'<p class="text-xs mb-4">Mulai tambahkan liputan pertandingan, berita perayaan, dan galeri foto turnamen.</p>'
+      +'<button class="btn-g text-xs py-1.5 px-3.5" onclick="showDocModal()">➕ Buat Postingan Pertama</button>'
+      +'</div>';
+    c.innerHTML=html;
+    return;
+  }
+
+  html+='<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+  documentations.forEach(function(doc){
+    var coverImg=(doc.images&&doc.images.length>0)?doc.images[0]:'./assets/logo-dies-natalis-68-ums.png';
+    var imgCount=doc.images?doc.images.length:0;
+    html+='<div class="glass p-4 flex flex-col justify-between border border-slate-800">'
+      +'  <div class="flex gap-3 mb-3">'
+      +'    <img src="'+esc(coverImg)+'" class="w-20 h-20 rounded-lg object-cover flex-shrink-0 border border-slate-700 cursor-pointer" onclick="openDocDetailModal(\''+esc(doc.id)+'\')">'
+      +'    <div class="flex-1 min-w-0">'
+      +'      <div class="flex items-center gap-1.5 mb-1 flex-wrap">'
+      +'        <span class="badge-g">'+esc(doc.category)+'</span>'
+      +(doc.pinCarousel?'        <span class="badge-c">📌 Carousel</span>':'')
+      +'        <span class="text-[10px] text-slate-400 ml-auto">📅 '+esc(doc.date)+'</span>'
+      +'      </div>'
+      +'      <h4 class="text-sm font-bold text-white leading-tight truncate cursor-pointer hover:text-cyan-300" onclick="openDocDetailModal(\''+esc(doc.id)+'\')">'+esc(doc.title)+'</h4>'
+      +'      <p class="text-xs text-slate-400 line-clamp-2 mt-1 leading-snug">'+esc(doc.summary||doc.content||'')+'</p>'
+      +'    </div>'
+      +'  </div>'
+      +'  <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80 gap-2 flex-wrap">'
+      +'    <div class="flex items-center gap-1.5 text-xs text-cyan-400 font-medium">'
+      +'      <span>📷 '+imgCount+' Foto</span>'
+      +(doc.matchTag&&doc.matchTag!=='Umum'?'      <span>· ⚽ '+esc(doc.matchTag)+'</span>':'')
+      +'    </div>'
+      +'    <div class="flex items-center gap-1.5">'
+      +'      <button class="btn-s text-[11px] py-1 px-2.5" onclick="toggleDocPin(\''+esc(doc.id)+'\')" title="'+(doc.pinCarousel?'Lepas Pin Carousel':'Pin ke Carousel Beranda')+'">'
+      +(doc.pinCarousel?'📌 Lepas Pin':'⭐ Pin Carousel')
+      +'      </button>'
+      +'      <button class="btn-g text-[11px] py-1 px-2.5" onclick="showDocModal(\''+esc(doc.id)+'\')">✏️ Edit</button>'
+      +'      <button class="btn-d text-[11px] py-1 px-2.5" onclick="deleteDoc(\''+esc(doc.id)+'\')">🗑️</button>'
+      +'    </div>'
+      +'  </div>'
+      +'</div>';
+  });
+  html+='</div>';
+
+  c.innerHTML=html;
+}
+
+function showDocModal(docId){
+  var isEdit=!!docId;
+  var doc=isEdit?(documentations||[]).find(function(d){return d.id===docId;}):null;
+  _tempDocImages=(doc&&doc.images)?doc.images.slice():[];
+
+  var defaultDate=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var title=doc?doc.title:'';
+  var category=doc?doc.category:'Seremoni & Acara';
+  var matchTag=doc?(doc.matchTag||'Umum'):'Umum';
+  var dateStr=doc?doc.date:defaultDate;
+  var author=doc?(doc.author||'Panitia Dies Natalis 68'):'Panitia Dies Natalis 68';
+  var pinCarousel=doc?!!doc.pinCarousel:true;
+  var summary=doc?(doc.summary||''):'';
+  var content=doc?(doc.content||''):'';
+
+  // Generate Match Options
+  var matchOptions='<option value="Umum" '+(matchTag==='Umum'?'selected':'')+'>Umum / Seremoni (Non-Pertandingan)</option>';
+  if(matches&&matches.length>0){
+    matches.forEach(function(m){
+      var label=(m.stage==='PO'?'Play-off ':'Match #')+(m.no||m.id)+': '+(m.hName||'TBD')+' vs '+(m.aName||'TBD');
+      matchOptions+='<option value="'+esc(label)+'" '+(matchTag===label?'selected':'')+'>'+esc(label)+'</option>';
+    });
+  }
+
+  // Category Options
+  var catOptions=DOC_CATEGORIES.filter(function(c){return c!=='Semua';}).map(function(c){
+    return '<option value="'+esc(c)+'" '+(category===c?'selected':'')+'>'+esc(c)+'</option>';
+  }).join('');
+
+  var modalHtml='<div class="pb-3 border-b border-slate-800 mb-4 flex items-center justify-between">'
+    +'  <div>'
+    +'    <span class="badge-g">👑 SUPER ADMIN</span>'
+    +'    <h2 class="text-lg font-bold text-white mt-1">'+(isEdit?'✏️ Edit Dokumentasi':'➕ Tambah Dokumentasi &amp; Berita')+'</h2>'
+    +'  </div>'
+    +'</div>'
+    +'<div class="space-y-4 max-h-[68vh] overflow-y-auto pr-1 text-left">'
+    +'  <div>'
+    +'    <label class="form-lbl">Judul Liputan / Berita *</label>'
+    +'    <input id="docInpTitle" class="form-inp" value="'+esc(title)+'" placeholder="Contoh: Seremoni Pembukaan Minisoccer UMS 2026">'
+    +'  </div>'
+    +'  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">'
+    +'    <div>'
+    +'      <label class="form-lbl">Kategori Liputan *</label>'
+    +'      <select id="docInpCat" class="form-inp">'+catOptions+'</select>'
+    +'    </div>'
+    +'    <div>'
+    +'      <label class="form-lbl">Tag Pertandingan Terkait</label>'
+    +'      <select id="docInpMatchTag" class="form-inp">'+matchOptions+'</select>'
+    +'    </div>'
+    +'  </div>'
+    +'  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">'
+    +'    <div>'
+    +'      <label class="form-lbl">Tanggal &amp; Waktu Kegiatan</label>'
+    +'      <input id="docInpDate" class="form-inp" value="'+esc(dateStr)+'" placeholder="Contoh: Senin, 28 September 2026">'
+    +'    </div>'
+    +'    <div>'
+    +'      <label class="form-lbl">Penulis / Reporter</label>'
+    +'      <input id="docInpAuthor" class="form-inp" value="'+esc(author)+'" placeholder="Contoh: Humas Panitia">'
+    +'    </div>'
+    +'  </div>'
+    +'  <div class="flex items-center gap-2 p-3 rounded-lg glass border border-slate-700">'
+    +'    <input type="checkbox" id="docInpPin" class="w-4 h-4 text-cyan-500 rounded focus:ring-0 cursor-pointer" '+(pinCarousel?'checked':'')+'>'
+    +'    <label for="docInpPin" class="text-xs text-white font-bold cursor-pointer select-none">📌 Tampilkan di Banner Carousel Beranda (Slide Highlight)</label>'
+    +'  </div>'
+    +'  <div>'
+    +'    <label class="form-lbl">Ringkasan Singkat (Lead / Excerpt)</label>'
+    +'    <textarea id="docInpSummary" class="form-inp" rows="2" placeholder="Ringkasan 1-2 kalimat yang tampil di kartu galeri dan slide carousel...">'+esc(summary)+'</textarea>'
+    +'  </div>'
+    +'  <div>'
+    +'    <label class="form-lbl">Isi Lengkap Berita / Artikel</label>'
+    +'    <textarea id="docInpContent" class="form-inp" rows="5" placeholder="Tuliskan berita lengkap, jalannya pertandingan, keterangan momen foto, dll...">'+esc(content)+'</textarea>'
+    +'  </div>'
+    +'  <div class="p-3.5 glass rounded-xl border border-cyan-400/20">'
+    +'    <label class="form-lbl text-cyan-400">📷 Upload Galeri Foto (Kompresi Otomatis)</label>'
+    +'    <p class="text-[11px] text-slate-400 mb-3">Foto langsung dikompresi otomatis di browser (WebP/JPEG ringan ~80-120KB) sehingga hemat kuota &amp; cepat tersimpan.</p>'
+    +'    <input type="file" id="docFileInput" multiple accept="image/*" class="form-inp text-xs mb-3" onchange="handleDocFileUpload(event)">'
+    +'    <div class="flex gap-2 mb-3">'
+    +'      <input type="text" id="docUrlInput" class="form-inp text-xs" placeholder="Atau paste URL Gambar Web/Cloud (https://...)">'
+    +'      <button class="btn-s text-xs px-3 flex-shrink-0" onclick="addDocUrlImage()">+ Tambah URL</button>'
+    +'    </div>'
+    +'    <div id="docUploadStatus" class="text-xs text-amber-300 font-bold mb-2 hidden"></div>'
+    +'    <label class="form-lbl text-slate-400">Daftar Foto Terlampir (<span id="docPhotoCount">0</span> foto):</label>'
+    +'    <div id="docTempImagesContainer" class="flex gap-2 overflow-x-auto p-2 bg-slate-950/60 rounded-lg border border-slate-800 min-h-[75px] items-center"></div>'
+    +'  </div>'
+    +'</div>'
+    +'<div class="flex gap-2 mt-5 pt-3 border-t border-slate-800">'
+    +'  <button onclick="closeModal()" class="btn-s flex-1">Batal</button>'
+    +'  <button onclick="saveDoc(\''+(isEdit?esc(docId):'')+'\')" class="btn-p flex-1">💾 Simpan Dokumentasi</button>'
+    +'</div>';
+
+  openModal(modalHtml,'wide');
+  renderDocPhotosPreview();
+}
+
+function handleDocFileUpload(e){
+  var files=e.target.files;
+  if(!files||files.length===0)return;
+  var statusEl=document.getElementById('docUploadStatus');
+  if(statusEl){
+    statusEl.textContent='⏳ Mengompresi '+files.length+' foto...';
+    statusEl.classList.remove('hidden');
+  }
+
+  var processed=0;
+  for(var i=0;i<files.length;i++){
+    (function(file){
+      compressImage(file,1200,1200,0.82,function(dataUrl){
+        if(dataUrl){
+          _tempDocImages.push(dataUrl);
+        }
+        processed++;
+        if(processed===files.length){
+          if(statusEl)statusEl.classList.add('hidden');
+          renderDocPhotosPreview();
+          e.target.value='';
+        }
+      });
+    })(files[i]);
+  }
+}
+
+function addDocUrlImage(){
+  var inp=document.getElementById('docUrlInput');
+  if(!inp)return;
+  var url=inp.value.trim();
+  if(!url){alert('Silakan masukkan URL gambar.');return;}
+  _tempDocImages.push(url);
+  inp.value='';
+  renderDocPhotosPreview();
+}
+
+function removeDocTempImage(idx){
+  _tempDocImages.splice(idx,1);
+  renderDocPhotosPreview();
+}
+
+function renderDocPhotosPreview(){
+  var container=document.getElementById('docTempImagesContainer');
+  var countEl=document.getElementById('docPhotoCount');
+  if(countEl)countEl.textContent=_tempDocImages.length;
+  if(!container)return;
+
+  if(_tempDocImages.length===0){
+    container.innerHTML='<span class="text-xs text-slate-500 italic">Belum ada foto yang dipilih.</span>';
+    return;
+  }
+
+  container.innerHTML=_tempDocImages.map(function(imgUrl,idx){
+    return '<div class="photo-thumb-item">'
+      +'<img src="'+esc(imgUrl)+'" alt="Preview '+idx+'">'
+      +'<button class="photo-thumb-del" onclick="removeDocTempImage('+idx+')" title="Hapus foto ini">&times;</button>'
+      +'</div>';
+  }).join('');
+}
+
+function saveDoc(docId){
+  var title=(document.getElementById('docInpTitle').value||'').trim();
+  var category=document.getElementById('docInpCat').value;
+  var matchTag=document.getElementById('docInpMatchTag').value;
+  var dateStr=(document.getElementById('docInpDate').value||'').trim();
+  var author=(document.getElementById('docInpAuthor').value||'').trim();
+  var pinCarousel=document.getElementById('docInpPin').checked;
+  var summary=(document.getElementById('docInpSummary').value||'').trim();
+  var content=(document.getElementById('docInpContent').value||'').trim();
+
+  if(!title){alert('Judul dokumentasi wajib diisi.');return;}
+  if(!summary&&content)summary=content.slice(0,160)+(content.length>160?'...':'');
+
+  if(docId){
+    var existing=(documentations||[]).find(function(d){return d.id===docId;});
+    if(existing){
+      existing.title=title;
+      existing.category=category;
+      existing.matchTag=matchTag;
+      existing.date=dateStr||existing.date;
+      existing.author=author||'Panitia Dies Natalis 68';
+      existing.pinCarousel=pinCarousel;
+      existing.summary=summary;
+      existing.content=content;
+      existing.images=_tempDocImages.slice();
+    }
+  } else {
+    var newDoc={
+      id:'doc_'+Date.now(),
+      title:title,
+      category:category,
+      matchTag:matchTag,
+      date:dateStr||new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),
+      author:author||'Panitia Dies Natalis 68',
+      pinCarousel:pinCarousel,
+      summary:summary,
+      content:content,
+      images:_tempDocImages.slice()
+    };
+    if(!documentations)documentations=[];
+    documentations.unshift(newDoc);
+  }
+
+  saveState();
+  closeModal();
+  renderAdminDocs();
+  renderGallery();
+  renderHomeCarousel();
+  alert('✅ Dokumentasi berhasil disimpan!');
+}
+
+function deleteDoc(docId){
+  if(!confirm('Apakah Anda yakin ingin menghapus dokumentasi ini?'))return;
+  documentations=(documentations||[]).filter(function(d){return d.id!==docId;});
+  saveState();
+  renderAdminDocs();
+  renderGallery();
+  renderHomeCarousel();
+  alert('✅ Dokumentasi berhasil dihapus.');
+}
+
+function toggleDocPin(docId){
+  var doc=(documentations||[]).find(function(d){return d.id===docId;});
+  if(!doc)return;
+  doc.pinCarousel=!doc.pinCarousel;
+  saveState();
+  renderAdminDocs();
+  renderHomeCarousel();
+}
+
 function renderHeader(){
   if(!HEADER)return;
   var nTitle=document.getElementById('navTitleDisplay');if(nTitle)nTitle.textContent=HEADER.navTitle||INIT_HEADER.navTitle;
@@ -1282,7 +2116,7 @@ function renderHeader(){
 
 // ==================== ADMIN VIEW ====================
 function renderAdmin(){
-  ['matches','bracket','manage','header'].forEach(function(t){
+  ['matches','bracket','manage','docs','header'].forEach(function(t){
     var el=document.getElementById('adminContent-'+t),btn=document.getElementById('atab-'+t);
     if(el)el.classList.toggle('hidden',t!==currentAdminTab);
     if(btn)btn.classList.toggle('active',t===currentAdminTab);
@@ -1290,6 +2124,7 @@ function renderAdmin(){
   if(currentAdminTab==='matches')renderAdminMatches();
   else if(currentAdminTab==='bracket')renderBracketSettings();
   else if(currentAdminTab==='manage')renderManagePanel();
+  else if(currentAdminTab==='docs')renderAdminDocs();
   else if(currentAdminTab==='header')renderHeaderPanel();
 }
 function switchAdminTab(t){currentAdminTab=t;renderAdmin();}
@@ -2647,6 +3482,7 @@ function updateNavAuth(){
   var eb=document.getElementById('editRulesBtn');
   var aBar=document.getElementById('adminHomeEditBar'),aHeroBtn=document.getElementById('adminHeroEditBtn');
   var aFootBtn=document.getElementById('adminFooterEditBtn');
+  var aGalBtn=document.getElementById('adminGalleryActionBtn');
   if(authRole==='admin'){
     if(at)at.classList.remove('hidden');if(mt)mt.classList.add('hidden');
     if(lb){lb.textContent='👑 Super Admin (Keluar)';lb.onclick=doLogout;}
@@ -2654,6 +3490,7 @@ function updateNavAuth(){
     if(aBar)aBar.classList.remove('hidden');
     if(aHeroBtn)aHeroBtn.classList.remove('hidden');
     if(aFootBtn)aFootBtn.classList.remove('hidden');
+    if(aGalBtn)aGalBtn.classList.remove('hidden');
   } else if(authRole==='manager'){
     if(mt)mt.classList.remove('hidden');if(at)at.classList.add('hidden');
     if(lb){lb.textContent='⚽ '+(authTeamName?authTeamName.split(' ')[0]:'Manajer')+' (Keluar)';lb.onclick=doLogout;}
@@ -2661,6 +3498,7 @@ function updateNavAuth(){
     if(aBar)aBar.classList.add('hidden');
     if(aHeroBtn)aHeroBtn.classList.add('hidden');
     if(aFootBtn)aFootBtn.classList.add('hidden');
+    if(aGalBtn)aGalBtn.classList.add('hidden');
   } else {
     if(at)at.classList.add('hidden');if(mt)mt.classList.add('hidden');
     if(lb){lb.textContent='🔑 Masuk Akun';lb.onclick=showLoginModal;}
@@ -2668,6 +3506,7 @@ function updateNavAuth(){
     if(aBar)aBar.classList.add('hidden');
     if(aHeroBtn)aHeroBtn.classList.add('hidden');
     if(aFootBtn)aFootBtn.classList.add('hidden');
+    if(aGalBtn)aGalBtn.classList.add('hidden');
   }
 }
 
@@ -2701,11 +3540,12 @@ function backupToFirestoreNow(){
       matches:matches,
       players:players,
       rules:rules,
-      formations:formations
+      formations:formations,
+      documentations:documentations
     };
     db.collection('ums26_v5').doc('backup_latest').set(snapData,{merge:true}).then(function(){
       db.collection('ums26_v5').doc('backup_'+dateKey).set(snapData,{merge:true}).catch(function(){});
-      alert('✅ Berhasil mencadangkan seluruh database (19 Tim, 241 Pemain, Jadwal, & Peraturan) ke Cloud Firestore!');
+      alert('✅ Berhasil mencadangkan seluruh database (19 Tim, 241 Pemain, Jadwal, Dokumentasi, & Peraturan) ke Cloud Firestore!');
     }).catch(function(err){
       alert('Gagal mencadangkan ke Cloud Firestore: '+err.message);
     });
@@ -2723,7 +3563,8 @@ function downloadManualBackupJSON(){
       matches:matches,
       players:players,
       rules:rules,
-      formations:formations
+      formations:formations,
+      documentations:documentations
     };
     var dataStr='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(snapData,null,2));
     var a=document.createElement('a');
