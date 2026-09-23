@@ -406,7 +406,7 @@
       <div class="flex items-center gap-2">
         <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold shadow-sm">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="activeOnlineCount">14 Online Sekarang</span>
+          <span id="activeOnlineCount">1 Online Sekarang</span>
         </div>
       </div>
     </div>
@@ -419,15 +419,15 @@
         <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
           <div class="bg-slate-900/85 border border-slate-800 rounded-xl p-3 text-center shadow-inner">
             <div class="text-[10px] sm:text-[11px] text-slate-400 font-medium mb-1">👥 Total Pengunjung</div>
-            <div class="text-lg sm:text-2xl font-black text-cyan-400 font-mono tracking-tight" id="statTotalVisits">1,286</div>
+            <div class="text-lg sm:text-2xl font-black text-cyan-400 font-mono tracking-tight" id="statTotalVisits">1</div>
           </div>
           <div class="bg-slate-900/85 border border-slate-800 rounded-xl p-3 text-center shadow-inner">
             <div class="text-[10px] sm:text-[11px] text-slate-400 font-medium mb-1">📅 Hari Ini</div>
-            <div class="text-lg sm:text-2xl font-black text-emerald-400 font-mono tracking-tight" id="statTodayVisits">142</div>
+            <div class="text-lg sm:text-2xl font-black text-emerald-400 font-mono tracking-tight" id="statTodayVisits">1</div>
           </div>
           <div class="bg-slate-900/85 border border-slate-800 rounded-xl p-3 text-center shadow-inner">
             <div class="text-[10px] sm:text-[11px] text-slate-400 font-medium mb-1">🌍 Asal Negara</div>
-            <div class="text-lg sm:text-2xl font-black text-yellow-400 font-mono tracking-tight" id="statCountriesCount">7</div>
+            <div class="text-lg sm:text-2xl font-black text-yellow-400 font-mono tracking-tight" id="statCountriesCount">1</div>
           </div>
         </div>
 
@@ -3888,7 +3888,7 @@ function showEditFooterModal(){
     +'</div>'
     +'<div class="pt-2 border-t border-slate-800">'
     +'<label class="form-lbl text-cyan-400">👥 Total Pengunjung (Live Counter Base)</label>'
-    +'<input type="number" id="quickFootVisits" class="form-inp font-mono" value="'+((visitorStats&&visitorStats.total)?visitorStats.total:1286)+'" min="1">'
+    +'<input type="number" id="quickFootVisits" class="form-inp font-mono" value="'+((visitorStats&&visitorStats.total)?visitorStats.total:1)+'" min="1">'
     +'<p class="text-[10px] text-slate-500 mt-1">Nilai counter awal total pengunjung yang tampil di widget statistik footer.</p>'
     +'</div>'
     +'</div>'
@@ -4393,21 +4393,15 @@ function exportTeamsAndPlayersExcel(){
 
 // ==================== VISITOR ANALYTICS & 3D ROTATING GLOBE ====================
 var DEFAULT_VISITOR_STATS = {
-  total: 1286,
-  today: 142,
+  total: 1,
+  today: 1,
   todayDate: new Date().toISOString().slice(0, 10),
-  online: 14,
+  online: 1,
   userCountry: 'ID',
   userCountryName: 'Indonesia',
   userFlag: '🇮🇩',
   countries: {
-    ID: { name: 'Indonesia', flag: '🇮🇩', count: 1184, lat: -7.56, lon: 110.82 },
-    MY: { name: 'Malaysia', flag: '🇲🇾', count: 46, lat: 3.14, lon: 101.69 },
-    SG: { name: 'Singapura', flag: '🇸🇬', count: 24, lat: 1.35, lon: 103.82 },
-    JP: { name: 'Jepang', flag: '🇯🇵', count: 12, lat: 35.68, lon: 139.77 },
-    SA: { name: 'Arab Saudi', flag: '🇸🇦', count: 8, lat: 24.71, lon: 46.67 },
-    AU: { name: 'Australia', flag: '🇦🇺', count: 7, lat: -33.86, lon: 151.20 },
-    US: { name: 'Amerika Serikat', flag: '🇺🇸', count: 5, lat: 37.77, lon: -122.42 }
+    ID: { name: 'Indonesia', flag: '🇮🇩', count: 1, lat: -7.56, lon: 110.82 }
   }
 };
 
@@ -4434,6 +4428,10 @@ var KNOWN_COUNTRY_INFO = {
 var visitorStats = null;
 try {
   visitorStats = JSON.parse(localStorage.getItem('ums_visitor_stats'));
+  if(visitorStats && (visitorStats.total >= 1000 || visitorStats.total === 1286)){
+    visitorStats = null;
+    localStorage.removeItem('ums_visitor_stats');
+  }
 } catch(e){}
 if(!visitorStats || !visitorStats.countries){
   visitorStats = JSON.parse(JSON.stringify(DEFAULT_VISITOR_STATS));
