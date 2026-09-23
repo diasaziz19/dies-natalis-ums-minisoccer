@@ -983,6 +983,15 @@ function pushCloud(immediate){
   if(!db)return;
   clearTimeout(_pushT);
   var doPush = function(){
+    // Use slim documentation index (first thumbnail) for main container to keep it well under 1MB limit
+    var slimDocs = (documentations || []).map(function(d){
+      var c = Object.assign({}, d);
+      if(Array.isArray(c.images) && c.images.length > 1){
+        c.images = [c.images[0]];
+      }
+      return c;
+    });
+
     var mainPayload = {
       header:HEADER,
       teams:TEAMS,
@@ -990,43 +999,25 @@ function pushCloud(immediate){
       players:players,
       rules:rules,
       formations:formations,
-      documentations:documentations
+      documentations:slimDocs
     };
+
     db.collection('ums26_v5').doc('main').set(mainPayload,{merge:true}).then(function(){
       setSyncBadge('online');
       triggerSilentDailyBackup();
     }).catch(function(err){
       console.warn('Cloud push to main notice:', err);
-      // If doc('main') exceeds 1MB, push tournament data with first photo thumbnail of documentations
-      if(err && err.message && err.message.indexOf('exceeds maximum') >= 0){
-        var slimDocs = (documentations || []).map(function(d){
-          var c = Object.assign({}, d);
-          if(Array.isArray(c.images) && c.images.length > 1){
-            c.images = [c.images[0]];
-          }
-          return c;
-        });
-        db.collection('ums26_v5').doc('main').set({
-          header:HEADER,
-          teams:TEAMS,
-          matches:matches,
-          players:players,
-          rules:rules,
-          formations:formations,
-          documentations:slimDocs
-        },{merge:true}).then(function(){
-          setSyncBadge('online');
-        }).catch(function(){});
-      }
     });
 
-    // Dedicated documentations container in ums26_v5 (isolated 1 MiB quota)
-    db.collection('ums26_v5').doc('docs').set({
-      list: documentations,
-      updatedAt: Date.now()
-    },{merge:true}).catch(function(e){
-      console.warn('Dedicated docs sync notice:', e);
-    });
+    // Also persist each full article (including all photos) to dedicated collections
+    if(Array.isArray(documentations)){
+      documentations.forEach(function(docItem){
+        if(docItem && docItem.id){
+          db.collection('ums26_v5_docs').doc(docItem.id).set(docItem, {merge:true}).catch(function(){});
+          db.collection('ums26_v5').doc('art_' + docItem.id).set(docItem, {merge:true}).catch(function(){});
+        }
+      });
+    }
   };
   if(immediate){
     doPush();
@@ -1075,19 +1066,23 @@ function startCloud(){
     } else { pushCloud(); }
   },function(err){setSyncBadge('offline');});
 
-  // 2. Dedicated listener for documentations container in ums26_v5
-  db.collection('ums26_v5').doc('docs').onSnapshot(function(snap){
-    if(snap.exists){
-      var d=snap.data();
-      if(d && Array.isArray(d.list) && d.list.length > 0){
-        if(!_isSavingDocs){
-          documentations = mergeDocumentations(d.list);
-          try{ localStorage.setItem('ums_d5', JSON.stringify(documentations)); }catch(e){}
-          if(currentView==='gallery'||currentView==='home'||currentView==='admin'){
-            renderCurrentView();
-          }
-          renderHomeCarousel();
+  // 2. Dedicated real-time listener for articles collection in ums26_v5_docs
+  db.collection('ums26_v5_docs').onSnapshot(function(snap){
+    if(snap && !snap.empty){
+      var cloudDocs = [];
+      snap.forEach(function(docSnap){
+        var item = docSnap.data();
+        if(item && item.id){
+          cloudDocs.push(item);
         }
+      });
+      if(cloudDocs.length > 0 && !_isSavingDocs){
+        documentations = mergeDocumentations(cloudDocs);
+        try{ localStorage.setItem('ums_d5', JSON.stringify(documentations)); }catch(e){}
+        if(currentView==='gallery'||currentView==='home'||currentView==='admin'||currentView==='article'){
+          renderCurrentView();
+        }
+        renderHomeCarousel();
       }
     }
   },function(err){});
@@ -2050,6 +2045,41 @@ function openDocDetailModal(docId){
   openArticlePage(docId);
 }
 
+function renderArticleNotFound(c){
+  if(!c) return;
+  c.innerHTML = '<div class="glass p-8 text-center max-w-lg mx-auto my-12">'
+    + '<div class="text-4xl mb-3">📰</div>'
+    + '<h3 class="text-lg font-bold text-white mb-2">Liputan Tidak Ditemukan</h3>'
+    + '<p class="text-xs text-slate-400 mb-4">Artikel atau dokumentasi yang Anda cari mungkin belum selesai dipublikasikan atau telah dipindahkan.</p>'
+    + '<button class="btn-p text-xs px-4 py-2" onclick="goTo(\'gallery\')">← Kembali ke Galeri Berita</button>'
+    + '</div>';
+}
+
+function fetchSingleDoc(docId, callback){
+  if(!db){ callback(null); return; }
+  // Try 1: Dedicated collection ums26_v5_docs
+  db.collection('ums26_v5_docs').doc(docId).get().then(function(snap){
+    if(snap.exists && snap.data()){
+      var d = snap.data();
+      documentations = mergeDocumentations([d]);
+      try { localStorage.setItem('ums_d5', JSON.stringify(documentations)); } catch(e){}
+      callback(d);
+      return;
+    }
+    // Try 2: In ums26_v5 with prefix art_
+    db.collection('ums26_v5').doc('art_' + docId).get().then(function(snap2){
+      if(snap2.exists && snap2.data()){
+        var d2 = snap2.data();
+        documentations = mergeDocumentations([d2]);
+        try { localStorage.setItem('ums_d5', JSON.stringify(documentations)); } catch(e){}
+        callback(d2);
+        return;
+      }
+      callback(null);
+    }).catch(function(){ callback(null); });
+  }).catch(function(){ callback(null); });
+}
+
 // ==================== FULL-PAGE ARTICLE VIEW ====================
 function renderArticlePage(docId){
   var c = document.getElementById('view-article');
@@ -2058,11 +2088,18 @@ function renderArticlePage(docId){
   var doc = (documentations || []).find(function(d){ return d.id === docId; });
   if(!doc){
     c.innerHTML = '<div class="glass p-8 text-center max-w-lg mx-auto my-12">'
-      + '<div class="text-4xl mb-3">📰</div>'
-      + '<h3 class="text-lg font-bold text-white mb-2">Liputan Tidak Ditemukan</h3>'
-      + '<p class="text-xs text-slate-400 mb-4">Artikel atau dokumentasi yang Anda cari mungkin telah dihapus atau dipindahkan.</p>'
-      + '<button class="btn-p text-xs px-4 py-2" onclick="goTo(\'gallery\')">← Kembali ke Galeri Berita</button>'
+      + '<div class="inline-block w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-3"></div>'
+      + '<h3 class="text-base font-bold text-white mb-1">Memuat Liputan Berita...</h3>'
+      + '<p class="text-xs text-slate-400 mb-4">Menghubungkan ke Cloud Server UMS...</p>'
       + '</div>';
+
+    fetchSingleDoc(docId, function(foundDoc){
+      if(foundDoc && currentView === 'article' && currentArticleId === docId){
+        renderArticlePage(docId);
+      } else if(!foundDoc && currentView === 'article' && currentArticleId === docId){
+        renderArticleNotFound(c);
+      }
+    });
     return;
   }
 
@@ -2637,7 +2674,9 @@ function handleDocFileUpload(e){
   var processed=0;
   for(var i=0;i<filesToProcess.length;i++){
     (function(file){
-      compressImage(file, 720, 720, 0.58, function(dataUrl){
+      var maxDim = filesToProcess.length > 2 ? 600 : 700;
+      var q = filesToProcess.length > 2 ? 0.52 : 0.58;
+      compressImage(file, maxDim, maxDim, q, function(dataUrl){
         if(dataUrl && _tempDocImages.length < maxAllowed){
           _tempDocImages.push(dataUrl);
         }
@@ -2668,44 +2707,45 @@ function addDocUrlImage(){
   _tempDocImages.push(url);
   inp.value='';
   renderDocPhotosPreview();
-  showToast('✅ Foto dari URL berhasil ditambahkan!');
 }
 
 function removeDocTempImage(idx){
-  _tempDocImages.splice(idx,1);
-  renderDocPhotosPreview();
+  if(idx >= 0 && idx < _tempDocImages.length){
+    _tempDocImages.splice(idx, 1);
+    renderDocPhotosPreview();
+  }
 }
 
 function renderDocPhotosPreview(){
-  var container=document.getElementById('docTempImagesContainer');
-  var countEl=document.getElementById('docPhotoCount');
-  var limitBadge=document.getElementById('docPhotoLimitBadge');
-  var fileInput=document.getElementById('docFileInput');
+  var container = document.getElementById('docTempImagesContainer');
+  var countEl = document.getElementById('docPhotoCount');
+  var limitBadge = document.getElementById('docPhotoLimitBadge');
+  var fileInput = document.getElementById('docFileInput');
 
-  if(countEl)countEl.textContent=_tempDocImages.length;
+  if(countEl) countEl.textContent = _tempDocImages.length;
   if(limitBadge){
     if(_tempDocImages.length >= 10){
-      limitBadge.innerHTML='<span class="text-amber-400 font-bold ml-1.5 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30 text-[10px]">Maksimal 10 Terpenuhi</span>';
+      limitBadge.innerHTML = '<span class="text-amber-400 font-bold ml-1.5 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30 text-[10px]">Maksimal 10 Terpenuhi</span>';
     } else {
-      limitBadge.innerHTML='<span class="text-emerald-400 font-normal ml-1.5 text-[11px]">(' + (10 - _tempDocImages.length) + ' slot foto tersisa)</span>';
+      limitBadge.innerHTML = '<span class="text-emerald-400 font-normal ml-1.5 text-[11px]">(' + (10 - _tempDocImages.length) + ' slot foto tersisa)</span>';
     }
   }
   if(fileInput){
     fileInput.disabled = (_tempDocImages.length >= 10);
   }
-  if(!container)return;
+  if(!container) return;
 
-  if(_tempDocImages.length===0){
-    container.innerHTML='<span class="text-xs text-slate-500 italic">Belum ada foto yang dipilih. Silakan unggah hingga 10 foto liputan turnamen.</span>';
+  if(_tempDocImages.length === 0){
+    container.innerHTML = '<span class="text-xs text-slate-500 italic">Belum ada foto yang dipilih. Silakan unggah hingga 10 foto liputan turnamen.</span>';
     return;
   }
 
-  container.innerHTML=_tempDocImages.map(function(imgUrl,idx){
+  container.innerHTML = _tempDocImages.map(function(imgUrl, idx){
     return '<div class="photo-thumb-item relative group">'
-      +'<img src="'+esc(imgUrl)+'" alt="Preview '+(idx+1)+'">'
-      +'<span class="absolute bottom-1 left-1 bg-black/80 text-[10px] text-cyan-300 px-1.5 py-0.2 rounded font-mono font-bold">#'+(idx+1)+'</span>'
-      +'<button class="photo-thumb-del" onclick="removeDocTempImage('+idx+')" title="Hapus foto ini">&times;</button>'
-      +'</div>';
+      + '<img src="' + esc(imgUrl) + '" alt="Preview ' + (idx + 1) + '">'
+      + '<span class="absolute bottom-1 left-1 bg-black/80 text-[10px] text-cyan-300 px-1.5 py-0.2 rounded font-mono font-bold">#' + (idx + 1) + '</span>'
+      + '<button class="photo-thumb-del" onclick="removeDocTempImage(' + idx + ')" title="Hapus foto ini">&times;</button>'
+      + '</div>';
   }).join('');
 }
 
@@ -2741,6 +2781,7 @@ function saveDoc(docId){
 
   var now = Date.now();
   var targetId = docId || ('doc_' + now);
+  var targetDoc = null;
   if(docId){
     var existing=(documentations||[]).find(function(d){return d.id===docId;});
     if(existing){
@@ -2754,6 +2795,7 @@ function saveDoc(docId){
       existing.content=content;
       existing.images=_tempDocImages.slice();
       existing.updatedAt=now;
+      targetDoc = existing;
     }
     unmarkDocDeleted(docId);
   } else {
@@ -2773,10 +2815,18 @@ function saveDoc(docId){
     if(!documentations)documentations=[];
     unmarkDocDeleted(newDoc.id);
     documentations.unshift(newDoc);
+    targetDoc = newDoc;
   }
 
   _isSavingDocs = true;
   saveState(true);
+
+  // Directly push to dedicated collections to guarantee 100% cloud persistence without 1MB main limits!
+  if(db && targetDoc){
+    db.collection('ums26_v5_docs').doc(targetId).set(targetDoc, { merge: true }).catch(function(){});
+    db.collection('ums26_v5').doc('art_' + targetId).set(targetDoc, { merge: true }).catch(function(){});
+  }
+
   closeModal();
   renderAdminDocs();
   renderGallery();
@@ -2784,7 +2834,7 @@ function saveDoc(docId){
   if(currentView === 'article' && currentArticleId === targetId){
     renderArticlePage(targetId);
   }
-  showToast('✅ Dokumentasi & Berita berhasil disimpan!');
+  showToast('✅ Dokumentasi & Berita berhasil disimpan ke Cloud!');
   setTimeout(function(){ _isSavingDocs = false; }, 2500);
 }
 
@@ -2794,6 +2844,10 @@ function deleteDoc(docId){
   markDocDeleted(docId);
   documentations=(documentations||[]).filter(function(d){return d.id!==docId;});
   saveState(true);
+  if(db){
+    db.collection('ums26_v5_docs').doc(docId).delete().catch(function(){});
+    db.collection('ums26_v5').doc('art_' + docId).delete().catch(function(){});
+  }
   renderAdminDocs();
   renderGallery();
   renderHomeCarousel();
