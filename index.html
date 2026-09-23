@@ -760,24 +760,113 @@ function loadState(){
   try{formations=JSON.parse(localStorage.getItem('ums_f5'))||{};}catch(e){formations={};}
   if(!formations||typeof formations!=='object')formations={};
   try{documentations=JSON.parse(localStorage.getItem('ums_d5'))||null;}catch(e){documentations=null;}
-  if(!Array.isArray(documentations)||documentations.length===0)documentations=JSON.parse(JSON.stringify(INIT_DOCUMENTATIONS));
+  var deletedMap = {};
+  getDeletedDocIds().forEach(function(id){ deletedMap[id] = true; });
+  if(!Array.isArray(documentations)||documentations.length===0){
+    documentations=JSON.parse(JSON.stringify(INIT_DOCUMENTATIONS)).filter(function(d){ return !deletedMap[d.id]; });
+  } else {
+    documentations=documentations.filter(function(d){ return !deletedMap[d.id]; });
+  }
   authRole=localStorage.getItem('ums_role5')||null;
   authTeamId=localStorage.getItem('ums_tid5')||null;
   authTeamName=localStorage.getItem('ums_tname5')||null;
 }
 
-function saveState(){
-  localStorage.setItem('ums_h5',JSON.stringify(HEADER));
-  localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
-  localStorage.setItem('ums_m5',JSON.stringify(matches));
-  localStorage.setItem('ums_p5',JSON.stringify(players));
-  localStorage.setItem('ums_r5',JSON.stringify(rules));
-  localStorage.setItem('ums_f5',JSON.stringify(formations));
-  localStorage.setItem('ums_d5',JSON.stringify(documentations));
-  if(authRole)localStorage.setItem('ums_role5',authRole);
-  if(authTeamId)localStorage.setItem('ums_tid5',authTeamId);
-  if(authTeamName)localStorage.setItem('ums_tname5',authTeamName);
-  pushCloud();
+// ==================== DOCUMENTATION PERSISTENCE HELPERS ====================
+function getDeletedDocIds(){
+  try {
+    return JSON.parse(localStorage.getItem('ums_deleted_docs') || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
+function markDocDeleted(id){
+  try {
+    var list = getDeletedDocIds();
+    if(list.indexOf(id) < 0){
+      list.push(id);
+      localStorage.setItem('ums_deleted_docs', JSON.stringify(list));
+    }
+  } catch(e){}
+}
+
+function unmarkDocDeleted(id){
+  try {
+    var list = getDeletedDocIds().filter(function(x){ return x !== id; });
+    localStorage.setItem('ums_deleted_docs', JSON.stringify(list));
+  } catch(e){}
+}
+
+function mergeDocumentations(cloudDocs){
+  if(!Array.isArray(cloudDocs)) cloudDocs = [];
+  var delList = getDeletedDocIds();
+  var delMap = {};
+  delList.forEach(function(id){ delMap[id] = true; });
+
+  var map = {};
+  // 1. Ingest cloud docs (skip any explicitly deleted locally)
+  cloudDocs.forEach(function(cd){
+    if(cd && cd.id && !delMap[cd.id]){
+      map[cd.id] = cd;
+    }
+  });
+
+  // 2. Ingest local docs: ALWAYS preserve new & existing local docs
+  if(Array.isArray(documentations)){
+    documentations.forEach(function(ld){
+      if(ld && ld.id && !delMap[ld.id]){
+        if(!map[ld.id]){
+          // Exists locally, cloud doesn't have it yet -> PRESERVE IT! Never drop!
+          map[ld.id] = ld;
+        } else {
+          // If local has newer timestamp or richer images, retain local
+          var cd = map[ld.id];
+          var lt = ld.updatedAt || 0;
+          var ct = cd.updatedAt || 0;
+          if(lt >= ct || (Array.isArray(ld.images) && ld.images.length > (Array.isArray(cd.images) ? cd.images.length : 0))){
+            map[ld.id] = ld;
+          }
+        }
+      }
+    });
+  }
+
+  var list = [];
+  for(var k in map){
+    if(Object.prototype.hasOwnProperty.call(map, k)){
+      list.push(map[k]);
+    }
+  }
+  // Sort newest first
+  list.sort(function(a, b){
+    return (b.updatedAt || 0) - (a.updatedAt || 0);
+  });
+  return list;
+}
+
+function saveState(immediateCloudPush, skipCloudPush){
+  try{
+    localStorage.setItem('ums_h5',JSON.stringify(HEADER));
+    localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
+    localStorage.setItem('ums_m5',JSON.stringify(matches));
+    localStorage.setItem('ums_p5',JSON.stringify(players));
+    localStorage.setItem('ums_r5',JSON.stringify(rules));
+    localStorage.setItem('ums_f5',JSON.stringify(formations));
+    try{
+      localStorage.setItem('ums_d5',JSON.stringify(documentations));
+    }catch(errQuota){
+      console.warn('localStorage ums_d5 quota error:', errQuota);
+    }
+    if(authRole)localStorage.setItem('ums_role5',authRole);
+    if(authTeamId)localStorage.setItem('ums_tid5',authTeamId);
+    if(authTeamName)localStorage.setItem('ums_tname5',authTeamName);
+  }catch(err){
+    console.warn('saveState localStorage error:', err);
+  }
+  if(!skipCloudPush){
+    pushCloud(immediateCloudPush);
+  }
 }
 
 // ==================== CLOUD ====================
@@ -813,7 +902,7 @@ function pushCloud(immediate){
   if(!db)return;
   clearTimeout(_pushT);
   var doPush = function(){
-    db.collection('ums26_v5').doc('main').set({
+    var mainPayload = {
       header:HEADER,
       teams:TEAMS,
       matches:matches,
@@ -821,17 +910,41 @@ function pushCloud(immediate){
       rules:rules,
       formations:formations,
       documentations:documentations
-    },{merge:true}).then(function(){
-      _isSavingDocs = false;
+    };
+    db.collection('ums26_v5').doc('main').set(mainPayload,{merge:true}).then(function(){
       setSyncBadge('online');
       triggerSilentDailyBackup();
     }).catch(function(err){
-      _isSavingDocs = false;
-      console.error('Cloud push failed:', err);
-      setSyncBadge('offline');
+      console.warn('Cloud push to main notice:', err);
+      // If doc('main') exceeds 1MB, push tournament data with first photo thumbnail of documentations
       if(err && err.message && err.message.indexOf('exceeds maximum') >= 0){
-        alert('⚠️ Perhatian: Ukuran data foto/berita terlalu besar untuk Cloud Firestore. Silakan kurangi foto beresolusi tinggi.');
+        var slimDocs = (documentations || []).map(function(d){
+          var c = Object.assign({}, d);
+          if(Array.isArray(c.images) && c.images.length > 1){
+            c.images = [c.images[0]];
+          }
+          return c;
+        });
+        db.collection('ums26_v5').doc('main').set({
+          header:HEADER,
+          teams:TEAMS,
+          matches:matches,
+          players:players,
+          rules:rules,
+          formations:formations,
+          documentations:slimDocs
+        },{merge:true}).then(function(){
+          setSyncBadge('online');
+        }).catch(function(){});
       }
+    });
+
+    // Dedicated documentations container in ums26_v5 (isolated 1 MiB quota)
+    db.collection('ums26_v5').doc('docs').set({
+      list: documentations,
+      updatedAt: Date.now()
+    },{merge:true}).catch(function(e){
+      console.warn('Dedicated docs sync notice:', e);
     });
   };
   if(immediate){
@@ -844,6 +957,8 @@ function pushCloud(immediate){
 function startCloud(){
   if(!db){setSyncBadge('offline');return;}
   setSyncBadge('connecting');
+
+  // 1. Primary listener for tournament data and main doc
   db.collection('ums26_v5').doc('main').onSnapshot(function(snap){
     if(!snap.exists){pushCloud();return;}
     var d=snap.data();
@@ -855,47 +970,46 @@ function startCloud(){
       if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
       if(d.formations&&typeof d.formations==='object')formations=d.formations;
       
-      // Smart documentations merge with local freshness protection
+      // Robust merge: preserves local & cloud docs permanently
       if(Array.isArray(d.documentations) && d.documentations.length > 0){
         if(!_isSavingDocs){
-          var cloudDocs = d.documentations.slice();
-          if(Array.isArray(documentations) && documentations.length > 0){
-            var merged = cloudDocs.slice();
-            documentations.forEach(function(localDoc){
-              var idx = merged.findIndex(function(c){ return c.id === localDoc.id; });
-              if(idx >= 0){
-                var cloudDoc = merged[idx];
-                var localTime = localDoc.updatedAt || 0;
-                var cloudTime = cloudDoc.updatedAt || 0;
-                if(localTime > cloudTime){
-                  merged[idx] = localDoc;
-                }
-              } else {
-                if(localDoc.updatedAt && (Date.now() - localDoc.updatedAt < 30000)){
-                  merged.unshift(localDoc);
-                }
-              }
-            });
-            documentations = merged;
-          } else {
-            documentations = cloudDocs;
-          }
+          documentations = mergeDocumentations(d.documentations);
         }
       }
       
-      localStorage.setItem('ums_h5',JSON.stringify(HEADER));
-      localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
-      localStorage.setItem('ums_m5',JSON.stringify(matches));
-      localStorage.setItem('ums_p5',JSON.stringify(players));
-      localStorage.setItem('ums_r5',JSON.stringify(rules));
-      localStorage.setItem('ums_f5',JSON.stringify(formations));
-      localStorage.setItem('ums_d5',JSON.stringify(documentations));
+      try{
+        localStorage.setItem('ums_h5',JSON.stringify(HEADER));
+        localStorage.setItem('ums_t5',JSON.stringify(TEAMS));
+        localStorage.setItem('ums_m5',JSON.stringify(matches));
+        localStorage.setItem('ums_p5',JSON.stringify(players));
+        localStorage.setItem('ums_r5',JSON.stringify(rules));
+        localStorage.setItem('ums_f5',JSON.stringify(formations));
+        localStorage.setItem('ums_d5',JSON.stringify(documentations));
+      }catch(e){}
       renderHeader();
       renderCurrentView();
+      renderHomeCarousel();
       setSyncBadge('online');
       triggerSilentDailyBackup();
     } else { pushCloud(); }
   },function(err){setSyncBadge('offline');});
+
+  // 2. Dedicated listener for documentations container in ums26_v5
+  db.collection('ums26_v5').doc('docs').onSnapshot(function(snap){
+    if(snap.exists){
+      var d=snap.data();
+      if(d && Array.isArray(d.list) && d.list.length > 0){
+        if(!_isSavingDocs){
+          documentations = mergeDocumentations(d.list);
+          try{ localStorage.setItem('ums_d5', JSON.stringify(documentations)); }catch(e){}
+          if(currentView==='gallery'||currentView==='home'||currentView==='admin'){
+            renderCurrentView();
+          }
+          renderHomeCarousel();
+        }
+      }
+    }
+  },function(err){});
 }
 
 function setSyncBadge(s){
@@ -921,35 +1035,34 @@ function syncNow(){
         if(d.formations&&typeof d.formations==='object')formations=d.formations;
         
         if(Array.isArray(d.documentations)&&d.documentations.length>0){
-          var cloudDocs = d.documentations.slice();
-          if(Array.isArray(documentations) && documentations.length > 0){
-            var merged = cloudDocs.slice();
-            documentations.forEach(function(localDoc){
-              var idx = merged.findIndex(function(c){ return c.id === localDoc.id; });
-              if(idx >= 0){
-                var cloudDoc = merged[idx];
-                var localTime = localDoc.updatedAt || 0;
-                var cloudTime = cloudDoc.updatedAt || 0;
-                if(localTime > cloudTime){
-                  merged[idx] = localDoc;
-                }
-              } else {
-                if(localDoc.updatedAt && (Date.now() - localDoc.updatedAt < 30000)){
-                  merged.unshift(localDoc);
-                }
-              }
-            });
-            documentations = merged;
-          } else {
-            documentations = cloudDocs;
+          if(!_isSavingDocs){
+            documentations = mergeDocumentations(d.documentations);
           }
         }
         
-        saveState();
-        renderHeader();
-        renderCurrentView();
-        setSyncBadge('online');
-        showToast('✅ Berhasil sinkron data terbaru dari Cloud!');
+        db.collection('ums26_v5').doc('docs').get().then(function(dSnap){
+          if(dSnap.exists){
+            var dd=dSnap.data();
+            if(dd && Array.isArray(dd.list) && dd.list.length > 0){
+              if(!_isSavingDocs){
+                documentations = mergeDocumentations(dd.list);
+              }
+            }
+          }
+          saveState(false, true);
+          renderHeader();
+          renderCurrentView();
+          renderHomeCarousel();
+          setSyncBadge('online');
+          showToast('✅ Berhasil sinkron data terbaru dari Cloud!');
+        }).catch(function(){
+          saveState(false, true);
+          renderHeader();
+          renderCurrentView();
+          renderHomeCarousel();
+          setSyncBadge('online');
+          showToast('✅ Berhasil sinkron data terbaru dari Cloud!');
+        });
       } else{pushCloud();setSyncBadge('online');}
     } else{pushCloud();setSyncBadge('online');}
   }).catch(function(e){setSyncBadge('offline');alert('Gagal sync: '+e.message);});
@@ -1195,6 +1308,9 @@ function applyProgression(){
 
 // ==================== IMAGE COMPRESSION ====================
 function compressImage(file, maxWidth, maxHeight, quality, callback){
+  maxWidth = maxWidth || 720;
+  maxHeight = maxHeight || 720;
+  quality = (quality !== undefined && quality !== null) ? quality : 0.58;
   try {
     var reader = new FileReader();
     reader.onload = function(e){
@@ -1216,7 +1332,7 @@ function compressImage(file, maxWidth, maxHeight, quality, callback){
         canvas.height = height;
         var ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        var dataUrl = canvas.toDataURL('image/jpeg', quality || 0.82);
+        var dataUrl = canvas.toDataURL('image/jpeg', quality);
         callback(dataUrl);
       };
       img.onerror = function(){ callback(e.target.result); };
@@ -2268,15 +2384,19 @@ function showDocModal(docId){
     +'  </div>'
 
     +'  <div class="p-3.5 glass rounded-xl border border-cyan-400/20">'
-    +'    <label class="form-lbl text-cyan-400">📷 Upload Galeri Foto (Kompresi Otomatis Ringan)</label>'
-    +'    <p class="text-[11px] text-slate-400 mb-3">Foto otomatis dikompresi ringan di browser (WebP/JPEG ~40-70KB) sehingga hemat kuota &amp; aman di Cloud Firestore.</p>'
+    +'    <div class="flex items-center justify-between mb-1 flex-wrap gap-1">'
+    +'      <label class="form-lbl text-cyan-400 mb-0 font-bold">📷 Upload Galeri Foto (Dukungan hingga 10 Foto)</label>'
+    +'      <span class="text-xs font-bold text-white flex items-center">'
+    +'        <span id="docPhotoCount">0</span> / 10 Foto <span id="docPhotoLimitBadge"></span>'
+    +'      </span>'
+    +'    </div>'
+    +'    <p class="text-[11px] text-slate-400 mb-3">Pilih hingga 10 foto sekaligus. Kompresi otomatis beresolusi optimal (~20KB/foto) menjaga kuota aman dan tersimpan permanen di cloud tanpa risiko hilang.</p>'
     +'    <input type="file" id="docFileInput" multiple accept="image/*" class="form-inp text-xs mb-3" onchange="handleDocFileUpload(event)">'
     +'    <div class="flex gap-2 mb-3">'
     +'      <input type="text" id="docUrlInput" class="form-inp text-xs" placeholder="Atau paste URL Gambar Web/Cloud (https://...)">'
     +'      <button class="btn-s text-xs px-3 flex-shrink-0" onclick="addDocUrlImage()">+ Tambah URL</button>'
     +'    </div>'
     +'    <div id="docUploadStatus" class="text-xs text-amber-300 font-bold mb-2 hidden"></div>'
-    +'    <label class="form-lbl text-slate-400">Daftar Foto Terlampir (<span id="docPhotoCount">0</span> foto):</label>'
     +'    <div id="docTempImagesContainer" class="flex gap-2 overflow-x-auto p-2 bg-slate-950/60 rounded-lg border border-slate-800 min-h-[75px] items-center"></div>'
     +'  </div>'
     +'</div>'
@@ -2392,27 +2512,46 @@ function toggleDocEditorMode(){
 function handleDocFileUpload(e){
   var files=e.target.files;
   if(!files||files.length===0)return;
+  var maxAllowed = 10;
+  var available = maxAllowed - _tempDocImages.length;
+
+  if(available <= 0){
+    alert('⚠️ Batas Maksimum Tercapai: Anda sudah melampirkan 10 foto. Silakan hapus beberapa foto terlebih dahulu jika ingin mengunggah foto baru.');
+    e.target.value = '';
+    return;
+  }
+
+  var filesToProcess = Array.prototype.slice.call(files);
+  if(filesToProcess.length > available){
+    alert('ℹ️ Perhatian: Anda memilih ' + filesToProcess.length + ' foto, namun hanya ' + available + ' foto pertama yang akan diproses agar tidak melebihi batas maksimal 10 foto.');
+    filesToProcess = filesToProcess.slice(0, available);
+  }
+
   var statusEl=document.getElementById('docUploadStatus');
   if(statusEl){
-    statusEl.textContent='⏳ Mengompresi '+files.length+' foto (resolusi optimal)...';
+    statusEl.textContent='⏳ Mengompresi '+filesToProcess.length+' foto (resolusi optimal ringan)...';
     statusEl.classList.remove('hidden');
   }
 
   var processed=0;
-  for(var i=0;i<files.length;i++){
+  for(var i=0;i<filesToProcess.length;i++){
     (function(file){
-      compressImage(file,960,960,0.72,function(dataUrl){
-        if(dataUrl){
+      compressImage(file, 720, 720, 0.58, function(dataUrl){
+        if(dataUrl && _tempDocImages.length < maxAllowed){
           _tempDocImages.push(dataUrl);
         }
         processed++;
-        if(processed===files.length){
+        if(statusEl){
+          statusEl.textContent='⏳ Mengompresi foto (' + processed + ' dari ' + filesToProcess.length + ')...';
+        }
+        if(processed===filesToProcess.length){
           if(statusEl)statusEl.classList.add('hidden');
           renderDocPhotosPreview();
           e.target.value='';
+          showToast('✅ ' + filesToProcess.length + ' foto berhasil dilampirkan!');
         }
       });
-    })(files[i]);
+    })(filesToProcess[i]);
   }
 }
 
@@ -2421,9 +2560,14 @@ function addDocUrlImage(){
   if(!inp)return;
   var url=inp.value.trim();
   if(!url){alert('Silakan masukkan URL gambar.');return;}
+  if(_tempDocImages.length >= 10){
+    alert('⚠️ Batas Maksimum Tercapai: Anda sudah melampirkan 10 foto. Hapus salah satu foto jika ingin menambahkan URL baru.');
+    return;
+  }
   _tempDocImages.push(url);
   inp.value='';
   renderDocPhotosPreview();
+  showToast('✅ Foto dari URL berhasil ditambahkan!');
 }
 
 function removeDocTempImage(idx){
@@ -2434,17 +2578,31 @@ function removeDocTempImage(idx){
 function renderDocPhotosPreview(){
   var container=document.getElementById('docTempImagesContainer');
   var countEl=document.getElementById('docPhotoCount');
+  var limitBadge=document.getElementById('docPhotoLimitBadge');
+  var fileInput=document.getElementById('docFileInput');
+
   if(countEl)countEl.textContent=_tempDocImages.length;
+  if(limitBadge){
+    if(_tempDocImages.length >= 10){
+      limitBadge.innerHTML='<span class="text-amber-400 font-bold ml-1.5 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30 text-[10px]">Maksimal 10 Terpenuhi</span>';
+    } else {
+      limitBadge.innerHTML='<span class="text-emerald-400 font-normal ml-1.5 text-[11px]">(' + (10 - _tempDocImages.length) + ' slot foto tersisa)</span>';
+    }
+  }
+  if(fileInput){
+    fileInput.disabled = (_tempDocImages.length >= 10);
+  }
   if(!container)return;
 
   if(_tempDocImages.length===0){
-    container.innerHTML='<span class="text-xs text-slate-500 italic">Belum ada foto yang dipilih.</span>';
+    container.innerHTML='<span class="text-xs text-slate-500 italic">Belum ada foto yang dipilih. Silakan unggah hingga 10 foto liputan turnamen.</span>';
     return;
   }
 
   container.innerHTML=_tempDocImages.map(function(imgUrl,idx){
-    return '<div class="photo-thumb-item">'
-      +'<img src="'+esc(imgUrl)+'" alt="Preview '+idx+'">'
+    return '<div class="photo-thumb-item relative group">'
+      +'<img src="'+esc(imgUrl)+'" alt="Preview '+(idx+1)+'">'
+      +'<span class="absolute bottom-1 left-1 bg-black/80 text-[10px] text-cyan-300 px-1.5 py-0.2 rounded font-mono font-bold">#'+(idx+1)+'</span>'
       +'<button class="photo-thumb-del" onclick="removeDocTempImage('+idx+')" title="Hapus foto ini">&times;</button>'
       +'</div>';
   }).join('');
@@ -2481,6 +2639,7 @@ function saveDoc(docId){
   }
 
   var now = Date.now();
+  var targetId = docId || ('doc_' + now);
   if(docId){
     var existing=(documentations||[]).find(function(d){return d.id===docId;});
     if(existing){
@@ -2495,9 +2654,10 @@ function saveDoc(docId){
       existing.images=_tempDocImages.slice();
       existing.updatedAt=now;
     }
+    unmarkDocDeleted(docId);
   } else {
     var newDoc={
-      id:'doc_'+now,
+      id:targetId,
       title:title,
       category:category,
       matchTag:matchTag,
@@ -2510,26 +2670,29 @@ function saveDoc(docId){
       updatedAt:now
     };
     if(!documentations)documentations=[];
+    unmarkDocDeleted(newDoc.id);
     documentations.unshift(newDoc);
   }
 
   _isSavingDocs = true;
-  saveState();
+  saveState(true);
   closeModal();
   renderAdminDocs();
   renderGallery();
   renderHomeCarousel();
-  if(currentView === 'article' && currentArticleId === docId){
-    renderArticlePage(docId);
+  if(currentView === 'article' && currentArticleId === targetId){
+    renderArticlePage(targetId);
   }
-  showToast('✅ Dokumentasi berhasil disimpan!');
+  showToast('✅ Dokumentasi & Berita berhasil disimpan!');
+  setTimeout(function(){ _isSavingDocs = false; }, 2500);
 }
 
 function deleteDoc(docId){
   if(!confirm('Apakah Anda yakin ingin menghapus dokumentasi ini?'))return;
   _isSavingDocs = true;
+  markDocDeleted(docId);
   documentations=(documentations||[]).filter(function(d){return d.id!==docId;});
-  saveState();
+  saveState(true);
   renderAdminDocs();
   renderGallery();
   renderHomeCarousel();
@@ -2537,6 +2700,7 @@ function deleteDoc(docId){
     goTo('gallery');
   }
   showToast('✅ Dokumentasi berhasil dihapus.');
+  setTimeout(function(){ _isSavingDocs = false; }, 2500);
 }
 
 function toggleDocPin(docId){
@@ -2545,10 +2709,11 @@ function toggleDocPin(docId){
   _isSavingDocs = true;
   doc.pinCarousel=!doc.pinCarousel;
   doc.updatedAt=Date.now();
-  saveState();
+  saveState(true);
   renderAdminDocs();
   renderHomeCarousel();
   showToast(doc.pinCarousel ? '📌 Disematkan ke Carousel!' : '⭐ Pin Carousel dilepas.');
+  setTimeout(function(){ _isSavingDocs = false; }, 2500);
 }
 
 function renderHeader(){
