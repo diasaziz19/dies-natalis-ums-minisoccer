@@ -644,21 +644,22 @@ var RULES=[
   {
     cat:'1. Format & Ketentuan Umum',
     items:[
-      'Format Turnamen: Sistem Gugur Tunggal (Single Elimination Knockout) 16 Tim.',
+      'Format Turnamen: Sistem Gugur Tunggal (Single Elimination Knockout) 19 Tim.',
       'Sistem Pertandingan: 7 vs 7 (1 GK + 6 Pemain Lapangan).',
       'Komposisi Usia: Maksimal 4 pemain usia < 35 tahun di lapangan, sisanya 3 pemain usia >= 35 tahun.',
       'Durasi: 2 x 15 menit kotor (termasuk jeda babak dan pergantian pertandingan, keputusan waktu ada di wasit)',
-      'Bila Imbang: Langsung adu penalti (3 penendang + 1 sudden death).',
+      'Bila Imbang: Langsung adu penalti (3 penendang + sudden death).',
       'Pergantian Pemain: Rolling substitution tanpa dibatasi, namun harus tetap patuh batasan usia.',
-      'Segala hal-hal teknis merupakan keputusan mutlak dari Wasit dan tidak bisa diganggu gugat'
+      'Segala hal-hal teknis merupakan keputusan mutlak dari Wasit dan tidak bisa diganggu gugat.',
+      'Toleransi keterlambatan Tim maksimal adalah 10 menit. Jika lebih dari 10 menit Tim belum lengkap, maka jika berani maju dipersilahkan dengan pemain seadanya, namun jika mundur maka dinyatakan gugur / WO'
     ]
   },
   {
     cat:'2. Persyaratan Pemain & Skuad',
     items:[
       'Kuota Skuad: Jumlah pemain tidak dibatasi, 1 manajer, 1 official tim.',
-      'Status Pemain: Wajib Dosen Tetap/Tidak Tetap, Tendik, atau Staf Resmi Unit/Fakultas UMS.',
-      'Verifikasi: Wajib Surat Tugas Resmi + KTP/Kartu Pegawai saat registrasi.',
+      'Status Pemain: Wajib Dosen Tetap/Tidak Tetap, Tendik, atau Staf Resmi Unit/Fakultas UMS, ditunjukkan dengan surat keterangan kepala divisi atau data dari SiHRD, terutama bagi yang wajahnya asing (tidak dikenali oleh keluarga civitas akademika UMS)',
+      'Verifikasi: Khususnya pemain di bawah 35 tahun wajib menunjukkan KTP/SIM atau karate identities lainnya sebagai bahan verifikasi usia (bisa foto kopinya saja).',
       'Perlengkapan: Jersey bernomor, kaos kaki panjang, shin guard, sepatu TF/AG (dilarang pul besi SG).'
     ]
   },
@@ -767,7 +768,9 @@ function loadState(){
   try{players=JSON.parse(localStorage.getItem('ums_p5'))||null;}catch(e){players=null;}
   if(!Array.isArray(players)||players.length < 200)players=JSON.parse(JSON.stringify(INIT_PLAYERS));
   try{rules=JSON.parse(localStorage.getItem('ums_r5'))||null;}catch(e){rules=null;}
-  if(!Array.isArray(rules)||rules.length===0)rules=JSON.parse(JSON.stringify(RULES));
+  var needsRulesUpdate = !Array.isArray(rules) || rules.length < 3 ||
+    !rules[0] || !rules[0].items || !rules[0].items.some(function(it){ return it.indexOf('19 Tim') !== -1; });
+  if(needsRulesUpdate) rules = JSON.parse(JSON.stringify(RULES));
   try{formations=JSON.parse(localStorage.getItem('ums_f5'))||{};}catch(e){formations={};}
   if(!formations||typeof formations!=='object')formations={};
   try{documentations=JSON.parse(localStorage.getItem('ums_d5'))||null;}catch(e){documentations=null;}
@@ -1877,7 +1880,11 @@ function saveRules(){
   var cats=document.querySelectorAll('.rule-cat'),items=document.querySelectorAll('.rule-items');
   rules=[];
   cats.forEach(function(c,i){var cat=c.value.trim(),itemsArr=items[i].value.split('\n').map(function(s){return s.trim();}).filter(function(s){return s;});if(cat&&itemsArr.length)rules.push({cat:cat,items:itemsArr});});
-  saveState();renderRules();closeModal();
+  saveState(true);
+  if(db){
+    db.collection('ums26_v5').doc('main').set({ rules: rules }, { merge: true }).catch(function(e){ console.warn('Direct rules sync notice:', e); });
+  }
+  renderRules();closeModal();
 }
 
 // ==================== GALLERY & DOKUMENTASI VIEW ====================
