@@ -513,7 +513,7 @@ var db=null;
 try{firebase.initializeApp(fbConfig);db=firebase.firestore();db.settings({experimentalForceLongPolling:true});}catch(e){console.warn('Firebase init failed:',e);}
 
 var INIT_HEADER={
-  navTitle:'DIES NATALIS 68 UMS',
+  navTitle:'HARI JADI UMS KE-68',
   navYear:'2026',
   navSubtitle:'Minisoccer Champions League',
   heroBadge1:'🏆 TURNAMEN RESMI MINISOCCER',
@@ -917,13 +917,18 @@ function pushCloud(immediate){
   if(!db)return;
   clearTimeout(_pushT);
   var doPush = function(){
-    // Use slim documentation index (first thumbnail) for main container to keep it well under 1MB limit
+    // Lightweight documentation index without large base64 images to keep main well under 1MB limit
     var slimDocs = (documentations || []).map(function(d){
-      var c = Object.assign({}, d);
-      if(Array.isArray(c.images) && c.images.length > 1){
-        c.images = [c.images[0]];
-      }
-      return c;
+      return {
+        id: d.id,
+        title: d.title || '',
+        category: d.category || '',
+        date: d.date || '',
+        author: d.author || '',
+        readTime: d.readTime || '',
+        summary: d.summary || '',
+        updatedAt: d.updatedAt || 0
+      };
     });
 
     var mainPayload = {
@@ -941,6 +946,9 @@ function pushCloud(immediate){
       triggerSilentDailyBackup();
     }).catch(function(err){
       console.warn('Cloud push to main notice:', err);
+      if(HEADER){
+        db.collection('ums26_v5').doc('main').set({ header: HEADER }, { merge: true }).catch(function(){});
+      }
     });
 
     // Also persist each full article (including all photos) to dedicated collections
@@ -976,8 +984,8 @@ function startCloud(){
       if(Array.isArray(d.rules)&&d.rules.length>0)rules=d.rules;
       if(d.formations&&typeof d.formations==='object')formations=d.formations;
       
-      // Robust merge: preserves local & cloud docs permanently
-      if(Array.isArray(d.documentations) && d.documentations.length > 0){
+      // Robust merge: preserves local & cloud docs permanently (only if main carries full images)
+      if(Array.isArray(d.documentations) && d.documentations.length > 0 && d.documentations.some(function(x){ return Array.isArray(x.images) && x.images.length > 0; })){
         if(!_isSavingDocs){
           documentations = mergeDocumentations(d.documentations);
         }
@@ -3892,10 +3900,16 @@ function showEditFooterModal(){
 
 function saveFooterSettings(){
   if(!HEADER) HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
-  HEADER.footerOrg=(document.getElementById('quickFootOrg').value||'').trim()||INIT_HEADER.footerOrg;
-  HEADER.footerSubtitle=(document.getElementById('quickFootSub').value||'').trim()||INIT_HEADER.footerSubtitle;
-  HEADER.footerCopyright=(document.getElementById('quickFootCopy').value||'').trim()||INIT_HEADER.footerCopyright;
-  HEADER.footerTagline=(document.getElementById('quickFootTagline').value||'').trim()||INIT_HEADER.footerTagline;
+  function getVal(id, fallback){
+    var el = document.getElementById(id);
+    if(!el) return fallback || '';
+    var val = (el.value || '').trim();
+    return val !== '' ? val : (fallback || '');
+  }
+  HEADER.footerOrg = getVal('quickFootOrg', INIT_HEADER.footerOrg);
+  HEADER.footerSubtitle = getVal('quickFootSub', INIT_HEADER.footerSubtitle);
+  HEADER.footerCopyright = getVal('quickFootCopy', INIT_HEADER.footerCopyright);
+  HEADER.footerTagline = getVal('quickFootTagline', INIT_HEADER.footerTagline);
 
   var vInp = document.getElementById('quickFootVisits');
   if(vInp && visitorStats){
@@ -3910,7 +3924,10 @@ function saveFooterSettings(){
     }
   }
 
-  saveState();
+  saveState(true);
+  if(db){
+    db.collection('ums26_v5').doc('main').set({ header: HEADER }, { merge: true }).catch(function(e){ console.warn('Direct header sync notice:', e); });
+  }
   renderHeader();
   renderAdmin();
   closeModal();
@@ -3918,25 +3935,34 @@ function saveFooterSettings(){
 }
 
 function saveHeaderSettingsFromModal(){
+  function getVal(id, fallback){
+    var el = document.getElementById(id);
+    if(!el) return fallback || '';
+    var val = (el.value || '').trim();
+    return val !== '' ? val : (fallback || '');
+  }
   HEADER={
-    navTitle:(document.getElementById('modNavTitle').value||'').trim()||INIT_HEADER.navTitle,
-    navYear:(document.getElementById('modNavYear').value||'').trim()||INIT_HEADER.navYear,
-    navSubtitle:(document.getElementById('modNavSub').value||'').trim()||INIT_HEADER.navSubtitle,
-    heroBadge1:(document.getElementById('modHeroBadge1').value||'').trim()||INIT_HEADER.heroBadge1,
-    heroBadge2:(document.getElementById('modHeroBadge2').value||'').trim()||INIT_HEADER.heroBadge2,
-    heroTitle:(document.getElementById('modHeroTitle').value||'').trim()||INIT_HEADER.heroTitle,
-    heroSubtitle:(document.getElementById('modHeroSub').value||'').trim()||INIT_HEADER.heroSubtitle,
-    heroDesc:(document.getElementById('modHeroDesc').value||'').trim()||INIT_HEADER.heroDesc,
-    heroDate:(document.getElementById('modHeroDate').value||'').trim()||INIT_HEADER.heroDate,
-    heroVenue:(document.getElementById('modHeroVenue').value||'').trim()||INIT_HEADER.heroVenue,
-    heroFormat:(document.getElementById('modHeroFormat').value||'').trim()||INIT_HEADER.heroFormat,
-    cardFooter:(document.getElementById('modCardFoot').value||'').trim()||INIT_HEADER.cardFooter,
-    footerOrg:document.getElementById('modFootOrg')?(document.getElementById('modFootOrg').value||'').trim()||INIT_HEADER.footerOrg:(HEADER.footerOrg||INIT_HEADER.footerOrg),
-    footerSubtitle:document.getElementById('modFootSub')?(document.getElementById('modFootSub').value||'').trim()||INIT_HEADER.footerSubtitle:(HEADER.footerSubtitle||INIT_HEADER.footerSubtitle),
-    footerCopyright:document.getElementById('modFootCopy')?(document.getElementById('modFootCopy').value||'').trim()||INIT_HEADER.footerCopyright:(HEADER.footerCopyright||INIT_HEADER.footerCopyright),
-    footerTagline:document.getElementById('modFootTagline')?(document.getElementById('modFootTagline').value||'').trim()||INIT_HEADER.footerTagline:(HEADER.footerTagline||INIT_HEADER.footerTagline)
+    navTitle: getVal('modNavTitle', INIT_HEADER.navTitle),
+    navYear: getVal('modNavYear', INIT_HEADER.navYear),
+    navSubtitle: getVal('modNavSub', INIT_HEADER.navSubtitle),
+    heroBadge1: getVal('modHeroBadge1', INIT_HEADER.heroBadge1),
+    heroBadge2: getVal('modHeroBadge2', INIT_HEADER.heroBadge2),
+    heroTitle: getVal('modHeroTitle', INIT_HEADER.heroTitle),
+    heroSubtitle: getVal('modHeroSub', INIT_HEADER.heroSubtitle),
+    heroDesc: getVal('modHeroDesc', INIT_HEADER.heroDesc),
+    heroDate: getVal('modHeroDate', INIT_HEADER.heroDate),
+    heroVenue: getVal('modHeroVenue', INIT_HEADER.heroVenue),
+    heroFormat: getVal('modHeroFormat', INIT_HEADER.heroFormat),
+    cardFooter: getVal('modCardFoot', INIT_HEADER.cardFooter),
+    footerOrg: getVal('modFootOrg', (HEADER && HEADER.footerOrg) || INIT_HEADER.footerOrg),
+    footerSubtitle: getVal('modFootSub', (HEADER && HEADER.footerSubtitle) || INIT_HEADER.footerSubtitle),
+    footerCopyright: getVal('modFootCopy', (HEADER && HEADER.footerCopyright) || INIT_HEADER.footerCopyright),
+    footerTagline: getVal('modFootTagline', (HEADER && HEADER.footerTagline) || INIT_HEADER.footerTagline)
   };
-  saveState();
+  saveState(true);
+  if(db){
+    db.collection('ums26_v5').doc('main').set({ header: HEADER }, { merge: true }).catch(function(e){ console.warn('Direct header sync notice:', e); });
+  }
   renderHeader();
   renderCurrentView();
   closeModal();
@@ -3944,25 +3970,34 @@ function saveHeaderSettingsFromModal(){
 }
 
 function saveHeaderSettingsFromPanel(){
+  function getVal(id, fallback){
+    var el = document.getElementById(id);
+    if(!el) return fallback || '';
+    var val = (el.value || '').trim();
+    return val !== '' ? val : (fallback || '');
+  }
   HEADER={
-    navTitle:(document.getElementById('admNavTitle').value||'').trim()||INIT_HEADER.navTitle,
-    navYear:(document.getElementById('admNavYear').value||'').trim()||INIT_HEADER.navYear,
-    navSubtitle:(document.getElementById('admNavSub').value||'').trim()||INIT_HEADER.navSubtitle,
-    heroBadge1:(document.getElementById('admHeroBadge1').value||'').trim()||INIT_HEADER.heroBadge1,
-    heroBadge2:(document.getElementById('admHeroBadge2').value||'').trim()||INIT_HEADER.heroBadge2,
-    heroTitle:(document.getElementById('admHeroTitle').value||'').trim()||INIT_HEADER.heroTitle,
-    heroSubtitle:(document.getElementById('admHeroSub').value||'').trim()||INIT_HEADER.heroSubtitle,
-    heroDesc:(document.getElementById('admHeroDesc').value||'').trim()||INIT_HEADER.heroDesc,
-    heroDate:(document.getElementById('admHeroDate').value||'').trim()||INIT_HEADER.heroDate,
-    heroVenue:(document.getElementById('admHeroVenue').value||'').trim()||INIT_HEADER.heroVenue,
-    heroFormat:(document.getElementById('admHeroFormat').value||'').trim()||INIT_HEADER.heroFormat,
-    cardFooter:(document.getElementById('admCardFoot').value||'').trim()||INIT_HEADER.cardFooter,
-    footerOrg:document.getElementById('admFootOrg')?(document.getElementById('admFootOrg').value||'').trim()||INIT_HEADER.footerOrg:(HEADER.footerOrg||INIT_HEADER.footerOrg),
-    footerSubtitle:document.getElementById('admFootSub')?(document.getElementById('admFootSub').value||'').trim()||INIT_HEADER.footerSubtitle:(HEADER.footerSubtitle||INIT_HEADER.footerSubtitle),
-    footerCopyright:document.getElementById('admFootCopy')?(document.getElementById('admFootCopy').value||'').trim()||INIT_HEADER.footerCopyright:(HEADER.footerCopyright||INIT_HEADER.footerCopyright),
-    footerTagline:document.getElementById('admFootTagline')?(document.getElementById('admFootTagline').value||'').trim()||INIT_HEADER.footerTagline:(HEADER.footerTagline||INIT_HEADER.footerTagline)
+    navTitle: getVal('admNavTitle', INIT_HEADER.navTitle),
+    navYear: getVal('admNavYear', INIT_HEADER.navYear),
+    navSubtitle: getVal('admNavSub', INIT_HEADER.navSubtitle),
+    heroBadge1: getVal('admHeroBadge1', INIT_HEADER.heroBadge1),
+    heroBadge2: getVal('admHeroBadge2', INIT_HEADER.heroBadge2),
+    heroTitle: getVal('admHeroTitle', INIT_HEADER.heroTitle),
+    heroSubtitle: getVal('admHeroSub', INIT_HEADER.heroSubtitle),
+    heroDesc: getVal('admHeroDesc', INIT_HEADER.heroDesc),
+    heroDate: getVal('admHeroDate', INIT_HEADER.heroDate),
+    heroVenue: getVal('admHeroVenue', INIT_HEADER.heroVenue),
+    heroFormat: getVal('admHeroFormat', INIT_HEADER.heroFormat),
+    cardFooter: getVal('admCardFoot', INIT_HEADER.cardFooter),
+    footerOrg: getVal('admFootOrg', (HEADER && HEADER.footerOrg) || INIT_HEADER.footerOrg),
+    footerSubtitle: getVal('admFootSub', (HEADER && HEADER.footerSubtitle) || INIT_HEADER.footerSubtitle),
+    footerCopyright: getVal('admFootCopy', (HEADER && HEADER.footerCopyright) || INIT_HEADER.footerCopyright),
+    footerTagline: getVal('admFootTagline', (HEADER && HEADER.footerTagline) || INIT_HEADER.footerTagline)
   };
-  saveState();
+  saveState(true);
+  if(db){
+    db.collection('ums26_v5').doc('main').set({ header: HEADER }, { merge: true }).catch(function(e){ console.warn('Direct header sync notice:', e); });
+  }
   renderHeader();
   renderCurrentView();
   alert('✅ Informasi Dashboard, Header & Footer berhasil disimpan!');
