@@ -4478,7 +4478,7 @@ function renderVisitorStatsUI(){
   countriesArr.sort(function(a, b){ return b.count - a.count; });
 
   if(cntEl) cntEl.textContent = countriesArr.length;
-  if(onlEl) onlEl.textContent = (visitorStats.online || 14) + ' Online Sekarang';
+  if(onlEl) onlEl.textContent = (visitorStats.online || 1) + ' Online Sekarang';
   if(userTextEl){
     userTextEl.textContent = (visitorStats.userFlag || '🇮🇩') + ' ' + (visitorStats.userCountryName || 'Indonesia');
   }
@@ -4723,40 +4723,100 @@ var _globeLastMouseY = 0;
 var _globePoints = [];
 var _beaconHovered = null;
 
+function drawGlobeBadge(ctx, text, x, y, isUms){
+  ctx.save();
+  ctx.font = 'bold 9px "Plus Jakarta Sans", sans-serif';
+  var tw = ctx.measureText(text).width;
+  var padX = 6;
+  var bw = tw + padX * 2;
+  var bh = 15;
+  var bx = x;
+  var by = y - bh / 2;
+  var r = 4;
+
+  ctx.beginPath();
+  ctx.moveTo(bx + r, by);
+  ctx.lineTo(bx + bw - r, by);
+  ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + r);
+  ctx.lineTo(bx + bw, by + bh - r);
+  ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - r, by + bh);
+  ctx.lineTo(bx + r, by + bh);
+  ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - r);
+  ctx.lineTo(bx, by + r);
+  ctx.quadraticCurveTo(bx, by, bx + r, by);
+  ctx.closePath();
+
+  ctx.fillStyle = isUms ? 'rgba(10, 20, 42, 0.92)' : 'rgba(8, 15, 30, 0.9)';
+  ctx.fill();
+  ctx.strokeStyle = isUms ? 'rgba(250, 204, 21, 0.85)' : 'rgba(34, 211, 238, 0.7)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.fillStyle = isUms ? '#fde047' : '#67e8f9';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, bx + padX, by + bh / 2);
+  ctx.restore();
+}
+
 function buildGlobePoints(){
   if(_globePoints.length > 0) return;
   var continents = [
-    // Indonesia & Nusantara (Dense detail)
-    [-5, 5, 96, 105, 3],
-    [-8.5, -6.5, 106, 114.5, 2],
-    [-9, -8, 115, 125, 2.5],
-    [-4, 4, 109, 118, 3],
-    [-5, 1.5, 119, 125, 2.5],
-    [-8, 0, 128, 141, 3],
-    // Southeast Asia & East Asia
-    [10, 22, 98, 109, 4],
-    [6, 18, 120, 126, 3],
-    [22, 42, 100, 122, 5],
-    [31, 42, 130, 142, 3],
-    [8, 28, 70, 88, 5],
-    // Middle East & Europe
-    [15, 33, 38, 58, 5],
-    [36, 56, -5, 20, 5],
-    [48, 62, 22, 60, 6],
-    [56, 68, 5, 28, 4],
+    // Indonesia & Nusantara (High density & detail)
+    [-5.8, 5.8, 95.3, 106.0, 1.4],   // Sumatra
+    [-8.8, -6.0, 105.2, 114.6, 1.2],  // Java
+    [-9.2, -8.0, 114.5, 125.0, 1.4],  // Bali, Lombok, Nusa Tenggara
+    [-4.2, 7.1, 108.8, 119.2, 1.6],   // Kalimantan (Borneo)
+    [-5.8, 1.9, 118.8, 125.2, 1.4],   // Sulawesi
+    [-5.5, 2.5, 126.0, 131.5, 1.6],   // Maluku
+    [-9.0, 0.0, 131.0, 141.0, 1.6],   // Papua / Irian
+
+    // Southeast Asia & Indochina
+    [1.0, 7.0, 100.0, 104.5, 1.8],    // Peninsular Malaysia & Singapore
+    [8.0, 22.0, 98.0, 109.5, 2.0],    // Thailand, Vietnam, Laos, Cambodia, Myanmar
+    [5.0, 19.0, 120.0, 126.5, 1.8],   // Philippines
+
+    // East Asia & South Asia
+    [20.0, 42.0, 100.0, 122.0, 2.4],  // China East & Central
+    [21.8, 25.4, 120.0, 122.2, 1.2],  // Taiwan
+    [33.0, 38.5, 126.0, 129.5, 1.5],  // Korea
+    [31.0, 44.0, 130.0, 144.0, 1.8],  // Japan
+    [42.0, 55.0, 120.0, 135.0, 2.8],  // Northeast Asia
+    [8.0, 32.0, 68.0, 89.0, 2.4],     // India, Pakistan, Bangladesh
+    [5.9, 9.8, 79.5, 81.8, 1.2],      // Sri Lanka
+
+    // Middle East & Central Asia
+    [12.0, 34.0, 35.0, 60.0, 2.5],    // Arabia, Levant, Iran
+    [36.0, 52.0, 48.0, 85.0, 3.0],    // Central Asia
+
+    // Europe
+    [36.0, 44.0, -9.0, 3.0, 2.0],     // Spain & Portugal
+    [43.0, 51.0, -4.5, 8.0, 2.0],     // France
+    [47.0, 55.0, 6.0, 15.0, 2.0],     // Germany & Central Europe
+    [37.0, 46.5, 8.0, 18.5, 1.8],     // Italy & Balkans
+    [50.0, 59.0, -6.0, 2.0, 1.8],     // UK & Ireland
+    [55.0, 70.0, 5.0, 30.0, 2.4],     // Scandinavia
+    [48.0, 65.0, 20.0, 60.0, 3.0],    // Eastern Europe / Russia West
+    [50.0, 70.0, 60.0, 140.0, 4.0],   // Siberia
+
     // Africa
-    [18, 35, -12, 35, 6],
-    [0, 16, -15, 32, 6],
-    [-34, -2, 15, 40, 6],
+    [15.0, 37.0, -17.0, 38.0, 3.0],   // North Africa / Sahara
+    [-5.0, 15.0, -15.0, 48.0, 3.0],   // West & Central Africa
+    [-35.0, -5.0, 12.0, 40.0, 3.0],   // Southern Africa
+    [-25.5, -12.0, 43.0, 50.5, 1.8],  // Madagascar
+
     // Australia & Oceania
-    [-35, -15, 115, 152, 6],
-    [-46, -35, 166, 178, 4],
+    [-38.0, -11.0, 114.0, 153.0, 2.8],// Australia
+    [-43.5, -40.5, 144.5, 148.5, 1.5],// Tasmania
+    [-47.0, -34.0, 166.0, 178.5, 2.0],// New Zealand
+
     // Americas
-    [30, 52, -90, -65, 6],
-    [32, 55, -124, -92, 6],
-    [12, 28, -108, -85, 5],
-    [-15, 8, -75, -38, 6],
-    [-45, -16, -72, -52, 6]
+    [25.0, 49.0, -124.0, -70.0, 3.0], // USA
+    [49.0, 65.0, -140.0, -60.0, 3.5], // Canada & Alaska
+    [15.0, 32.0, -116.0, -86.0, 2.4], // Mexico
+    [8.0, 18.0, -90.0, -77.0, 1.8],   // Central America & Caribbean
+    [-10.0, 12.0, -79.0, -50.0, 2.8], // Colombia, Venezuela, Brazil North
+    [-25.0, -10.0, -75.0, -35.0, 2.8],// Brazil / Peru / Bolivia
+    [-55.0, -25.0, -75.0, -53.0, 2.8] // Argentina & Chile
   ];
 
   for(var c = 0; c < continents.length; c++){
@@ -4789,6 +4849,11 @@ function initVisitorGlobe(){
   _globeCtx = _globeCanvas.getContext('2d');
   buildGlobePoints();
 
+  var dpr = window.devicePixelRatio || 1;
+  var displaySize = 280;
+  _globeCanvas.width = displaySize * dpr;
+  _globeCanvas.height = displaySize * dpr;
+
   var onDown = function(clientX, clientY){
     _globeDragging = true;
     _globeLastMouseX = clientX;
@@ -4798,8 +4863,8 @@ function initVisitorGlobe(){
     if(_globeDragging){
       var dx = clientX - _globeLastMouseX;
       var dy = clientY - _globeLastMouseY;
-      _globeYaw += dx * 0.01;
-      _globePitch += dy * 0.01;
+      _globeYaw += dx * 0.009;
+      _globePitch += dy * 0.009;
       _globePitch = Math.max(-0.85, Math.min(0.85, _globePitch));
       _globeLastMouseX = clientX;
       _globeLastMouseY = clientY;
@@ -4829,14 +4894,14 @@ function initVisitorGlobe(){
 
   function checkGlobeHover(clientX, clientY){
     var rect = _globeCanvas.getBoundingClientRect();
-    var mx = (clientX - rect.left) * (_globeCanvas.width / rect.width);
-    var my = (clientY - rect.top) * (_globeCanvas.height / rect.height);
+    var mx = (clientX - rect.left) * (displaySize / rect.width);
+    var my = (clientY - rect.top) * (displaySize / rect.height);
     var tooltip = document.getElementById('globeTooltip');
     var found = null;
 
-    var cx = _globeCanvas.width / 2;
-    var cy = _globeCanvas.height / 2;
-    var radius = _globeCanvas.width * 0.38;
+    var cx = displaySize / 2;
+    var cy = displaySize / 2;
+    var radius = displaySize * 0.41;
 
     for(var code in visitorStats.countries){
       var c = visitorStats.countries[code];
@@ -4844,8 +4909,8 @@ function initVisitorGlobe(){
         var p = projectGlobe(c.lat, c.lon, radius, cx, cy);
         if(p.z > 15){
           var dist = Math.hypot(p.x - mx, p.y - my);
-          if(dist < 14){
-            found = { country: c, code: code, x: p.x * (rect.width / _globeCanvas.width), y: p.y * (rect.height / _globeCanvas.height) };
+          if(dist < 15){
+            found = { country: c, code: code, x: p.x * (rect.width / displaySize), y: p.y * (rect.height / displaySize) };
             break;
           }
         }
@@ -4866,50 +4931,63 @@ function initVisitorGlobe(){
 
   function drawGlobe(){
     if(!_globeCanvas || !_globeCtx) return;
-    var w = _globeCanvas.width;
-    var h = _globeCanvas.height;
+    var w = displaySize;
+    var h = displaySize;
     var cx = w / 2;
     var cy = h / 2;
-    var radius = w * 0.38;
+    var radius = w * 0.41; // 115px radius, crisp & balanced
 
-    _globeCtx.clearRect(0, 0, w, h);
+    _globeCtx.save();
+    _globeCtx.clearRect(0, 0, _globeCanvas.width, _globeCanvas.height);
+    _globeCtx.scale(dpr, dpr);
 
     if(!_globeDragging){
-      _globeYaw += 0.0042;
+      _globeYaw += 0.0035;
     }
 
-    var auraGrad = _globeCtx.createRadialGradient(cx, cy, radius * 0.85, cx, cy, radius * 1.25);
-    auraGrad.addColorStop(0, 'rgba(0, 240, 255, 0.22)');
-    auraGrad.addColorStop(0.5, 'rgba(16, 185, 129, 0.08)');
+    // 1. Outer Atmospheric Neon Halo
+    var auraGrad = _globeCtx.createRadialGradient(cx, cy, radius * 0.95, cx, cy, radius * 1.22);
+    auraGrad.addColorStop(0, 'rgba(6, 182, 212, 0.45)');
+    auraGrad.addColorStop(0.35, 'rgba(14, 165, 233, 0.22)');
+    auraGrad.addColorStop(0.75, 'rgba(59, 130, 246, 0.07)');
     auraGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     _globeCtx.fillStyle = auraGrad;
     _globeCtx.beginPath();
-    _globeCtx.arc(cx, cy, radius * 1.25, 0, Math.PI * 2);
+    _globeCtx.arc(cx, cy, radius * 1.22, 0, Math.PI * 2);
     _globeCtx.fill();
 
-    var oceanGrad = _globeCtx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, radius * 0.1, cx, cy, radius);
-    oceanGrad.addColorStop(0, '#0a1d37');
-    oceanGrad.addColorStop(0.7, '#040d1a');
-    oceanGrad.addColorStop(1, '#02060d');
-
+    // 2. Ocean Sphere
     _globeCtx.save();
     _globeCtx.beginPath();
     _globeCtx.arc(cx, cy, radius, 0, Math.PI * 2);
     _globeCtx.clip();
 
+    var oceanGrad = _globeCtx.createRadialGradient(cx - radius * 0.35, cy - radius * 0.35, radius * 0.08, cx, cy, radius);
+    oceanGrad.addColorStop(0, '#0f2748');
+    oceanGrad.addColorStop(0.55, '#08172c');
+    oceanGrad.addColorStop(1, '#030b17');
     _globeCtx.fillStyle = oceanGrad;
     _globeCtx.fillRect(0, 0, w, h);
 
-    _globeCtx.lineWidth = 1;
+    // 3. Inner Atmospheric Rim Lighting
+    var rimGrad = _globeCtx.createRadialGradient(cx, cy, radius * 0.72, cx, cy, radius);
+    rimGrad.addColorStop(0, 'rgba(6, 182, 212, 0)');
+    rimGrad.addColorStop(0.82, 'rgba(6, 182, 212, 0.15)');
+    rimGrad.addColorStop(1, 'rgba(34, 211, 238, 0.42)');
+    _globeCtx.fillStyle = rimGrad;
+    _globeCtx.fillRect(0, 0, w, h);
+
+    // 4. Parallels (Latitude lines)
+    _globeCtx.lineWidth = 0.85;
     var parallels = [-60, -30, 0, 30, 60];
     for(var pi = 0; pi < parallels.length; pi++){
       var pLat = parallels[pi];
-      _globeCtx.strokeStyle = pLat === 0 ? 'rgba(0, 240, 255, 0.28)' : 'rgba(0, 240, 255, 0.09)';
+      _globeCtx.strokeStyle = pLat === 0 ? 'rgba(34, 211, 238, 0.42)' : 'rgba(34, 211, 238, 0.18)';
       _globeCtx.beginPath();
       var first = true;
-      for(var deg = -180; deg <= 180; deg += 10){
+      for(var deg = -180; deg <= 180; deg += 6){
         var gp = projectGlobe(pLat, deg, radius, cx, cy);
-        if(gp.z > -10){
+        if(gp.z > -8){
           if(first){ _globeCtx.moveTo(gp.x, gp.y); first = false; }
           else { _globeCtx.lineTo(gp.x, gp.y); }
         } else {
@@ -4919,15 +4997,16 @@ function initVisitorGlobe(){
       _globeCtx.stroke();
     }
 
+    // 5. Meridians (Longitude lines)
     var meridians = [-135, -90, -45, 0, 45, 90, 135, 180];
+    _globeCtx.strokeStyle = 'rgba(34, 211, 238, 0.16)';
     for(var mi = 0; mi < meridians.length; mi++){
       var mLon = meridians[mi];
-      _globeCtx.strokeStyle = 'rgba(0, 240, 255, 0.09)';
       _globeCtx.beginPath();
       var mFirst = true;
-      for(var mLat = -85; mLat <= 85; mLat += 8){
+      for(var mLat = -85; mLat <= 85; mLat += 6){
         var mp = projectGlobe(mLat, mLon, radius, cx, cy);
-        if(mp.z > -10){
+        if(mp.z > -8){
           if(mFirst){ _globeCtx.moveTo(mp.x, mp.y); mFirst = false; }
           else { _globeCtx.lineTo(mp.x, mp.y); }
         } else {
@@ -4937,25 +5016,46 @@ function initVisitorGlobe(){
       _globeCtx.stroke();
     }
 
+    // 6. Continental Matrix Dots
     for(var i = 0; i < _globePoints.length; i++){
       var pt = _globePoints[i];
       var prj = projectGlobe(pt.lat, pt.lon, radius, cx, cy);
       if(prj.z > 0){
-        var depthRatio = prj.z / radius;
-        var dotSize = 1.1 + depthRatio * 1.3;
-        var dotAlpha = 0.25 + depthRatio * 0.72;
+        var depth = prj.z / radius;
+        var dotSize = 1.3 + depth * 1.5;
+        var alpha = 0.5 + depth * 0.5;
 
         _globeCtx.beginPath();
         _globeCtx.arc(prj.x, prj.y, dotSize, 0, Math.PI * 2);
-        _globeCtx.fillStyle = 'rgba(0, 240, 255, ' + dotAlpha + ')';
+        if(depth > 0.65){
+          _globeCtx.fillStyle = '#67e8f9';
+        } else if(depth > 0.25){
+          _globeCtx.fillStyle = 'rgba(34, 211, 238, ' + alpha + ')';
+        } else {
+          _globeCtx.fillStyle = 'rgba(6, 182, 212, ' + alpha + ')';
+        }
+        _globeCtx.fill();
+      } else if(prj.z > -radius * 0.45){
+        _globeCtx.beginPath();
+        _globeCtx.arc(prj.x, prj.y, 0.9, 0, Math.PI * 2);
+        _globeCtx.fillStyle = 'rgba(14, 116, 144, 0.12)';
         _globeCtx.fill();
       }
     }
 
+    // 7. Soft 3D Spherical Edge Shadow (Vignette)
+    var sphereShade = _globeCtx.createRadialGradient(cx - radius * 0.35, cy - radius * 0.35, radius * 0.5, cx, cy, radius);
+    sphereShade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    sphereShade.addColorStop(0.75, 'rgba(0, 0, 0, 0.06)');
+    sphereShade.addColorStop(1, 'rgba(2, 6, 15, 0.48)');
+    _globeCtx.fillStyle = sphereShade;
+    _globeCtx.fillRect(0, 0, w, h);
+
+    // 8. Flight Arcs Connecting Visitors to UMS Surakarta
     var umsCoord = { lat: -7.56, lon: 110.82 };
     var umsPrj = projectGlobe(umsCoord.lat, umsCoord.lon, radius, cx, cy);
-
     var nowTime = Date.now() / 1000;
+
     for(var cCode in visitorStats.countries){
       if(cCode !== 'ID'){
         var dest = visitorStats.countries[cCode];
@@ -4964,15 +5064,15 @@ function initVisitorGlobe(){
           if(umsPrj.z > -15 || destPrj.z > -15){
             var midLat = (umsCoord.lat + dest.lat) / 2;
             var midLon = (umsCoord.lon + dest.lon) / 2;
-            var midPrj = projectGlobe(midLat, midLon, radius * 1.14, cx, cy);
+            var midPrj = projectGlobe(midLat, midLon, radius * 1.15, cx, cy);
 
             _globeCtx.beginPath();
             _globeCtx.moveTo(destPrj.x, destPrj.y);
             _globeCtx.quadraticCurveTo(midPrj.x, midPrj.y, umsPrj.x, umsPrj.y);
-            _globeCtx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
-            _globeCtx.lineWidth = 1.2;
+            _globeCtx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+            _globeCtx.lineWidth = 1.4;
             _globeCtx.setLineDash([4, 4]);
-            _globeCtx.lineDashOffset = -nowTime * 12;
+            _globeCtx.lineDashOffset = -nowTime * 14;
             _globeCtx.stroke();
             _globeCtx.setLineDash([]);
           }
@@ -4980,6 +5080,7 @@ function initVisitorGlobe(){
       }
     }
 
+    // 9. Active Beacons and Labels
     var pulse = (Math.sin(nowTime * 3) + 1) / 2;
     for(var cKey in visitorStats.countries){
       var cObj = visitorStats.countries[cKey];
@@ -4987,50 +5088,63 @@ function initVisitorGlobe(){
         var bPrj = projectGlobe(cObj.lat, cObj.lon, radius, cx, cy);
         if(bPrj.z > 0){
           var isUms = (cKey === 'ID');
-          var beaconColor = isUms ? '#ffd700' : '#00f0ff';
-          var ringColor = isUms ? 'rgba(255, 215, 0, ' : 'rgba(0, 240, 255, ';
+          var beaconColor = isUms ? '#fbbf24' : '#22d3ee';
+          var ringColor = isUms ? 'rgba(250, 204, 21, ' : 'rgba(34, 211, 238, ';
 
-          var waveR = 4 + pulse * 14;
-          var waveAlpha = 0.8 * (1 - pulse);
+          // Radar wave 1
+          var waveR1 = 4 + pulse * 16;
+          var waveAlpha1 = 0.85 * (1 - pulse);
           _globeCtx.beginPath();
-          _globeCtx.arc(bPrj.x, bPrj.y, waveR, 0, Math.PI * 2);
-          _globeCtx.strokeStyle = ringColor + waveAlpha + ')';
+          _globeCtx.arc(bPrj.x, bPrj.y, waveR1, 0, Math.PI * 2);
+          _globeCtx.strokeStyle = ringColor + waveAlpha1 + ')';
           _globeCtx.lineWidth = 1.5;
           _globeCtx.stroke();
 
+          // Radar wave 2 (offset)
+          var pulse2 = (pulse + 0.5) % 1;
+          var waveR2 = 4 + pulse2 * 16;
+          var waveAlpha2 = 0.85 * (1 - pulse2);
           _globeCtx.beginPath();
-          _globeCtx.arc(bPrj.x, bPrj.y, isUms ? 4 : 2.8, 0, Math.PI * 2);
+          _globeCtx.arc(bPrj.x, bPrj.y, waveR2, 0, Math.PI * 2);
+          _globeCtx.strokeStyle = ringColor + waveAlpha2 + ')';
+          _globeCtx.lineWidth = 1.2;
+          _globeCtx.stroke();
+
+          // Glowing pin dot
+          _globeCtx.beginPath();
+          _globeCtx.arc(bPrj.x, bPrj.y, isUms ? 4.5 : 3.2, 0, Math.PI * 2);
           _globeCtx.fillStyle = beaconColor;
           _globeCtx.shadowColor = beaconColor;
-          _globeCtx.shadowBlur = 10;
+          _globeCtx.shadowBlur = 12;
           _globeCtx.fill();
           _globeCtx.shadowBlur = 0;
 
+          // Inner white pinpoint
+          _globeCtx.beginPath();
+          _globeCtx.arc(bPrj.x, bPrj.y, isUms ? 1.8 : 1.2, 0, Math.PI * 2);
+          _globeCtx.fillStyle = '#ffffff';
+          _globeCtx.fill();
+
+          // Badge tag
           if(isUms){
-            _globeCtx.font = 'bold 9px Plus Jakarta Sans, sans-serif';
-            _globeCtx.fillStyle = '#ffd700';
-            _globeCtx.fillText('★ UMS SOLO', bPrj.x + 6, bPrj.y - 4);
+            drawGlobeBadge(_globeCtx, '★ UMS SOLO', bPrj.x + 8, bPrj.y - 6, true);
+          } else if(cObj.count > 1 || _beaconHovered === cKey){
+            drawGlobeBadge(_globeCtx, (cObj.flag || '') + ' ' + (cObj.name || cKey), bPrj.x + 7, bPrj.y - 6, false);
           }
         }
       }
     }
 
-    var innerShadow = _globeCtx.createRadialGradient(cx - radius * 0.4, cy - radius * 0.4, radius * 0.6, cx, cy, radius);
-    innerShadow.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    innerShadow.addColorStop(0.8, 'rgba(2, 6, 15, 0.4)');
-    innerShadow.addColorStop(1, 'rgba(2, 6, 15, 0.9)');
-    _globeCtx.fillStyle = innerShadow;
+    _globeCtx.restore(); // Restore clip
+
+    // 10. Outer Crisp Rim Ring
     _globeCtx.beginPath();
     _globeCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-    _globeCtx.fill();
-
-    _globeCtx.restore();
-
-    _globeCtx.beginPath();
-    _globeCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-    _globeCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
-    _globeCtx.lineWidth = 2;
+    _globeCtx.strokeStyle = 'rgba(34, 211, 238, 0.55)';
+    _globeCtx.lineWidth = 1.8;
     _globeCtx.stroke();
+
+    _globeCtx.restore(); // Restore dpr scale
 
     requestAnimationFrame(drawGlobe);
   }
