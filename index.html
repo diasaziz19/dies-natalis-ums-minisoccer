@@ -113,9 +113,12 @@
     .carousel-dot.active{width:24px;border-radius:12px;background:#00f0ff;box-shadow:0 0 10px rgba(0,240,255,0.6);}
 
     /* Rich Text & Article Typography */
+    .article-body-content, #docInpContentVisual{color:#e2e8f0;line-height:1.75;}
+    .article-body-content p, .article-body-content span:not([style*="color"]), .article-body-content div, .article-body-content li,
+    #docInpContentVisual p, #docInpContentVisual span:not([style*="color"]), #docInpContentVisual div, #docInpContentVisual li{color:inherit;}
     .article-body-content h2, #docInpContentVisual h2{font-size:1.35rem;font-weight:800;color:#f8fafc;margin-top:1.5rem;margin-bottom:0.75rem;padding-bottom:0.25rem;border-bottom:1px solid rgba(255,255,255,0.1);}
     .article-body-content h3, #docInpContentVisual h3{font-size:1.15rem;font-weight:700;color:#38bdf8;margin-top:1.25rem;margin-bottom:0.5rem;}
-    .article-body-content p, #docInpContentVisual p{margin-bottom:1rem;line-height:1.75;color:#e2e8f0;}
+    .article-body-content p, #docInpContentVisual p{margin-bottom:1rem;line-height:1.75;}
     .article-body-content b, .article-body-content strong, #docInpContentVisual b, #docInpContentVisual strong{color:#fff;font-weight:700;}
     .article-body-content a, #docInpContentVisual a{color:#00f0ff;text-decoration:underline;font-weight:600;}
     .article-body-content a:hover{color:#38bdf8;}
@@ -126,6 +129,34 @@
     .article-body-content hr, #docInpContentVisual hr{border:none;border-top:1px solid rgba(255,255,255,0.15);margin:1.5rem 0;}
     .article-body-content iframe{max-width:100%;}
     #docInpContentVisual:empty:before{content:attr(placeholder);color:#64748b;font-style:italic;}
+
+    /* Force any pasted black/dark text to be light and readable on dark theme */
+    .article-body-content [style*="color: rgb(0, 0, 0)"],
+    .article-body-content [style*="color: rgb(17, 24, 39)"],
+    .article-body-content [style*="color: rgb(15, 23, 42)"],
+    .article-body-content [style*="color: rgb(30, 41, 59)"],
+    .article-body-content [style*="color: rgb(51, 65, 85)"],
+    .article-body-content [style*="color: #000"],
+    .article-body-content [style*="color:#000"],
+    .article-body-content [style*="color: black"],
+    .article-body-content [style*="color:black"],
+    .article-body-content font[color="#000000"],
+    .article-body-content font[color="black"],
+    #docInpContentVisual [style*="color: rgb(0, 0, 0)"],
+    #docInpContentVisual [style*="color: rgb(17, 24, 39)"],
+    #docInpContentVisual [style*="color: rgb(15, 23, 42)"],
+    #docInpContentVisual [style*="color: #000"],
+    #docInpContentVisual [style*="color: black"] {
+      color: #e2e8f0 !important;
+    }
+    .article-body-content [style*="background-color: white"],
+    .article-body-content [style*="background-color: rgb(255, 255, 255)"],
+    .article-body-content [style*="background-color: #fff"],
+    #docInpContentVisual [style*="background-color: white"],
+    #docInpContentVisual [style*="background-color: rgb(255, 255, 255)"],
+    #docInpContentVisual [style*="background-color: #fff"] {
+      background-color: transparent !important;
+    }
 
     /* Gallery Card Styles */
     .doc-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;transition:all 0.25s;display:flex;flex-direction:column;}
@@ -1824,6 +1855,8 @@ function renderArticlePage(docId){
     bodyHtml = esc(bodyHtml).split('\n\n').map(function(p){
       return '<p class="mb-4 text-slate-200 leading-relaxed text-base">' + p.replace(/\n/g, '<br>') + '</p>';
     }).join('');
+  } else {
+    bodyHtml = cleanArticleHtml(bodyHtml);
   }
 
   var coverImg = (doc.images && doc.images.length > 0) ? doc.images[0] : null;
@@ -2215,7 +2248,20 @@ function showDocModal(docId){
     +'      <button type="button" onclick="insertDocLink()" class="btn-s px-2 py-1 flex items-center gap-1 text-xs text-cyan-400 font-semibold" title="Sisipkan Link">🔗 Link</button>'
     +'      <button type="button" onclick="insertDocYouTube()" class="btn-s px-2 py-1 flex items-center gap-1 text-xs text-red-400 font-semibold" title="Sisipkan Video YouTube">▶️ YouTube</button>'
     +'      <button type="button" onclick="execDocCmd(\'insertHorizontalRule\')" class="btn-s px-2 py-1 flex items-center gap-1 text-xs text-slate-300" title="Garis Pembatas">— Garis</button>'
-    +'      <button type="button" onclick="execDocCmd(\'removeFormat\')" class="btn-s px-1.5 py-1 text-xs text-slate-400" title="Hapus Format">🧹 Bersihkan</button>'
+    +'      <div class="h-4 w-px bg-slate-700 mx-0.5"></div>'
+    +'      <div class="flex items-center gap-1.5 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700" title="Ubah Warna Font Teks">'
+    +'        <label class="text-[11px] text-slate-300 flex items-center gap-1 cursor-pointer font-medium" title="Pilih Warna Kustom">'
+    +'          <span>🎨</span>'
+    +'          <input type="color" id="docTextColorInput" value="#e2e8f0" class="w-4 h-4 rounded cursor-pointer border-0 bg-transparent p-0" onchange="setDocFontColor(this.value)">'
+    +'        </label>'
+    +'        <button type="button" onclick="setDocFontColor(\'#e2e8f0\')" class="w-3.5 h-3.5 rounded-full bg-slate-200 border border-slate-500 hover:scale-125 transition" title="Default Putih Terang"></button>'
+    +'        <button type="button" onclick="setDocFontColor(\'#00f0ff\')" class="w-3.5 h-3.5 rounded-full bg-cyan-400 border border-slate-500 hover:scale-125 transition" title="Cyan UMS"></button>'
+    +'        <button type="button" onclick="setDocFontColor(\'#facc15\')" class="w-3.5 h-3.5 rounded-full bg-yellow-400 border border-slate-500 hover:scale-125 transition" title="Kuning Emas"></button>'
+    +'        <button type="button" onclick="setDocFontColor(\'#4ade80\')" class="w-3.5 h-3.5 rounded-full bg-green-400 border border-slate-500 hover:scale-125 transition" title="Hijau"></button>'
+    +'        <button type="button" onclick="setDocFontColor(\'#f87171\')" class="w-3.5 h-3.5 rounded-full bg-red-400 border border-slate-500 hover:scale-125 transition" title="Merah"></button>'
+    +'        <button type="button" onclick="setDocFontColor(\'#fb923c\')" class="w-3.5 h-3.5 rounded-full bg-orange-400 border border-slate-500 hover:scale-125 transition" title="Oranye"></button>'
+    +'      </div>'
+    +'      <button type="button" onclick="execDocCmd(\'removeFormat\'); setDocFontColor(\'#e2e8f0\');" class="btn-s px-1.5 py-1 text-xs text-slate-400" title="Reset Format &amp; Warna">🧹 Reset</button>'
     +'    </div>'
     +'    <div id="docInpContentVisual" contenteditable="true" class="bg-slate-950 text-slate-200 border border-slate-700 border-t-0 rounded-b-lg p-3 min-h-[190px] max-h-[290px] overflow-y-auto text-sm leading-relaxed focus:outline-none focus:border-cyan-400" style="min-height:190px;" placeholder="Tuliskan berita lengkap, jalannya pertandingan, wawancara, dll..."></div>'
     +'    <textarea id="docInpContentCode" class="form-inp font-mono text-xs rounded-b-lg border-t-0 hidden min-h-[190px] max-h-[290px]" rows="8" placeholder="&lt;p&gt;Tulis HTML langsung di sini...&lt;/p&gt;"></textarea>'
@@ -2242,20 +2288,43 @@ function showDocModal(docId){
   openModal(modalHtml,'wide');
   renderDocPhotosPreview();
 
-  // Initialize Rich Text Content
+  // Initialize Rich Text Content with Sanitizer
   var visual = document.getElementById('docInpContentVisual');
   var code = document.getElementById('docInpContentCode');
-  var initHtml = content;
+  var initHtml = cleanArticleHtml(content);
   if(initHtml && !/<[a-z][\s\S]*>/i.test(initHtml)){
     initHtml = initHtml.split('\n\n').map(function(p){
       return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>';
     }).join('');
   }
-  if(visual) visual.innerHTML = initHtml;
+  if(visual){
+    visual.innerHTML = initHtml;
+    visual.addEventListener('paste', function(){
+      setTimeout(function(){
+        if(visual) visual.innerHTML = cleanArticleHtml(visual.innerHTML);
+      }, 0);
+    });
+  }
   if(code) code.value = initHtml;
 }
 
 // ==================== RTE HELPER FUNCTIONS ====================
+function cleanArticleHtml(html){
+  if(!html) return '';
+  return html
+    .replace(/color:\s*(?:rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|#000000|#000|black|#111827|#0f172a|#1e293b|#334155)\s*;?/gi, 'color:#e2e8f0;')
+    .replace(/<font[^>]*color=["']?(?:#000000|#000|black|#111827|#0f172a)["']?[^>]*>([\s\S]*?)<\/font>/gi, '$1')
+    .replace(/background-color:\s*(?:white|#ffffff|#fff|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))\s*;?/gi, 'background-color:transparent;')
+    .replace(/background:\s*(?:white|#ffffff|#fff)\s*;?/gi, 'background:transparent;');
+}
+
+function setDocFontColor(color){
+  var editor = document.getElementById('docInpContentVisual');
+  if(!editor) return;
+  editor.focus();
+  document.execCommand('foreColor', false, color);
+}
+
 function execDocCmd(cmd, val){
   var editor = document.getElementById('docInpContentVisual');
   if(!editor) return;
