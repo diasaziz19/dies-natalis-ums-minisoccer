@@ -1101,6 +1101,9 @@ function startCloud(){
       }
     }
   },function(err){});
+
+  // 4. Real-time Heartbeat Presence Tracking
+  initPresenceListener();
 }
 
 function setSyncBadge(s){
@@ -4572,9 +4575,77 @@ function applyFirestoreAnalytics(d){
   }
 }
 
+// ==================== REALTIME HEARTBEAT PRESENCE TRACKING ====================
+var _presenceSessionId = null;
+try {
+  _presenceSessionId = sessionStorage.getItem('ums_sess_id');
+  if(!_presenceSessionId){
+    _presenceSessionId = 's_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+    sessionStorage.setItem('ums_sess_id', _presenceSessionId);
+  }
+} catch(e){
+  _presenceSessionId = 's_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+}
+
+function sendPresenceHeartbeat(){
+  if(!db || !_presenceSessionId) return;
+  try {
+    var p = {};
+    p[_presenceSessionId] = Date.now();
+    db.collection('ums26_v5').doc('presence').set(p, { merge: true }).catch(function(){});
+  } catch(e){}
+}
+
+function initPresenceListener(){
+  if(!db) return;
+  sendPresenceHeartbeat();
+  setInterval(sendPresenceHeartbeat, 30000);
+
+  db.collection('ums26_v5').doc('presence').onSnapshot(function(snap){
+    if(snap.exists){
+      var d = snap.data();
+      if(d){
+        var now = Date.now();
+        var activeCount = 0;
+        var staleKeys = [];
+        for(var k in d){
+          if(Object.prototype.hasOwnProperty.call(d, k)){
+            var lastActive = d[k];
+            if(typeof lastActive === 'number' && (now - lastActive < 75000)){
+              activeCount++;
+            } else if(typeof lastActive === 'number' && (now - lastActive > 300000)){
+              staleKeys.push(k);
+            }
+          }
+        }
+        visitorStats.online = Math.max(1, activeCount);
+        var onlEl = document.getElementById('activeOnlineCount');
+        if(onlEl) onlEl.textContent = visitorStats.online + ' Online Sekarang';
+
+        if(staleKeys.length > 5){
+          var cleanupObj = {};
+          staleKeys.forEach(function(sk){ cleanupObj[sk] = firebase.firestore.FieldValue.delete(); });
+          db.collection('ums26_v5').doc('presence').update(cleanupObj).catch(function(){});
+        }
+      }
+    }
+  }, function(err){});
+
+  window.addEventListener('beforeunload', function(){
+    if(db && _presenceSessionId){
+      try {
+        var leaveObj = {};
+        leaveObj[_presenceSessionId] = firebase.firestore.FieldValue.delete();
+        db.collection('ums26_v5').doc('presence').update(leaveObj).catch(function(){});
+      } catch(e){}
+    }
+  });
+}
+
 function trackVisitor(){
-  var baseOnline = 14 + (new Date().getMinutes() % 7) - 3;
-  visitorStats.online = Math.max(9, baseOnline);
+  visitorStats.online = 1;
+  var onlEl = document.getElementById('activeOnlineCount');
+  if(onlEl) onlEl.textContent = '1 Online Sekarang';
 
   var applyCountry = function(code, name){
     code = (code || 'ID').toUpperCase();
@@ -4587,8 +4658,8 @@ function trackVisitor(){
     var sessionKey = 'ums_tracked_session_' + new Date().toISOString().slice(0, 10);
     if(!sessionStorage.getItem(sessionKey)){
       sessionStorage.setItem(sessionKey, '1');
-      visitorStats.total = (visitorStats.total || 1286) + 1;
-      visitorStats.today = (visitorStats.today || 142) + 1;
+      visitorStats.total = (visitorStats.total || 1) + 1;
+      visitorStats.today = (visitorStats.today || 1) + 1;
       if(!visitorStats.countries[code]){
         visitorStats.countries[code] = {
           name: info.name,
@@ -4639,13 +4710,6 @@ function trackVisitor(){
   } catch(e){
     applyCountry('ID', 'Indonesia');
   }
-
-  setInterval(function(){
-    var delta = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 2);
-    visitorStats.online = Math.max(9, Math.min(28, (visitorStats.online || 14) + delta));
-    var onlEl = document.getElementById('activeOnlineCount');
-    if(onlEl) onlEl.textContent = visitorStats.online + ' Online Sekarang';
-  }, 20000);
 }
 
 // ==================== 3D CANVAS ROTATING GLOBE ====================
