@@ -532,7 +532,42 @@ var INIT_HEADER={
 };
 var HEADER=JSON.parse(JSON.stringify(INIT_HEADER));
 
+var DOC_STATIC_IMAGES = {
+  'doc_1790140905951': './assets/doc_1790140905951.jpg',
+  'doc_1790135203084': './assets/doc_1790135203084.jpg',
+  'doc_1790130529870': './assets/doc_1790130529870.jpg',
+  'doc_1790122460159': './assets/doc_1790122460159.jpg',
+  'doc_3': './assets/doc_3.jpg'
+};
+
+function getDocImages(doc){
+  if(doc && Array.isArray(doc.images) && doc.images.length > 0 && doc.images.some(function(img){ return img && img.length > 5; })){
+    return doc.images.filter(function(img){ return img && img.length > 5; });
+  }
+  if(doc && doc.id && DOC_STATIC_IMAGES[doc.id]){
+    return [DOC_STATIC_IMAGES[doc.id]];
+  }
+  return [];
+}
+
+function getDocCoverImage(doc){
+  var imgs = getDocImages(doc);
+  return imgs.length > 0 ? imgs[0] : './assets/logo-dies-natalis-68-ums.png';
+}
+
 var INIT_DOCUMENTATIONS=[
+  {
+    id:'doc_1790140905951',
+    title:'Ekonomi FC Siap Hitung Laba Rugi, FAI Sobron FC Tebar Doa Agar Tim Lawan Tidak Syok!',
+    date:'Rabu, 23 September 2026',
+    category:'Berita & Liputan',
+    matchTag:'Play-off 3: FEB vs FAI + SOBRON',
+    pinCarousel:true,
+    author:'Panitia Hari Jadi UMS ke-68',
+    summary:'Kalkulasi matematis vs dzikir dan do\'a di sepertiga malam...',
+    content:'<p><strong>SURAKARTA</strong> — Laga penutup babak Play-off mempertemukan dua raksasa: <strong>Ekonomi FC (FEB)</strong> melawan <strong>FAI + Sobron FC</strong>. Laga ini diprediksi penuh kalkulasi matematis vs doa di sepertiga malam.</p><p>Manajer FEB menegaskan timnya sudah menghitung neraca kemenangan. "Kami datang dengan modal kerja dan efisiensi taktik tinggi. Semua pergerakan FAI Sobron sudah kami hitung rugi-labanya. Kemenangan mutlak milik kami!" ujar sang manajer penuh percaya diri.</p><p>Namun pihak FAI Sobron FC menanggapi dengan tenang dan senyuman penuh makna. "Silakan hitung laba ruginya, tapi jangan lupa faktor takdir dan kekuatan doa. Kami sudah amalkan doa ketenangan hati agar tim lawan tidak terlalu histeris saat tersingkir nanti," balas perwakilan FAI Sobron.</p><p>Siapakah yang akan melaju ke Babak 16 Besar? Saksikan laga panas penuh berkah ini hanya di Minisoccer Dies Natalis ke-68 UMS!</p>',
+    images:['./assets/doc_1790140905951.jpg']
+  },
   {
     id:'doc_1790135203084',
     title:'Perang Viking Berjubah! Rektorat FC Kirim "Surat Imbauan" Buat Bikin RS UMS FC Masuk IGD',
@@ -543,7 +578,7 @@ var INIT_DOCUMENTATIONS=[
     author:'Panitia Hari Jadi UMS ke-68',
     summary:'Rektorat siapkan kebijakan khusus melawan RS UMS!',
     content:'<p><strong>SURAKARTA</strong> — Laga kedua mempertemukan dua tim bertema "Ksatria Viking": <strong>Rektorat FC</strong> melawan <strong>RS UMS FC</strong>. Pertandingan ini diprediksi penuh gertakan kocak dari jajaran eksekutif lawan medis.</p><p>Punggawa Rektorat FC berkapak ksatria Mbah Ranto menegaskan Rektorat siap menerbitkan "surat edaran" kemenangan. "Kami yang pegang kebijakan, RS UMS harus tunduk pada instruksi kekalahan hari Senin!" gertak Mbah Ranto sang senior lapangan hijau.</p><p>Di sisi lain, pasukan RS UMS FC dengan santai menanggapi <em>psywar</em> tersebut. "Tenang, ambulans sudah kami siapkan di pinggir lapangan. Kalau bapak-bapak Rektorat sudah ngos-ngosan di menit ke-5 gara-gara napas tua, siap-siap kami beri pertolongan pertama berupa kekalahan instan!" balas Bentary Yoga.</p><p>Dipastikan bahwa laga kedua juga tidak kalah panas dibandingkan laga pertama. (by <strong>Gemini AI</strong>)</p>',
-    images:[]
+    images:['./assets/doc_1790135203084.jpg']
   },
   {
     id:'doc_1790130529870',
@@ -555,7 +590,7 @@ var INIT_DOCUMENTATIONS=[
     author:'Panitia Hari Jadi UMS ke-68',
     summary:'Psychopharma vs LIBMA FC siap panaskan laga pembuka...',
     content:'<p><strong>SURAKARTA</strong> — Parta pembuka Turnamen Sepakbola Mini Internal Civitas UMS ke-68 di Lapangan Psikologi bakal langsung menyajikan tensi tinggi namun penuh komedi. <strong>Psychofarma FC</strong> bakal bentrok melawan skuad <strong>Libma FC</strong>.</p><p>Mengandalkan jurus <em>pembacaan psikologi lawan</em>, Psychofarma FC mengklaim sudah mengantongi kelemahan fisik tim pustakawan/perpustakaan tersebut. "Kami sudah siapkan resep khusus. Kalau Libma mainnya lemas, langsung kita kasih dosis serangan bertubi-tubi," seloroh Al-Adiyaat.</p><p>Tak mau kalah, Libma FC membalas <em>psywar</em> dengan membawa rekam jejak literasi sepak bola. "Kami ini rajin baca strategi! Psychofarma jangan sampai kena <em>mentally breakdown</em> kalau taktik terapi mereka malah kami patahkan di lapangan, jangan lupakan kekuatan jalur langit melalui Do\'a Bersama dan Qiyamul Lail dari kawan-kawan LPPIK." balas Azhar.</p><p>Edited by <strong>Gemini AI</strong></p>',
-    images:[]
+    images:['./assets/doc_1790130529870.jpg']
   },
   {
     id:'doc_1790122460159',
@@ -567,7 +602,7 @@ var INIT_DOCUMENTATIONS=[
     author:'Panitia Hari jadi UMS ke-68',
     summary:'Panitia siapkan trofi UCL dan prize pool jutaan rupiah...',
     content:'<p>Menjelang pembukaan Turnamen Minisoccer Dies Natalis ke-68 UMS 2026, panitia pelaksana menyiapkan trofi bergengsi replika piala kompetisi akbar serta total prize pool senilai Rp3.000.000 untuk para peraih gelar juara.</p><p>Apresiasi ini diberikan sebagai bentuk penghargaan atas sportivitas dan dedikasi seluruh kontingen sivitas akademika UMS yang berkompetisi di arena lapangan hijau.</p>',
-    images:[]
+    images:['./assets/doc_1790122460159.jpg']
   },
   {
     id:'doc_3',
@@ -579,7 +614,7 @@ var INIT_DOCUMENTATIONS=[
     author:'Komisi Disiplin & Pertandingan',
     summary:'Rapat koordinasi manajer tim membahas aturan pertandingan dan Drawing babak 19 besar.',
     content:'<p>Bertempat di Kampus UMS, perwakilan seluruh manajer tim menyepakati regulasi teknis dan bagan pertandingan resmi Minisoccer Dies Natalis ke-68 UMS. Format 7 vs 7 dengan durasi 2x15 menit serta aturan usia pemain disahkan bersama demi sportivitas pertandingan.</p>',
-    images:[]
+    images:['./assets/doc_3.jpg']
   }
 ];
 
@@ -784,6 +819,12 @@ function loadState(){
     documentations=JSON.parse(JSON.stringify(INIT_DOCUMENTATIONS)).filter(function(d){ return !deletedMap[d.id]; });
   } else {
     documentations=documentations.filter(function(d){ return !deletedMap[d.id]; });
+    // Backfill images if empty in local cache
+    documentations.forEach(function(d){
+      if(!d.images || d.images.length === 0){
+        d.images = getDocImages(d);
+      }
+    });
   }
   authRole=localStorage.getItem('ums_role5')||null;
   authTeamId=localStorage.getItem('ums_tid5')||null;
@@ -839,6 +880,9 @@ function mergeDocumentations(cloudDocs){
               cd = ld;
             }
           }
+        }
+        if(!Array.isArray(cd.images) || cd.images.length === 0){
+          cd.images = getDocImages(cd);
         }
         list.push(cd);
       }
@@ -953,16 +997,6 @@ function pushCloud(immediate){
         db.collection('ums26_v5').doc('main').set({ header: HEADER }, { merge: true }).catch(function(){});
       }
     });
-
-    // Also persist each full article (including all photos) to dedicated collections
-    if(Array.isArray(documentations)){
-      documentations.forEach(function(docItem){
-        if(docItem && docItem.id){
-          db.collection('ums26_v5_docs').doc(docItem.id).set(docItem, {merge:true}).catch(function(){});
-          db.collection('ums26_v5').doc('art_' + docItem.id).set(docItem, {merge:true}).catch(function(){});
-        }
-      });
-    }
   };
   if(immediate){
     doPush();
@@ -1409,8 +1443,9 @@ function renderHomeCarousel(){
   if(_currentCarouselIdx >= _carouselDocs.length) _currentCarouselIdx = 0;
   
   var slidesHtml = _carouselDocs.map(function(doc, idx){
-    var bgImg = (doc.images && doc.images.length > 0) ? doc.images[0] : './assets/logo-dies-natalis-68-ums.png';
-    var imgCount = doc.images ? doc.images.length : 0;
+    var imgs = getDocImages(doc);
+    var bgImg = imgs.length > 0 ? imgs[0] : './assets/logo-dies-natalis-68-ums.png';
+    var imgCount = imgs.length;
     return '<div class="carousel-slide" onclick="openArticlePage(\''+esc(doc.id)+'\')">'
       + '<img src="'+esc(bgImg)+'" alt="'+esc(doc.title)+'" class="carousel-bg-img">'
       + '<div class="carousel-overlay"></div>'
@@ -1941,8 +1976,9 @@ function renderGallery(){
   }
 
   container.innerHTML=filtered.map(function(doc){
-    var coverImg=(doc.images&&doc.images.length>0)?doc.images[0]:'./assets/logo-dies-natalis-68-ums.png';
-    var imgCount=doc.images?doc.images.length:0;
+    var imgs = getDocImages(doc);
+    var coverImg = imgs.length > 0 ? imgs[0] : './assets/logo-dies-natalis-68-ums.png';
+    var imgCount = imgs.length;
     return '<div class="doc-card">'
       +'<div class="doc-img-wrap" onclick="openArticlePage(\''+esc(doc.id)+'\')">'
       +'  <img src="'+esc(coverImg)+'" alt="'+esc(doc.title)+'">'
@@ -2062,7 +2098,8 @@ function renderArticlePage(docId){
     bodyHtml = cleanArticleHtml(bodyHtml);
   }
 
-  var coverImg = (doc.images && doc.images.length > 0) ? doc.images[0] : null;
+  var imgs = getDocImages(doc);
+  var coverImg = imgs.length > 0 ? imgs[0] : null;
 
   // Estimate reading time
   var tempDiv = document.createElement('div');
@@ -2074,11 +2111,11 @@ function renderArticlePage(docId){
   var backLabel = previousViewBeforeArticle === 'gallery' ? 'Kembali ke Galeri' : (previousViewBeforeArticle === 'admin' ? 'Kembali ke Admin' : 'Kembali ke Beranda');
 
   var gallerySection = '';
-  if(doc.images && doc.images.length > 0){
+  if(imgs && imgs.length > 0){
     gallerySection = '<div class="mt-8 pt-6 border-t border-slate-800">'
       + '<div class="flex items-center justify-between mb-4 flex-wrap gap-2">'
       + '  <div>'
-      + '    <h3 class="text-lg font-bold text-white flex items-center gap-2">📷 Galeri Foto Terkait ('+doc.images.length+' Foto)</h3>'
+      + '    <h3 class="text-lg font-bold text-white flex items-center gap-2">📷 Galeri Foto Terkait ('+imgs.length+' Foto)</h3>'
       + '    <p class="text-xs text-slate-400">Klik salah satu foto untuk melihat dalam resolusi penuh dan slideshow interaktif.</p>'
       + '  </div>'
       + '  <button class="btn-p text-xs py-1.5 px-3 flex items-center gap-1.5 shadow" onclick="openLightbox(\''+esc(doc.id)+'\', 0)">'
@@ -2086,7 +2123,7 @@ function renderArticlePage(docId){
       + '  </button>'
       + '</div>'
       + '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">'
-      + doc.images.map(function(imgUrl, idx){
+      + imgs.map(function(imgUrl, idx){
           return '<div class="relative rounded-xl overflow-hidden cursor-pointer group aspect-video bg-slate-950 border border-slate-800 hover:border-cyan-400 transition shadow" onclick="openLightbox(\''+esc(doc.id)+'\', '+idx+')">'
             + '<img src="'+esc(imgUrl)+'" alt="Dokumentasi '+idx+'" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300">'
             + '<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">'
@@ -2106,7 +2143,7 @@ function renderArticlePage(docId){
       + '<h4 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-4">📰 Liputan Turnamen Lainnya</h4>'
       + '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">'
       + otherDocs.map(function(od){
-          var thumb = (od.images && od.images.length > 0) ? od.images[0] : './assets/logo-dies-natalis-68-ums.png';
+          var thumb = getDocCoverImage(od);
           return '<div class="glass p-3 rounded-xl border border-slate-800 cursor-pointer hover:border-cyan-500/50 transition group flex flex-col justify-between" onclick="openArticlePage(\''+esc(od.id)+'\')">'
             + '<div>'
             + '  <div class="h-28 rounded-lg overflow-hidden mb-2.5 bg-slate-950">'
@@ -2208,8 +2245,10 @@ var _lightboxIdx=0;
 
 function openLightbox(docId,imgIdx){
   var doc=(documentations||[]).find(function(d){return d.id===docId;});
-  if(!doc||!doc.images||doc.images.length===0)return;
-  _lightboxDoc=doc;
+  if(!doc)return;
+  var imgs=getDocImages(doc);
+  if(imgs.length===0)return;
+  _lightboxDoc=Object.assign({}, doc, {images: imgs});
   _lightboxIdx=imgIdx||0;
   var lb=document.getElementById('docLightboxModal');
   if(!lb)return;
@@ -2313,8 +2352,9 @@ function renderAdminDocs(){
 
   html+='<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
   documentations.forEach(function(doc){
-    var coverImg=(doc.images&&doc.images.length>0)?doc.images[0]:'./assets/logo-dies-natalis-68-ums.png';
-    var imgCount=doc.images?doc.images.length:0;
+    var imgs=getDocImages(doc);
+    var coverImg=getDocCoverImage(doc);
+    var imgCount=imgs.length;
     html+='<div class="glass p-4 flex flex-col justify-between border border-slate-800">'
       +'  <div class="flex gap-3 mb-3">'
       +'    <img src="'+esc(coverImg)+'" class="w-20 h-20 rounded-lg object-cover object-center flex-shrink-0 border border-slate-700 cursor-pointer" onclick="openArticlePage(\''+esc(doc.id)+'\')">'
@@ -2351,7 +2391,8 @@ function renderAdminDocs(){
 function showDocModal(docId){
   var isEdit=!!docId;
   var doc=isEdit?(documentations||[]).find(function(d){return d.id===docId;}):null;
-  _tempDocImages=(doc&&doc.images)?doc.images.slice():[];
+  var docImgs=doc?getDocImages(doc):[];
+  _tempDocImages=docImgs.slice();
   _docEditorCodeMode = false;
 
   var defaultDate=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
