@@ -1,0 +1,2538 @@
+[
+  {
+    "pos": "FW",
+    "id": "t1-p1",
+    "fullName": "Ahmad Hindayang",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "teamName": "SATPAM UNITED",
+    "teamId": "t1",
+    "usia": 36,
+    "isCaptain": true
+  },
+  {
+    "teamId": "t1",
+    "teamName": "SATPAM UNITED",
+    "usia": 45,
+    "fullName": "Suyatno",
+    "id": "t1-p2",
+    "pos": "FW",
+    "unit": "Unit Keamanan / Satpam UMS"
+  },
+  {
+    "pos": "CB",
+    "teamName": "SATPAM UNITED",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "usia": 43,
+    "id": "t1-p3",
+    "fullName": "Joko U (Shu'ut)",
+    "teamId": "t1"
+  },
+  {
+    "usia": 37,
+    "unit": "Unit Keamanan / Satpam UMS",
+    "fullName": "Nanang",
+    "teamId": "t1",
+    "pos": "FW",
+    "id": "t1-p4",
+    "teamName": "SATPAM UNITED"
+  },
+  {
+    "usia": 37,
+    "teamId": "t1",
+    "id": "t1-p5",
+    "fullName": "Widadi",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "pos": "FW",
+    "teamName": "SATPAM UNITED"
+  },
+  {
+    "unit": "Unit Keamanan / Satpam UMS",
+    "teamId": "t1",
+    "fullName": "K. Rifai",
+    "usia": 35,
+    "pos": "FW",
+    "id": "t1-p6",
+    "teamName": "SATPAM UNITED"
+  },
+  {
+    "usia": 33,
+    "fullName": "Gobby",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "teamId": "t1",
+    "pos": "CB",
+    "id": "t1-p7",
+    "teamName": "SATPAM UNITED"
+  },
+  {
+    "pos": "GK",
+    "teamName": "SATPAM UNITED",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "usia": 33,
+    "id": "t1-p8",
+    "teamId": "t1",
+    "fullName": "Angga DJ"
+  },
+  {
+    "unit": "Unit Keamanan / Satpam UMS",
+    "pos": "FW",
+    "fullName": "Agil",
+    "usia": 33,
+    "id": "t1-p9",
+    "teamName": "SATPAM UNITED",
+    "teamId": "t1"
+  },
+  {
+    "id": "t1-p10",
+    "usia": 31,
+    "teamName": "SATPAM UNITED",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "fullName": "M. Rifai",
+    "pos": "FW",
+    "teamId": "t1"
+  },
+  {
+    "id": "t1-p11",
+    "teamId": "t1",
+    "teamName": "SATPAM UNITED",
+    "fullName": "Anggar Ramos",
+    "usia": 30,
+    "pos": "CB",
+    "unit": "Unit Keamanan / Satpam UMS"
+  },
+  {
+    "teamId": "t1",
+    "fullName": "Ery Setiawan",
+    "usia": 27,
+    "teamName": "SATPAM UNITED",
+    "pos": "CM",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "id": "t1-p12"
+  },
+  {
+    "id": "t1-p13",
+    "teamName": "SATPAM UNITED",
+    "teamId": "t1",
+    "usia": 23,
+    "pos": "CM",
+    "fullName": "Galih",
+    "unit": "Unit Keamanan / Satpam UMS"
+  },
+  {
+    "teamName": "SATPAM UNITED",
+    "teamId": "t1",
+    "fullName": "Satria",
+    "usia": 20,
+    "pos": "CB",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "id": "t1-p14"
+  },
+  {
+    "usia": 50,
+    "teamId": "t2",
+    "teamName": "PARKIR UNITED",
+    "id": "t2-p1",
+    "unit": "Unit Parkir UMS",
+    "fullName": "Heru Basundara",
+    "isCaptain": true,
+    "pos": "CB"
+  },
+  {
+    "fullName": "Bayu",
+    "teamId": "t2",
+    "teamName": "PARKIR UNITED",
+    "usia": 37,
+    "pos": "GK",
+    "unit": "Unit Parkir UMS",
+    "id": "t2-p2"
+  },
+  {
+    "usia": 41,
+    "teamName": "PARKIR UNITED",
+    "unit": "Unit Parkir UMS",
+    "id": "t2-p3",
+    "pos": "FW",
+    "teamId": "t2",
+    "fullName": "Ugik Bin"
+  },
+  {
+    "teamName": "PARKIR UNITED",
+    "unit": "Unit Parkir UMS",
+    "id": "t2-p4",
+    "teamId": "t2",
+    "pos": "CM",
+    "usia": 40,
+    "fullName": "Eko"
+  },
+  {
+    "teamId": "t2",
+    "teamName": "PARKIR UNITED",
+    "pos": "CM",
+    "unit": "Unit Parkir UMS",
+    "fullName": "Kristyawan",
+    "id": "t2-p5",
+    "usia": 44
+  },
+  {
+    "teamId": "t2",
+    "teamName": "PARKIR UNITED",
+    "pos": "FW",
+    "unit": "Unit Parkir UMS",
+    "fullName": "Ris Nug",
+    "usia": 42,
+    "id": "t2-p6"
+  },
+  {
+    "id": "t2-p7",
+    "pos": "FW",
+    "fullName": "Fajar",
+    "teamId": "t2",
+    "unit": "Unit Parkir UMS",
+    "teamName": "PARKIR UNITED",
+    "usia": 24
+  },
+  {
+    "teamName": "PARKIR UNITED",
+    "unit": "Unit Parkir UMS",
+    "usia": 28,
+    "pos": "CB",
+    "fullName": "Rochmadi",
+    "id": "t2-p8",
+    "teamId": "t2"
+  },
+  {
+    "usia": 26,
+    "fullName": "Fian T",
+    "unit": "Unit Parkir UMS",
+    "teamId": "t2",
+    "pos": "FW",
+    "teamName": "PARKIR UNITED",
+    "id": "t2-p9"
+  },
+  {
+    "usia": 29,
+    "teamName": "PARKIR UNITED",
+    "teamId": "t2",
+    "unit": "Unit Parkir UMS",
+    "id": "t2-p10",
+    "pos": "FW",
+    "fullName": "Sholikhin"
+  },
+  {
+    "id": "t2-p11",
+    "pos": "CB",
+    "fullName": "Danar",
+    "teamId": "t2",
+    "teamName": "PARKIR UNITED",
+    "unit": "Unit Parkir UMS",
+    "usia": 29
+  },
+  {
+    "pos": "FW",
+    "teamId": "t2",
+    "teamName": "PARKIR UNITED",
+    "id": "t2-p12",
+    "unit": "Unit Parkir UMS",
+    "fullName": "Deni",
+    "usia": 28
+  },
+  {
+    "id": "t2-p13",
+    "teamName": "PARKIR UNITED",
+    "usia": 23,
+    "teamId": "t2",
+    "fullName": "Ikhwan",
+    "pos": "FW",
+    "unit": "Unit Parkir UMS"
+  },
+  {
+    "unit": "Unit Parkir UMS",
+    "pos": "FW",
+    "fullName": "Dicka",
+    "usia": 19,
+    "teamId": "t2",
+    "teamName": "PARKIR UNITED",
+    "id": "t2-p14"
+  },
+  {
+    "teamId": "t3",
+    "usia": 38,
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "fullName": "Fitri Kurniawan",
+    "teamName": "CAKAP FC",
+    "pos": "FW",
+    "id": "t3-p1"
+  },
+  {
+    "usia": 37,
+    "id": "t3-p2",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "fullName": "Ardhian Tomi Kurniawan",
+    "pos": "GK",
+    "teamName": "CAKAP FC",
+    "teamId": "t3"
+  },
+  {
+    "teamId": "t3",
+    "teamName": "CAKAP FC",
+    "id": "t3-p3",
+    "usia": 35,
+    "fullName": "Agam Akhmad Syaukani",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "pos": "CB"
+  },
+  {
+    "teamName": "CAKAP FC",
+    "id": "t3-p4",
+    "usia": 37,
+    "teamId": "t3",
+    "pos": "CB",
+    "fullName": "Waluyo",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan"
+  },
+  {
+    "id": "t3-p5",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "teamId": "t3",
+    "pos": "CB",
+    "usia": 37,
+    "teamName": "CAKAP FC",
+    "fullName": "Nurhidayat"
+  },
+  {
+    "usia": 38,
+    "teamName": "CAKAP FC",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "teamId": "t3",
+    "fullName": "Ismail",
+    "id": "t3-p6",
+    "pos": "CB"
+  },
+  {
+    "pos": "CM",
+    "teamName": "CAKAP FC",
+    "teamId": "t3",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "fullName": "Muhad Fatoni",
+    "id": "t3-p7",
+    "usia": 36
+  },
+  {
+    "usia": 34,
+    "id": "t3-p1787545473814",
+    "fullName": "Dias Aziz Pramudita",
+    "teamId": "t3",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "teamName": "CAKAP FC",
+    "pos": "CM"
+  },
+  {
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "fullName": "Pungki Indarto",
+    "pos": "FW",
+    "usia": 40,
+    "teamName": "CAKAP FC",
+    "teamId": "t3",
+    "id": "t3-p1787545487496"
+  },
+  {
+    "fullName": "Nur Subekti",
+    "teamId": "t3",
+    "isCaptain": true,
+    "usia": 37,
+    "id": "t3-p1787545499611",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "pos": "FW",
+    "teamName": "CAKAP FC"
+  },
+  {
+    "fullName": "Azlan Khoirur Roziqin",
+    "usia": 37,
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "teamName": "CAKAP FC",
+    "teamId": "t3",
+    "pos": "FW",
+    "id": "t3-p1787545513608"
+  },
+  {
+    "id": "t3-p1787545529164",
+    "fullName": "Sukirman",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "pos": "FW",
+    "usia": 39,
+    "teamId": "t3",
+    "teamName": "CAKAP FC"
+  },
+  {
+    "teamId": "t3",
+    "teamName": "CAKAP FC",
+    "id": "t3-p1787629868795",
+    "pos": "CM",
+    "usia": 35,
+    "fullName": "Muhammad Bahrul Ulum",
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan"
+  },
+  {
+    "fullName": "Didik Sooeed",
+    "teamId": "t3",
+    "id": "t3-p1787629932211",
+    "usia": 42,
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "teamName": "CAKAP FC",
+    "pos": "CM"
+  },
+  {
+    "usia": 47,
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "teamName": "CAKAP FC",
+    "teamId": "t3",
+    "pos": "CM",
+    "fullName": "Suci Juniarto",
+    "id": "t3-p15"
+  },
+  {
+    "teamId": "t3",
+    "teamName": "CAKAP FC",
+    "usia": 38,
+    "unit": "Fakultas Keguruan & Ilmu Pendidikan",
+    "id": "t3-p16",
+    "fullName": "Titis Pambudi",
+    "pos": "FW"
+  },
+  {
+    "pos": "CB",
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "id": "t4-p1",
+    "usia": 38,
+    "teamId": "t4",
+    "teamName": "TIKUM WONG MUMET FC",
+    "fullName": "Sidiq Setyawan FKI"
+  },
+  {
+    "teamId": "t4",
+    "teamName": "TIKUM WONG MUMET FC",
+    "usia": 29,
+    "id": "t4-p2",
+    "fullName": "Arief Surya K",
+    "pos": "CM",
+    "unit": "Fakultas Komunikasi dan Informatika"
+  },
+  {
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "pos": "FW",
+    "fullName": "Ahmada Rahman FKI",
+    "usia": 38,
+    "teamId": "t4",
+    "teamName": "TIKUM WONG MUMET FC",
+    "id": "t4-p5",
+    "isCaptain": true
+  },
+  {
+    "teamId": "t4",
+    "usia": 29,
+    "teamName": "TIKUM WONG MUMET FC",
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "fullName": "Risqi Mei Sonjaya",
+    "id": "t4-p7",
+    "pos": "GK"
+  },
+  {
+    "fullName": "Yuda Wirawanda FKI",
+    "pos": "CB",
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "teamId": "t4",
+    "usia": 37,
+    "id": "t4-p1787640407972",
+    "teamName": "TIKUM WONG MUMET FC"
+  },
+  {
+    "fullName": "Dava FKI",
+    "usia": 26,
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "teamName": "TIKUM WONG MUMET FC",
+    "id": "t4-p1787640464023",
+    "teamId": "t4",
+    "pos": "FW"
+  },
+  {
+    "fullName": "Henry Dunant",
+    "usia": 50,
+    "teamId": "t5",
+    "id": "t5-p1",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "isCaptain": true,
+    "pos": "CB",
+    "teamName": "FEB"
+  },
+  {
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "teamId": "t5",
+    "usia": 28,
+    "teamName": "FEB",
+    "pos": "CM",
+    "id": "t5-p2",
+    "fullName": "Arkan (FEB)"
+  },
+  {
+    "teamId": "t5",
+    "fullName": "Fajar  (FEB)",
+    "usia": 35,
+    "pos": "FW",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "id": "t5-p3",
+    "teamName": "FEB"
+  },
+  {
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "fullName": "Kusuma  (FEB)",
+    "pos": "CM",
+    "usia": 45,
+    "teamName": "FEB",
+    "teamId": "t5",
+    "id": "t5-p4"
+  },
+  {
+    "id": "t5-p5",
+    "usia": 36,
+    "teamName": "FEB",
+    "teamId": "t5",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "pos": "FW",
+    "fullName": "Aji (FEB)"
+  },
+  {
+    "usia": 48,
+    "teamId": "t5",
+    "id": "t5-p6",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "teamName": "FEB",
+    "pos": "CM",
+    "fullName": "Veno (FEB)"
+  },
+  {
+    "id": "t5-p7",
+    "pos": "CM",
+    "teamName": "FEB",
+    "teamId": "t5",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "usia": 37,
+    "fullName": "Baihaqi (FEB)"
+  },
+  {
+    "id": "t5-p8",
+    "teamName": "FEB",
+    "teamId": "t5",
+    "fullName": "Tulus  (FEB)",
+    "usia": 51,
+    "pos": "CB",
+    "unit": "Fakultas Ekonomi & Bisnis UMS"
+  },
+  {
+    "teamName": "FEB",
+    "teamId": "t5",
+    "fullName": "Dedi (FEB)",
+    "usia": 41,
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "pos": "CM",
+    "id": "t5-p9"
+  },
+  {
+    "usia": 50,
+    "fullName": "Narto (FEB)",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "id": "t5-p10",
+    "pos": "CB",
+    "teamName": "FEB",
+    "teamId": "t5"
+  },
+  {
+    "teamName": "FEB",
+    "pos": "GK",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "id": "t5-p11",
+    "usia": 50,
+    "fullName": "Indri (FEB)",
+    "teamId": "t5"
+  },
+  {
+    "usia": 38,
+    "fullName": "Farid (FEB)",
+    "id": "t5-p12",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "pos": "CB",
+    "teamId": "t5",
+    "teamName": "FEB"
+  },
+  {
+    "pos": "FW",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "usia": 54,
+    "fullName": "Ihwan Susila (FEB)",
+    "id": "t5-p13",
+    "teamId": "t5",
+    "teamName": "FEB"
+  },
+  {
+    "teamName": "FEB",
+    "id": "t5-p14",
+    "usia": 36,
+    "pos": "GK",
+    "fullName": "Agus wahyudi  (FEB)",
+    "teamId": "t5",
+    "unit": "Fakultas Ekonomi & Bisnis UMS"
+  },
+  {
+    "fullName": "Mas Bella",
+    "usia": 33,
+    "id": "t6-p1",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "pos": "GK",
+    "teamId": "t6",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I"
+  },
+  {
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "pos": "CB",
+    "teamId": "t6",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "usia": 35,
+    "fullName": "Pak Choi",
+    "id": "t6-p2"
+  },
+  {
+    "teamId": "t6",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "id": "t6-p3",
+    "isCaptain": true,
+    "usia": 39,
+    "pos": "CB",
+    "fullName": "Mahyan Danu Kusuma",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB"
+  },
+  {
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "teamId": "t6",
+    "pos": "CM",
+    "fullName": "RM Fayyas Failaq",
+    "id": "t6-p4",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "usia": 36
+  },
+  {
+    "pos": "CM",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "usia": 38,
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "id": "t6-p5",
+    "teamId": "t6",
+    "fullName": "Wahyu Koerniawan"
+  },
+  {
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "teamId": "t6",
+    "fullName": "Arif Kancil",
+    "usia": 37,
+    "pos": "FW",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "id": "t6-p6"
+  },
+  {
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "teamId": "t6",
+    "usia": 35,
+    "pos": "FW",
+    "fullName": "Danang Kurniawan",
+    "id": "t6-p7"
+  },
+  {
+    "usia": 35,
+    "teamId": "t6",
+    "fullName": "Pak Iqbal",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "id": "t6-p8",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "pos": "CM"
+  },
+  {
+    "teamId": "t6",
+    "id": "t6-p9",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "usia": 34,
+    "pos": "CM",
+    "fullName": "Zaenal",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB"
+  },
+  {
+    "id": "t6-p10",
+    "pos": "CM",
+    "fullName": "Pak Djumadi, Ph.D",
+    "teamId": "t6",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "usia": 32
+  },
+  {
+    "teamId": "t6",
+    "id": "t6-p11",
+    "fullName": "Ahmad Fauzi Djamaluddin",
+    "usia": 35,
+    "pos": "GK",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB"
+  },
+  {
+    "fullName": "Wachid Daga Suryono",
+    "teamId": "t6",
+    "id": "t6-p12",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "usia": 33,
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "pos": "CB"
+  },
+  {
+    "usia": 40,
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "fullName": "Pak Endy",
+    "pos": "FW",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "id": "t6-p13",
+    "teamId": "t6"
+  },
+  {
+    "pos": "CM",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "usia": 33,
+    "id": "t6-p14",
+    "teamId": "t6",
+    "fullName": "Sandya Mahendra"
+  },
+  {
+    "fullName": "Pak Fahmi Fairuzzaman",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "teamId": "t6",
+    "pos": "CM",
+    "usia": 39,
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "id": "t6-p15"
+  },
+  {
+    "teamId": "t6",
+    "teamName": "PERSATUAN OLAHRAGA GEDUNG I",
+    "id": "t6-p16",
+    "pos": "CB",
+    "fullName": "M. Junaidi",
+    "unit": "Geografi, Hukum dan Ilmu Politik & LPMB",
+    "usia": 42
+  },
+  {
+    "teamId": "t7",
+    "teamName": "BPUI (AUM, AHASS, SPPG)",
+    "id": "t7-p1",
+    "isCaptain": true,
+    "usia": 39,
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "fullName": "Rendi Gunawan",
+    "pos": "FW"
+  },
+  {
+    "fullName": "Kuntoro (SPPG)",
+    "teamId": "t7",
+    "usia": 45,
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "id": "t7-p2",
+    "pos": "CB",
+    "teamName": "BPUI (AUM, AHASS, SPPG)"
+  },
+  {
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "fullName": "Jefvi (SPPG)",
+    "pos": "FW",
+    "usia": 40,
+    "id": "t7-p3",
+    "teamId": "t7",
+    "teamName": "BPUI (AUM, AHASS, SPPG)"
+  },
+  {
+    "teamName": "BPUI (AUM, AHASS, SPPG)",
+    "usia": 25,
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "id": "t7-p4",
+    "fullName": "Malik(SPPG)",
+    "pos": "CM",
+    "teamId": "t7"
+  },
+  {
+    "pos": "GK",
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "fullName": "Aslam(SPPG )",
+    "usia": 22,
+    "id": "t7-p5",
+    "teamId": "t7",
+    "teamName": "BPUI (AUM, AHASS, SPPG)"
+  },
+  {
+    "usia": 30,
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "fullName": "Arif(Ahass)",
+    "teamId": "t7",
+    "pos": "CM",
+    "id": "t7-p6",
+    "teamName": "BPUI (AUM, AHASS, SPPG)"
+  },
+  {
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "teamId": "t7",
+    "teamName": "BPUI (AUM, AHASS, SPPG)",
+    "usia": 30,
+    "pos": "CM",
+    "fullName": "Idin(Ahass)",
+    "id": "t7-p7"
+  },
+  {
+    "teamId": "t7",
+    "pos": "CB",
+    "fullName": "Yusril (Ahass)",
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "teamName": "BPUI (AUM, AHASS, SPPG)",
+    "usia": 25,
+    "id": "t7-p8"
+  },
+  {
+    "fullName": "Hanif Thofan Ismail, S.Kep",
+    "isCaptain": true,
+    "teamId": "t10",
+    "teamName": "FIK",
+    "usia": 38,
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "pos": "FW",
+    "id": "t10-p1"
+  },
+  {
+    "id": "t10-p2",
+    "fullName": "Kurniawan",
+    "usia": 31,
+    "teamId": "t10",
+    "pos": "CB",
+    "teamName": "FIK",
+    "unit": "Fakultas Ilmu Kesehatan UMS"
+  },
+  {
+    "usia": 27,
+    "fullName": "Rayyan",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "teamName": "FIK",
+    "pos": "CB",
+    "id": "t10-p3",
+    "teamId": "t10"
+  },
+  {
+    "fullName": "Suryo",
+    "usia": 36,
+    "teamId": "t10",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "id": "t10-p4",
+    "pos": "CM",
+    "teamName": "FIK"
+  },
+  {
+    "teamName": "FIK",
+    "id": "t10-p5",
+    "usia": 37,
+    "teamId": "t10",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "pos": "CM",
+    "fullName": "Arif"
+  },
+  {
+    "pos": "FW",
+    "teamName": "FIK",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "usia": 32,
+    "id": "t10-p6",
+    "fullName": "Duwi",
+    "teamId": "t10"
+  },
+  {
+    "pos": "GK",
+    "teamName": "FIK",
+    "teamId": "t10",
+    "id": "t10-p7",
+    "fullName": "Nur Kholid",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "usia": 39
+  },
+  {
+    "isCaptain": true,
+    "id": "t11-p1",
+    "pos": "CB",
+    "teamId": "t11",
+    "fullName": "Exsan (shobron)",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "usia": 31,
+    "teamName": "FAI + SOBRON"
+  },
+  {
+    "fullName": "Irwan (shobron)",
+    "usia": 36,
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "teamName": "FAI + SOBRON",
+    "id": "t11-p2",
+    "teamId": "t11",
+    "pos": "GK"
+  },
+  {
+    "teamId": "t11",
+    "fullName": "Imam adi  (FAI)",
+    "pos": "CB",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "teamName": "FAI + SOBRON",
+    "id": "t11-p3",
+    "usia": 31
+  },
+  {
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "pos": "CB",
+    "fullName": "Awang (shobron)",
+    "usia": 40,
+    "teamId": "t11",
+    "teamName": "FAI + SOBRON",
+    "id": "t11-p4"
+  },
+  {
+    "usia": 39,
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "fullName": "Asrizal  (FAI)",
+    "id": "t11-p5",
+    "teamName": "FAI + SOBRON",
+    "pos": "CM",
+    "teamId": "t11"
+  },
+  {
+    "teamId": "t11",
+    "teamName": "FAI + SOBRON",
+    "id": "t11-p6",
+    "usia": 31,
+    "fullName": "Rusda  (FAI)",
+    "pos": "CM",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron"
+  },
+  {
+    "id": "t11-p7",
+    "teamName": "FAI + SOBRON",
+    "teamId": "t11",
+    "usia": 36,
+    "pos": "FW",
+    "fullName": "Lukman  (FAI)",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron"
+  },
+  {
+    "teamId": "t11",
+    "teamName": "FAI + SOBRON",
+    "usia": 33,
+    "fullName": "Tomi h  (FAI)",
+    "pos": "FW",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "id": "t11-p8"
+  },
+  {
+    "id": "t11-p9",
+    "pos": "CM",
+    "fullName": "Maksum  (FAI)",
+    "teamName": "FAI + SOBRON",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "teamId": "t11",
+    "usia": 33
+  },
+  {
+    "id": "t11-p10",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "pos": "FW",
+    "usia": 39,
+    "fullName": "Kharis (FAI)",
+    "teamId": "t11",
+    "teamName": "FAI + SOBRON"
+  },
+  {
+    "id": "t11-p11",
+    "fullName": "Prof Andri N  (FAI)",
+    "usia": 42,
+    "pos": "CM",
+    "teamId": "t11",
+    "teamName": "FAI + SOBRON",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron"
+  },
+  {
+    "teamName": "FAI + SOBRON",
+    "teamId": "t11",
+    "usia": 28,
+    "fullName": "Sidiq (shobron)",
+    "id": "t11-p12",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "pos": "CB"
+  },
+  {
+    "teamName": "FAI + SOBRON",
+    "teamId": "t11",
+    "id": "t11-p13",
+    "usia": 42,
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "fullName": "Wildan  (FAI)",
+    "pos": "CM"
+  },
+  {
+    "pos": "CM",
+    "id": "t11-p14",
+    "teamName": "FAI + SOBRON",
+    "fullName": "Zaky Azani  (FAI)",
+    "teamId": "t11",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "usia": 38
+  },
+  {
+    "pos": "CM",
+    "teamName": "FAI + SOBRON",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "usia": 26,
+    "teamId": "t11",
+    "id": "t11-p15",
+    "fullName": "Adityo  (FAI)"
+  },
+  {
+    "usia": 32,
+    "fullName": "Imam hambali  (FAI)",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "teamId": "t11",
+    "pos": "CB",
+    "id": "t11-p16",
+    "teamName": "FAI + SOBRON"
+  },
+  {
+    "teamId": "t12",
+    "fullName": "Dr. Azhar Alam, Lc, S.E., M.SEI",
+    "pos": "FW",
+    "isCaptain": true,
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "id": "t12-p1",
+    "usia": 39,
+    "teamName": "LIBMA FC"
+  },
+  {
+    "fullName": "Riyadi",
+    "id": "t12-p8",
+    "usia": 37,
+    "pos": "CB",
+    "teamId": "t12",
+    "teamName": "LIBMA FC",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS"
+  },
+  {
+    "fullName": "Asharul",
+    "id": "t12-p9",
+    "teamName": "LIBMA FC",
+    "usia": 32,
+    "pos": "CB",
+    "teamId": "t12",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS"
+  },
+  {
+    "fullName": "Bagus",
+    "teamId": "t12",
+    "usia": 26,
+    "teamName": "LIBMA FC",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "pos": "CB",
+    "id": "t12-p10"
+  },
+  {
+    "usia": 46,
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "fullName": "Mufid",
+    "teamId": "t12",
+    "pos": "CM",
+    "id": "t12-p11",
+    "teamName": "LIBMA FC"
+  },
+  {
+    "usia": 27,
+    "fullName": "Ferry Alex",
+    "teamId": "t13",
+    "id": "t13-p1",
+    "unit": "Edutorium UMS",
+    "teamName": "EDUTORIUM",
+    "pos": "FW",
+    "isCaptain": true
+  },
+  {
+    "teamName": "EDUTORIUM",
+    "teamId": "t13",
+    "fullName": "Alfiandi",
+    "id": "t13-p2",
+    "usia": 29,
+    "unit": "Edutorium UMS",
+    "pos": "GK"
+  },
+  {
+    "fullName": "Waluyo",
+    "id": "t13-p3",
+    "pos": "CB",
+    "usia": 45,
+    "teamName": "EDUTORIUM",
+    "teamId": "t13",
+    "unit": "Edutorium UMS"
+  },
+  {
+    "teamId": "t13",
+    "teamName": "EDUTORIUM",
+    "id": "t13-p4",
+    "usia": 39,
+    "fullName": "Nuryanto",
+    "unit": "Edutorium UMS",
+    "pos": "CB"
+  },
+  {
+    "usia": 45,
+    "unit": "Edutorium UMS",
+    "teamName": "EDUTORIUM",
+    "pos": "CM",
+    "fullName": "Joko Prasetyo",
+    "id": "t13-p5",
+    "teamId": "t13"
+  },
+  {
+    "fullName": "Z Saiful Hadi",
+    "unit": "Edutorium UMS",
+    "teamId": "t13",
+    "pos": "FW",
+    "usia": 32,
+    "id": "t13-p6",
+    "teamName": "EDUTORIUM"
+  },
+  {
+    "usia": 29,
+    "teamId": "t13",
+    "id": "t13-p7",
+    "teamName": "EDUTORIUM",
+    "unit": "Edutorium UMS",
+    "pos": "FW",
+    "fullName": "Dian Prasetyo"
+  },
+  {
+    "usia": 27,
+    "teamId": "t13",
+    "teamName": "EDUTORIUM",
+    "unit": "Edutorium UMS",
+    "fullName": "Rahmad Fajar Saputro",
+    "id": "t13-p8",
+    "pos": "GK"
+  },
+  {
+    "teamName": "EDUTORIUM",
+    "usia": 35,
+    "unit": "Edutorium UMS",
+    "id": "t13-p9",
+    "fullName": "Fredy Susanto",
+    "pos": "FW",
+    "teamId": "t13"
+  },
+  {
+    "id": "t13-p10",
+    "fullName": "Andi Sulistiawan",
+    "teamId": "t13",
+    "pos": "CM",
+    "usia": 39,
+    "teamName": "EDUTORIUM",
+    "unit": "Edutorium UMS"
+  },
+  {
+    "id": "t13-p11",
+    "teamId": "t13",
+    "fullName": "Setyawan Asidiq",
+    "usia": 24,
+    "pos": "FW",
+    "unit": "Edutorium UMS",
+    "teamName": "EDUTORIUM"
+  },
+  {
+    "usia": 51,
+    "fullName": "Sri Wiyono",
+    "unit": "Edutorium UMS",
+    "teamName": "EDUTORIUM",
+    "pos": "CB",
+    "id": "t13-p12",
+    "teamId": "t13"
+  },
+  {
+    "teamId": "t13",
+    "teamName": "EDUTORIUM",
+    "id": "t13-p13",
+    "pos": "FW",
+    "usia": 35,
+    "fullName": "Rofik Apriyanto",
+    "unit": "Edutorium UMS"
+  },
+  {
+    "teamName": "EDUTORIUM",
+    "pos": "CM",
+    "teamId": "t13",
+    "id": "t13-p14",
+    "unit": "Edutorium UMS",
+    "fullName": "Faris Khoirudin",
+    "usia": 27
+  },
+  {
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "pos": "FW",
+    "teamId": "t14",
+    "fullName": "RANTO GRIEZMAN",
+    "id": "t14-p1",
+    "isCaptain": true,
+    "usia": 52,
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ..."
+  },
+  {
+    "id": "t14-p2",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "pos": "GK",
+    "fullName": "WILDAN HANIF (LPPIP)",
+    "teamId": "t14",
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "usia": 36
+  },
+  {
+    "teamId": "t14",
+    "usia": 32,
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "pos": "GK",
+    "fullName": "ROHMAD ANDREA (DRPPS)",
+    "id": "t14-p3"
+  },
+  {
+    "teamId": "t14",
+    "pos": "CB",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "fullName": "TRIYONO (DSDMO)",
+    "id": "t14-p4",
+    "usia": 41
+  },
+  {
+    "usia": 27,
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "teamId": "t14",
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "id": "t14-p5",
+    "pos": "CB",
+    "fullName": "M. SALMAN A (DAPENSYA)"
+  },
+  {
+    "usia": 50,
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "fullName": "AGUNG SISWANTO (DSDMO)",
+    "id": "t14-p6",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "pos": "CB",
+    "teamId": "t14"
+  },
+  {
+    "usia": 26,
+    "id": "t14-p7",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "teamId": "t14",
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "fullName": "FAJAR (SU HUMAS)",
+    "pos": "CB"
+  },
+  {
+    "pos": "CM",
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "usia": 39,
+    "fullName": "REYNAL (BPH)",
+    "id": "t14-p8",
+    "teamId": "t14",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ..."
+  },
+  {
+    "usia": 38,
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "teamId": "t14",
+    "id": "t14-p9",
+    "pos": "CM",
+    "fullName": "ABDUL KARIM (BPH)"
+  },
+  {
+    "id": "t14-p10",
+    "pos": "CM",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "usia": 33,
+    "teamId": "t14",
+    "fullName": "REGI (DSDMO)"
+  },
+  {
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "usia": 28,
+    "pos": "CM",
+    "id": "t14-p11",
+    "teamId": "t14",
+    "fullName": "IMAM (SU/HUMAS)"
+  },
+  {
+    "fullName": "BAGHAZ (SU/HUMAS)",
+    "id": "t14-p12",
+    "teamId": "t14",
+    "pos": "CM",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "usia": 27,
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas"
+  },
+  {
+    "teamId": "t15",
+    "isCaptain": true,
+    "teamName": "DASP + OUTSOURCING",
+    "pos": "GK",
+    "id": "t15-p1",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "fullName": "Darsono Raja Solar",
+    "usia": 45
+  },
+  {
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "teamName": "DASP + OUTSOURCING",
+    "pos": "CB",
+    "usia": 23,
+    "teamId": "t15",
+    "fullName": "Bima Cogil",
+    "id": "t15-p3"
+  },
+  {
+    "teamName": "DASP + OUTSOURCING",
+    "teamId": "t15",
+    "fullName": "Shidiq Maba",
+    "usia": 21,
+    "pos": "CM",
+    "id": "t15-p4",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing"
+  },
+  {
+    "teamId": "t15",
+    "usia": 50,
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "fullName": "Mr Darnoto",
+    "id": "t15-p5",
+    "teamName": "DASP + OUTSOURCING",
+    "pos": "CM"
+  },
+  {
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "usia": 36,
+    "fullName": "Adiwena Mr Prof",
+    "pos": "FW",
+    "id": "t15-p6",
+    "teamName": "DASP + OUTSOURCING",
+    "teamId": "t15"
+  },
+  {
+    "usia": 41,
+    "fullName": "Yhud Bodrex",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "teamId": "t15",
+    "teamName": "DASP + OUTSOURCING",
+    "pos": "FW",
+    "id": "t15-p7"
+  },
+  {
+    "fullName": "Ahmad Arfian Hafis",
+    "pos": "CM",
+    "teamId": "t16",
+    "isCaptain": true,
+    "id": "t16-p1",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "unit": "Pesma",
+    "usia": 26
+  },
+  {
+    "teamId": "t16",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "id": "t16-p2",
+    "usia": 51,
+    "pos": "GK",
+    "fullName": "Mujazin",
+    "unit": "Pesma"
+  },
+  {
+    "usia": 29,
+    "teamId": "t16",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "unit": "Pesma",
+    "id": "t16-p3",
+    "fullName": "Rijal",
+    "pos": "CM"
+  },
+  {
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "pos": "FW",
+    "teamId": "t16",
+    "unit": "Pesma",
+    "fullName": "Rifki",
+    "usia": 32,
+    "id": "t16-p4"
+  },
+  {
+    "usia": 26,
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "unit": "Pesma",
+    "pos": "CM",
+    "id": "t16-p5",
+    "fullName": "Andika",
+    "teamId": "t16"
+  },
+  {
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "teamId": "t16",
+    "usia": 22,
+    "pos": "CB",
+    "unit": "Pesma",
+    "fullName": "Farhan",
+    "id": "t16-p6"
+  },
+  {
+    "pos": "CB",
+    "teamId": "t16",
+    "fullName": "Ari",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "id": "t16-p7",
+    "usia": 40
+  },
+  {
+    "fullName": "Sriyanto",
+    "pos": "CB",
+    "id": "t16-p8",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "teamId": "t16",
+    "usia": 45
+  },
+  {
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "teamId": "t16",
+    "usia": 47,
+    "id": "t16-p9",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "fullName": "Agus",
+    "pos": "CB"
+  },
+  {
+    "pos": "FW",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "id": "t16-p10",
+    "usia": 43,
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "fullName": "Budi",
+    "teamId": "t16"
+  },
+  {
+    "fullName": "Anang",
+    "pos": "CB",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "id": "t16-p11",
+    "teamId": "t16",
+    "usia": 38
+  },
+  {
+    "usia": 42,
+    "fullName": "Arif",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "teamId": "t16",
+    "pos": "CB",
+    "id": "t16-p12",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS"
+  },
+  {
+    "usia": 25,
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "id": "t16-p13",
+    "fullName": "Dilah",
+    "teamId": "t16",
+    "pos": "CM"
+  },
+  {
+    "id": "t16-p14",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "pos": "CM",
+    "usia": 29,
+    "teamId": "t16",
+    "fullName": "Pandu"
+  },
+  {
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "pos": "FW",
+    "unit": "Fakultas Kedokteran Umum UMS",
+    "teamId": "t16",
+    "id": "t16-p15",
+    "usia": 30,
+    "fullName": "Albi"
+  },
+  {
+    "usia": 38,
+    "isCaptain": true,
+    "fullName": "Muhammad Suaifi, AMK.",
+    "unit": "RS UMS A.R. Fachrudin",
+    "id": "t17-p1",
+    "pos": "FW",
+    "teamName": "RS UMS FC",
+    "teamId": "t17"
+  },
+  {
+    "usia": 39,
+    "unit": "RS UMS A.R. Fachrudin",
+    "fullName": "Sigit Pramono",
+    "teamName": "RS UMS FC",
+    "pos": "CB",
+    "id": "t17-p2",
+    "teamId": "t17"
+  },
+  {
+    "teamId": "t17",
+    "teamName": "RS UMS FC",
+    "usia": 48,
+    "fullName": "Nurdani Manshur, AMK",
+    "unit": "RS UMS A.R. Fachrudin",
+    "pos": "CB",
+    "id": "t17-p3"
+  },
+  {
+    "teamName": "RS UMS FC",
+    "pos": "CM",
+    "id": "t17-p4",
+    "unit": "RS UMS A.R. Fachrudin",
+    "teamId": "t17",
+    "fullName": "Ananda Fero Hando, S.Kep., Ns.",
+    "usia": 27
+  },
+  {
+    "pos": "FW",
+    "id": "t17-p5",
+    "fullName": "Farid Budiman, A.Md.",
+    "teamId": "t17",
+    "unit": "RS UMS A.R. Fachrudin",
+    "usia": 47,
+    "teamName": "RS UMS FC"
+  },
+  {
+    "id": "t17-p6",
+    "unit": "RS UMS A.R. Fachrudin",
+    "pos": "CM",
+    "teamName": "RS UMS FC",
+    "usia": 40,
+    "teamId": "t17",
+    "fullName": "R. Haryo Condrosasi"
+  },
+  {
+    "teamName": "RS UMS FC",
+    "teamId": "t17",
+    "id": "t17-p7",
+    "usia": 26,
+    "unit": "RS UMS A.R. Fachrudin",
+    "fullName": "Rendi Kurniawan Al Rahman",
+    "pos": "FW"
+  },
+  {
+    "teamId": "t17",
+    "usia": 26,
+    "unit": "RS UMS A.R. Fachrudin",
+    "teamName": "RS UMS FC",
+    "fullName": "Dhimas Permana Putra, S.Tr.RMIK.",
+    "pos": "GK",
+    "id": "t17-p8"
+  },
+  {
+    "usia": 49,
+    "unit": "RS UMS A.R. Fachrudin",
+    "fullName": "Ari Kurniawan Lazim, AMR.",
+    "teamName": "RS UMS FC",
+    "pos": "CB",
+    "id": "t17-p9",
+    "teamId": "t17"
+  },
+  {
+    "teamId": "t17",
+    "fullName": "Danang Prawoto",
+    "teamName": "RS UMS FC",
+    "id": "t17-p10",
+    "usia": 33,
+    "unit": "RS UMS A.R. Fachrudin",
+    "pos": "FW"
+  },
+  {
+    "unit": "RS UMS A.R. Fachrudin",
+    "teamId": "t17",
+    "teamName": "RS UMS FC",
+    "pos": "FW",
+    "usia": 29,
+    "fullName": "Arif Budiyanto, S.Kep., Ns.",
+    "id": "t17-p11"
+  },
+  {
+    "teamId": "t17",
+    "pos": "FW",
+    "teamName": "RS UMS FC",
+    "unit": "RS UMS A.R. Fachrudin",
+    "fullName": "Da'i Maulana Hidayat, S.Tr.Kes",
+    "id": "t17-p12",
+    "usia": 28
+  },
+  {
+    "id": "t17-p13",
+    "unit": "RS UMS A.R. Fachrudin",
+    "pos": "FW",
+    "teamName": "RS UMS FC",
+    "usia": 24,
+    "fullName": "Ahmad Farisulhaq, S.Kep., Ns.",
+    "teamId": "t17"
+  },
+  {
+    "unit": "RS UMS A.R. Fachrudin",
+    "pos": "CM",
+    "fullName": "Novin Reza Pratama, A.Md.Kep.",
+    "id": "t17-p14",
+    "usia": 26,
+    "teamName": "RS UMS FC",
+    "teamId": "t17"
+  },
+  {
+    "fullName": "Tofik (Farmasi)",
+    "teamId": "t18",
+    "pos": "GK",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "id": "t18-p1",
+    "teamName": "PSYCHOPHARMA FC",
+    "isCaptain": true,
+    "usia": 36
+  },
+  {
+    "teamName": "PSYCHOPHARMA FC",
+    "usia": 30,
+    "id": "t18-p2",
+    "teamId": "t18",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "pos": "CB",
+    "fullName": "Agus (Farmasi)"
+  },
+  {
+    "fullName": "Aditya (Farmasi)",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "pos": "CB",
+    "usia": 32,
+    "teamId": "t18",
+    "teamName": "PSYCHOPHARMA FC",
+    "id": "t18-p3"
+  },
+  {
+    "id": "t18-p4",
+    "fullName": "Audi Ahmad (Psikologi)",
+    "usia": 27,
+    "pos": "CB",
+    "teamId": "t18",
+    "teamName": "PSYCHOPHARMA FC",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi"
+  },
+  {
+    "teamId": "t18",
+    "fullName": "Dwi Andaryono (Psikologi)",
+    "pos": "CB",
+    "teamName": "PSYCHOPHARMA FC",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "id": "t18-p5",
+    "usia": 39
+  },
+  {
+    "pos": "CB",
+    "fullName": "Ahmad Hendra (Psikologi)",
+    "id": "t18-p6",
+    "teamName": "PSYCHOPHARMA FC",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "teamId": "t18",
+    "usia": 29
+  },
+  {
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "fullName": "Riyan (Farmasi)",
+    "pos": "CM",
+    "usia": 30,
+    "teamName": "PSYCHOPHARMA FC",
+    "teamId": "t18",
+    "id": "t18-p7"
+  },
+  {
+    "fullName": "Al Adiat (Psikologi)",
+    "teamId": "t18",
+    "usia": 26,
+    "id": "t18-p8",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "pos": "CM",
+    "teamName": "PSYCHOPHARMA FC"
+  },
+  {
+    "usia": 26,
+    "id": "t18-p9",
+    "fullName": "Lutfi (Farmasi)",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "pos": "CM",
+    "teamId": "t18",
+    "teamName": "PSYCHOPHARMA FC"
+  },
+  {
+    "usia": 36,
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "teamName": "PSYCHOPHARMA FC",
+    "teamId": "t18",
+    "pos": "CM",
+    "id": "t18-p10",
+    "fullName": "Oke Puji (Psikologi)"
+  },
+  {
+    "teamId": "t18",
+    "usia": 31,
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "teamName": "PSYCHOPHARMA FC",
+    "id": "t18-p11",
+    "fullName": "Bayu Suseno (Psikologi)",
+    "pos": "CM"
+  },
+  {
+    "teamId": "t18",
+    "teamName": "PSYCHOPHARMA FC",
+    "id": "t18-p12",
+    "usia": 36,
+    "fullName": "Wahyu Ari (Psikologi)",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "pos": "FW"
+  },
+  {
+    "teamName": "PSYCHOPHARMA FC",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "pos": "FW",
+    "usia": 41,
+    "teamId": "t18",
+    "fullName": "Andi Yulianto (Psikologi)",
+    "id": "t18-p13"
+  },
+  {
+    "teamId": "t15",
+    "teamName": "DASP + OUTSOURCING",
+    "id": "t15-p1788489051239",
+    "usia": 41,
+    "fullName": "Agus Laba Laba",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "pos": "CM"
+  },
+  {
+    "fullName": "Yapro Menot",
+    "teamId": "t15",
+    "usia": 33,
+    "pos": "CM",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "id": "t15-p1788489066804",
+    "teamName": "DASP + OUTSOURCING"
+  },
+  {
+    "id": "t15-p1788489116460",
+    "pos": "CM",
+    "teamId": "t15",
+    "fullName": "Juan Mr Brew",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "usia": 23,
+    "teamName": "DASP + OUTSOURCING"
+  },
+  {
+    "teamId": "t15",
+    "id": "t15-p1788489133722",
+    "teamName": "DASP + OUTSOURCING",
+    "pos": "CM",
+    "usia": 37,
+    "fullName": "Ajis Sang Gladiator",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing"
+  },
+  {
+    "usia": 43,
+    "teamName": "DASP + OUTSOURCING",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "id": "t15-p1788489245716",
+    "teamId": "t15",
+    "fullName": "Noto Narwanto",
+    "pos": "CM"
+  },
+  {
+    "id": "t8-p1788490289654",
+    "fullName": "Ahmad Ilham Ramadhani",
+    "pos": "GK",
+    "usia": 30,
+    "teamId": "t8",
+    "teamName": "PERSITEVO",
+    "unit": "Fakultas Teknik - Vokasi"
+  },
+  {
+    "teamId": "t8",
+    "fullName": "Basir Wismoyo Jati",
+    "usia": 29,
+    "id": "t8-p1788490303390",
+    "unit": "Fakultas Teknik - Vokasi",
+    "pos": "CB",
+    "teamName": "PERSITEVO"
+  },
+  {
+    "id": "t8-p1788490312877",
+    "fullName": "Mohammad Nasrul Mubin",
+    "teamId": "t8",
+    "usia": 31,
+    "teamName": "PERSITEVO",
+    "pos": "CB",
+    "unit": "Fakultas Teknik - Vokasi"
+  },
+  {
+    "fullName": "Muhammad Nurruzzaman",
+    "pos": "CB",
+    "teamId": "t8",
+    "unit": "Fakultas Teknik - Vokasi",
+    "teamName": "PERSITEVO",
+    "id": "t8-p1788490325606",
+    "usia": 36
+  },
+  {
+    "fullName": "Setyawan",
+    "id": "t8-p1788490333965",
+    "teamName": "PERSITEVO",
+    "pos": "CB",
+    "usia": 50,
+    "teamId": "t8",
+    "unit": "Fakultas Teknik - Vokasi"
+  },
+  {
+    "teamName": "PERSITEVO",
+    "teamId": "t8",
+    "pos": "CB",
+    "id": "t8-p1788490343238",
+    "fullName": "Ikhwan Junaedi",
+    "unit": "Fakultas Teknik - Vokasi",
+    "usia": 50
+  },
+  {
+    "teamName": "PERSITEVO",
+    "pos": "CM",
+    "teamId": "t8",
+    "id": "t8-p1788490357765",
+    "fullName": "Didik Haryono",
+    "unit": "Fakultas Teknik - Vokasi",
+    "usia": 25
+  },
+  {
+    "id": "t8-p1788490366837",
+    "fullName": "Syaiful Romadhon",
+    "usia": 26,
+    "teamId": "t8",
+    "pos": "CM",
+    "teamName": "PERSITEVO",
+    "unit": "Fakultas Teknik - Vokasi"
+  },
+  {
+    "teamId": "t8",
+    "id": "t8-p1788490373989",
+    "fullName": "Purwo Setiawan",
+    "usia": 28,
+    "pos": "CM",
+    "teamName": "PERSITEVO",
+    "unit": "Fakultas Teknik - Vokasi"
+  },
+  {
+    "usia": 30,
+    "fullName": "Riyadi",
+    "unit": "Fakultas Teknik - Vokasi",
+    "teamId": "t8",
+    "id": "t8-p1788490391540",
+    "pos": "CM",
+    "teamName": "PERSITEVO"
+  },
+  {
+    "fullName": "Yulianto",
+    "teamId": "t8",
+    "pos": "CM",
+    "unit": "Fakultas Teknik - Vokasi",
+    "usia": 33,
+    "id": "t8-p1788490401748",
+    "teamName": "PERSITEVO"
+  },
+  {
+    "unit": "Fakultas Teknik - Vokasi",
+    "pos": "CM",
+    "usia": 34,
+    "fullName": "Ramzul Irham Riza",
+    "teamName": "PERSITEVO",
+    "id": "t8-p1788490408637",
+    "teamId": "t8"
+  },
+  {
+    "teamName": "PERSITEVO",
+    "pos": "FW",
+    "id": "t8-p1788490416637",
+    "unit": "Fakultas Teknik - Vokasi",
+    "fullName": "Firdaus Andan Saputro",
+    "usia": 20,
+    "teamId": "t8"
+  },
+  {
+    "teamId": "t8",
+    "id": "t8-p1788490425812",
+    "teamName": "PERSITEVO",
+    "pos": "FW",
+    "usia": 38,
+    "fullName": "Sigit Nugroho",
+    "unit": "Fakultas Teknik - Vokasi"
+  },
+  {
+    "pos": "FW",
+    "teamName": "PERSITEVO",
+    "teamId": "t8",
+    "id": "t8-p1788490437771",
+    "fullName": "Heru Setya Nugraha",
+    "unit": "Fakultas Teknik - Vokasi",
+    "usia": 39
+  },
+  {
+    "teamName": "PERSITEVO",
+    "usia": 50,
+    "id": "t8-p1788490445403",
+    "unit": "Fakultas Teknik - Vokasi",
+    "pos": "FW",
+    "teamId": "t8",
+    "fullName": "Andry Rakhman"
+  },
+  {
+    "fullName": "Riyan",
+    "pos": "CM",
+    "teamName": "LIBMA FC",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "teamId": "t12",
+    "usia": 26,
+    "id": "t12-p1788494002585"
+  },
+  {
+    "fullName": "Mansur H",
+    "usia": 39,
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "teamId": "t12",
+    "id": "t12-p1788494046297",
+    "teamName": "LIBMA FC",
+    "pos": "CM"
+  },
+  {
+    "id": "t12-p1788494095483",
+    "teamName": "LIBMA FC",
+    "pos": "GK",
+    "usia": 25,
+    "teamId": "t12",
+    "fullName": "Arilana",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS"
+  },
+  {
+    "pos": "CM",
+    "id": "t12-p1788494177217",
+    "fullName": "Danang",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "teamName": "LIBMA FC",
+    "usia": 44,
+    "teamId": "t12"
+  },
+  {
+    "fullName": "Azril",
+    "usia": 46,
+    "id": "t12-p1788494199573",
+    "teamId": "t12",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "pos": "CB",
+    "teamName": "LIBMA FC"
+  },
+  {
+    "fullName": "Didie Mulya",
+    "teamId": "t12",
+    "usia": 49,
+    "teamName": "LIBMA FC",
+    "unit": "Perpustakaan, LPPIK dan Mahad Abu Bakar UMS",
+    "pos": "GK",
+    "id": "t12-p1788494259235"
+  },
+  {
+    "pos": "CM",
+    "fullName": "Hexa Tendangan Petir",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "id": "t15-p1788504655281",
+    "teamName": "DASP + OUTSOURCING",
+    "teamId": "t15",
+    "usia": 21
+  },
+  {
+    "usia": 23,
+    "id": "t15-p1788573200872",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "fullName": "Lutfi Muchtar",
+    "pos": "GK",
+    "teamId": "t15",
+    "teamName": "DASP + OUTSOURCING"
+  },
+  {
+    "teamId": "t5",
+    "usia": 48,
+    "fullName": "Mahameru",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "pos": "CM",
+    "id": "t5-p1788577921401",
+    "teamName": "FEB"
+  },
+  {
+    "usia": 26,
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "teamId": "t14",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "id": "t14-p1788577929768",
+    "fullName": "SHEVA (SU/HUMAS)",
+    "pos": "FW"
+  },
+  {
+    "fullName": "Cahyo",
+    "id": "t5-p1788577951591",
+    "pos": "CM",
+    "teamId": "t5",
+    "unit": "Fakultas Ekonomi & Bisnis UMS",
+    "teamName": "FEB",
+    "usia": 38
+  },
+  {
+    "fullName": "WILDAN B (LPPIP)",
+    "pos": "FW",
+    "unit": "BPH, Sekretariat Universitas & Lembaga Universitas",
+    "teamId": "t14",
+    "teamName": "BPH + SEK.Univ/HUMAS + DAPEN + DSDMO ...",
+    "id": "t14-p1788577991476",
+    "usia": 30
+  },
+  {
+    "teamId": "t5",
+    "id": "t5-p1788578164162",
+    "fullName": "Abi",
+    "usia": 30,
+    "pos": "CB",
+    "teamName": "FEB",
+    "unit": "Fakultas Ekonomi & Bisnis UMS"
+  },
+  {
+    "fullName": "Zaki Surya",
+    "teamName": "FIK",
+    "id": "t10-p1788765091686",
+    "usia": 28,
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "teamId": "t10",
+    "pos": "CM"
+  },
+  {
+    "teamName": "FIK",
+    "id": "t10-p1788765103362",
+    "pos": "CM",
+    "usia": 36,
+    "teamId": "t10",
+    "fullName": "Firmansyah",
+    "unit": "Fakultas Ilmu Kesehatan UMS"
+  },
+  {
+    "pos": "CM",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "usia": 25,
+    "fullName": "Syrul",
+    "id": "t10-p1788765113434",
+    "teamId": "t10",
+    "teamName": "FIK"
+  },
+  {
+    "pos": "CM",
+    "fullName": "Langgeng",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "teamId": "t10",
+    "teamName": "FIK",
+    "id": "t10-p1788765122722",
+    "usia": 23
+  },
+  {
+    "teamId": "t10",
+    "teamName": "FIK",
+    "id": "t10-p1788765131261",
+    "usia": 37,
+    "fullName": "Mei",
+    "pos": "CM",
+    "unit": "Fakultas Ilmu Kesehatan UMS"
+  },
+  {
+    "fullName": "Dirman",
+    "id": "t10-p1788765141436",
+    "teamId": "t10",
+    "teamName": "FIK",
+    "usia": 37,
+    "pos": "CM",
+    "unit": "Fakultas Ilmu Kesehatan UMS"
+  },
+  {
+    "pos": "CM",
+    "id": "t10-p1788765150155",
+    "teamId": "t10",
+    "teamName": "FIK",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "fullName": "Totok",
+    "usia": 36
+  },
+  {
+    "id": "t10-p1788765158325",
+    "pos": "CM",
+    "teamName": "FIK",
+    "fullName": "Ico",
+    "unit": "Fakultas Ilmu Kesehatan UMS",
+    "usia": 22,
+    "teamId": "t10"
+  },
+  {
+    "pos": "CM",
+    "teamId": "t19",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "unit": "DSTI",
+    "id": "t19-p1789059930712",
+    "usia": 26,
+    "fullName": "Rifqi"
+  },
+  {
+    "fullName": "Faisal",
+    "pos": "GK",
+    "teamId": "t19",
+    "id": "t19-p1789059962646",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "unit": "DSTI",
+    "usia": 23
+  },
+  {
+    "fullName": "Nizar",
+    "pos": "CB",
+    "teamId": "t19",
+    "unit": "DSTI",
+    "id": "t19-p1789059994167",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "usia": 25
+  },
+  {
+    "teamId": "t19",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "id": "t19-p1789060013728",
+    "usia": 25,
+    "fullName": "Hafiz",
+    "unit": "DSTI",
+    "pos": "FW"
+  },
+  {
+    "fullName": "Restu",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "usia": 40,
+    "unit": "DSTI",
+    "pos": "CB",
+    "teamId": "t19",
+    "id": "t19-p1789060041261"
+  },
+  {
+    "fullName": "Syahrul",
+    "teamId": "t19",
+    "usia": 23,
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "pos": "CM",
+    "unit": "DAA",
+    "id": "t19-p1789060076350"
+  },
+  {
+    "pos": "CB",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "id": "t19-p1789060187459",
+    "unit": "DKPTI",
+    "usia": 40,
+    "teamId": "t19",
+    "fullName": "Shofian"
+  },
+  {
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "teamId": "t19",
+    "fullName": "Haryanto",
+    "usia": 40,
+    "pos": "CM",
+    "unit": "DKeu",
+    "id": "t19-p1789060260288"
+  },
+  {
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "teamId": "t19",
+    "pos": "CM",
+    "id": "t19-p1789060275127",
+    "fullName": "Ervan",
+    "unit": "DKeu",
+    "usia": 30
+  },
+  {
+    "pos": "FW",
+    "unit": "DSTI",
+    "teamId": "t19",
+    "usia": 24,
+    "id": "t19-p1789060334059",
+    "fullName": "Vandika",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI"
+  },
+  {
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "usia": 39,
+    "unit": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "id": "t19-p1789061617454",
+    "fullName": "Arif",
+    "teamId": "t19",
+    "pos": "CB"
+  },
+  {
+    "usia": 45,
+    "teamId": "t15",
+    "teamName": "DASP + OUTSOURCING",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "id": "t15-p1789091871497",
+    "fullName": "Mr Wuryanto",
+    "pos": "FW"
+  },
+  {
+    "teamName": "PERSITEVO",
+    "teamId": "t8",
+    "pos": "CM",
+    "unit": "Fakultas Teknik - Vokasi",
+    "fullName": "Ade Usman Saori",
+    "id": "t8-p1789446637787",
+    "usia": 48
+  },
+  {
+    "pos": "CM",
+    "fullName": "Reihan RIS",
+    "id": "t15-p1789713264250",
+    "unit": "Direktorat Aset & Sarana Prasarana serta Outsourcing",
+    "teamId": "t15",
+    "usia": 23,
+    "teamName": "DASP + OUTSOURCING"
+  },
+  {
+    "fullName": "Joko Sumpeno",
+    "teamId": "t16",
+    "id": "t16-p1790040419368",
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "usia": 42,
+    "unit": "Pesma & Fakultas Kedokteran Umum UMS",
+    "pos": "GK"
+  },
+  {
+    "fullName": "Widi Widayat",
+    "teamName": "TIKUM WONG MUMET FC",
+    "usia": 36,
+    "teamId": "t4",
+    "pos": "CM",
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "id": "t4-p1790040967078"
+  },
+  {
+    "fullName": "Mulia Ramdan F",
+    "teamId": "t4",
+    "pos": "FW",
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "id": "t4-p1790041067656",
+    "teamName": "TIKUM WONG MUMET FC",
+    "usia": 29
+  },
+  {
+    "usia": 36,
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "teamName": "TIKUM WONG MUMET FC",
+    "teamId": "t4",
+    "id": "t4-p1790041097171",
+    "fullName": "Dr. Andika Sanjaya",
+    "pos": "FW"
+  },
+  {
+    "pos": "CM",
+    "teamName": "TIKUM WONG MUMET FC",
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "id": "t4-p1790041139835",
+    "teamId": "t4",
+    "fullName": "Adi Wahyu Dewantoro",
+    "usia": 27
+  },
+  {
+    "usia": 31,
+    "unit": "Fakultas Komunikasi dan Informatika",
+    "teamId": "t4",
+    "fullName": "Eko Hargianto",
+    "pos": "CM",
+    "id": "t4-p1790041156694",
+    "teamName": "TIKUM WONG MUMET FC"
+  },
+  {
+    "fullName": "Galih",
+    "id": "t19-p1790042732424",
+    "usia": 36,
+    "teamId": "t19",
+    "pos": "CM",
+    "teamName": "DKeu + SAI + DAA + DKPTI + LP3A + DSTI",
+    "unit": "DSTI"
+  },
+  {
+    "pos": "CM",
+    "teamId": "t11",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "fullName": "Arbiter (shobron)",
+    "usia": 26,
+    "id": "t11-p1790062989009",
+    "teamName": "FAI + SOBRON"
+  },
+  {
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "teamName": "FAI + SOBRON",
+    "pos": "CM",
+    "usia": 26,
+    "id": "t11-p1790063003529",
+    "teamId": "t11",
+    "fullName": "Ali wava (shobron)"
+  },
+  {
+    "usia": 26,
+    "fullName": "Wahyudin (shobron)",
+    "id": "t11-p1790063019461",
+    "unit": "Fakultas Agama Islam & Ponpes Sobron",
+    "pos": "CB",
+    "teamName": "FAI + SOBRON",
+    "teamId": "t11"
+  },
+  {
+    "teamId": "t7",
+    "fullName": "Fuad (SPPG)",
+    "id": "t7-p1790078104676",
+    "usia": 37,
+    "pos": "CM",
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "teamName": "BPUI (AUM, AHASS, SPPG)"
+  },
+  {
+    "fullName": "Eggi (UMS Boga)",
+    "usia": 26,
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "teamName": "BPUI (AUM, AHASS, SPPG)",
+    "teamId": "t7",
+    "id": "t7-p1790078164759",
+    "pos": "CM"
+  },
+  {
+    "unit": "Badan Pengembangan Usaha & Investasi (BPUI)",
+    "fullName": "Ali (SPPG)",
+    "pos": "CB",
+    "usia": 27,
+    "id": "t7-p1790078374910",
+    "teamName": "BPUI (AUM, AHASS, SPPG)",
+    "teamId": "t7"
+  },
+  {
+    "teamId": "t1",
+    "id": "t1-p1790218162695",
+    "pos": "CM",
+    "teamName": "SATPAM UNITED",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "fullName": "Hendri Prasetya",
+    "usia": 26
+  },
+  {
+    "id": "t1-p1790218180070",
+    "teamId": "t1",
+    "fullName": "Nugroho Muhammad Sidik",
+    "usia": 35,
+    "pos": "CM",
+    "teamName": "SATPAM UNITED",
+    "unit": "Unit Keamanan / Satpam UMS"
+  },
+  {
+    "pos": "CM",
+    "unit": "Unit Keamanan / Satpam UMS",
+    "usia": 25,
+    "teamName": "SATPAM UNITED",
+    "id": "t1-p1790218196747",
+    "teamId": "t1",
+    "fullName": "Fredy Abdurrahman"
+  },
+  {
+    "fullName": "Budi Arianto",
+    "pos": "GK",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "teamId": "t9",
+    "id": "t9-p1790229847470",
+    "usia": 25
+  },
+  {
+    "teamId": "t9",
+    "fullName": "Yogo Prianto",
+    "id": "t9-p1790230067178",
+    "usia": 35,
+    "pos": "CB",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG"
+  },
+  {
+    "fullName": "Riszki Anas",
+    "usia": 25,
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "id": "t9-p1790230102501",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "teamId": "t9",
+    "pos": "CB"
+  },
+  {
+    "usia": 27,
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "pos": "CM",
+    "teamId": "t9",
+    "id": "t9-p1790230117231",
+    "fullName": "Yulianto"
+  },
+  {
+    "pos": "CM",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "id": "t9-p1790230142538",
+    "usia": 25,
+    "fullName": "Kholil Al Munawar",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "teamId": "t9"
+  },
+  {
+    "fullName": "Handoko Purno",
+    "teamId": "t9",
+    "id": "t9-p1790230170455",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "usia": 38,
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "pos": "CM"
+  },
+  {
+    "id": "t9-p1790230182621",
+    "pos": "FW",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "fullName": "Maksum",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "usia": 37,
+    "teamId": "t9"
+  },
+  {
+    "usia": 31,
+    "fullName": "Abdurrosyid Setyo Y",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "id": "t9-p1790230215285",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "pos": "CM",
+    "teamId": "t9"
+  },
+  {
+    "id": "t9-p1790230274590",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "usia": 44,
+    "teamId": "t9",
+    "fullName": "Muchris Efendy",
+    "pos": "CM",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS"
+  },
+  {
+    "pos": "CM",
+    "id": "t9-p1790230294883",
+    "fullName": "Randi Aprianto",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "usia": 24,
+    "teamId": "t9"
+  },
+  {
+    "pos": "CM",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "usia": 32,
+    "id": "t9-p1790230348765",
+    "fullName": "Irwan",
+    "teamId": "t9"
+  },
+  {
+    "pos": "CM",
+    "id": "t9-p1790230377020",
+    "fullName": "Arzaqi GUfron",
+    "teamId": "t9",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "usia": 25,
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG"
+  },
+  {
+    "pos": "CM",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "teamId": "t9",
+    "usia": 39,
+    "id": "t9-p1790230393597",
+    "fullName": "Isdarmanto"
+  },
+  {
+    "id": "t9-p1790230416784",
+    "pos": "CM",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "usia": 26,
+    "teamId": "t9",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "fullName": "Abdul"
+  },
+  {
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG",
+    "usia": 28,
+    "pos": "CM",
+    "id": "t9-p1790230428100",
+    "teamId": "t9",
+    "fullName": "Rafif Haq"
+  },
+  {
+    "id": "t9-p1790230542104",
+    "pos": "CM",
+    "unit": "RSGM Soelastri & Fakultas Kedokteran Gigi UMS",
+    "usia": 31,
+    "fullName": "Bima Tri At",
+    "teamId": "t9",
+    "teamName": "RSGM SOELASTRI SMILE 4 U_FKG"
+  },
+  {
+    "teamName": "PSYCHOPHARMA FC",
+    "usia": 25,
+    "id": "t18-p1790305295015",
+    "unit": "Fakultas Psikologi dan Fakultas Farmasi",
+    "pos": "CM",
+    "teamId": "t18",
+    "fullName": "Yaongky Pangestu (Psikologi)"
+  },
+  {
+    "id": "t16-p1790550320105",
+    "unit": "ODS",
+    "pos": "CM",
+    "usia": 25,
+    "teamName": "PESMA + KEDOKTERAN UMUM+ODS",
+    "teamId": "t16",
+    "fullName": "Purna"
+  }
+]
