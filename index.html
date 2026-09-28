@@ -1815,6 +1815,15 @@ function renderPublicMatches(){
   c.innerHTML=html||'<p class="text-slate-400">Belum ada pertandingan pada filter ini.</p>';
 }
 
+function getTeamInitials(name){
+  if(!name || name === 'Belum Ditentukan') return '⚽';
+  var clean = name.replace(/[+&/.,()_-]/g, ' ').trim();
+  var words = clean.split(/\s+/).filter(Boolean);
+  if(words.length === 0) return '⚽';
+  if(words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
 function pubMatchCard(m){
   var fin=m.status==='F';
   var winner=getMatchWinner(m);
@@ -1823,39 +1832,116 @@ function pubMatchCard(m){
   var hasPen=fin&&m.hScore===m.aScore&&m.hPen!=null&&m.aPen!=null;
   var hIsPlace=!m.hId||m.hName==='Belum Ditentukan';
   var aIsPlace=!m.aId||m.aName==='Belum Ditentukan';
-  var badge=fin?(hasPen?'<span class="badge-g">✅ Selesai (Adu Penalti)</span>':'<span class="badge-g">✅ Selesai</span>'):'<span class="badge-c">🕐 Terjadwal</span>';
+  
+  var badge=fin
+    ? (hasPen
+        ? '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">🥅 FT (Adu Penalti)</span>'
+        : '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">✅ FT Selesai</span>')
+    : '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">🕐 Terjadwal</span>';
+
+  var stageName = m.stage==='PO'?'Play-off':m.stage==='R16'?'16 Besar':m.stage==='QF'?'Perempat Final':m.stage==='SF'?'Semi Final':m.stage==='3RD'?'Juara 3':'Grand Final';
+
+  // Goals separation for Home vs Away
   var evHtml='';
   if(fin&&m.events&&m.events.length>0){
     var goals=m.events.filter(function(e){return e.type==='goal';});
     if(goals.length>0){
-      evHtml='<div class="mt-3 pt-3 border-t border-slate-800"><div class="text-xs text-slate-500 font-bold uppercase mb-1">Pencetak Gol</div>';
+      var hGoals=[], aGoals=[];
       goals.forEach(function(g){
-        evHtml+='<div class="text-xs text-slate-300 mb-1">⚽ <strong class="text-white">'+esc(g.player)+'</strong> <span class="text-slate-500">('+g.minute+'\') · '+esc(g.teamName)+'</span>';
-        if(g.assist)evHtml+=' <span class="text-slate-500">🎯 Assist: '+esc(g.assist)+'</span>';
-        evHtml+='</div>';
+        var isH=(g.team==='home')||(m.hName&&g.teamName===m.hName);
+        if(isH) hGoals.push(g);
+        else aGoals.push(g);
       });
-      evHtml+='</div>';
+
+      var hGoalsHtml = hGoals.map(function(g){
+        var assistText = g.assist ? '<div class="text-[10px] text-slate-400 mt-0.5">🎯 Assist: '+esc(g.assist)+'</div>' : '';
+        return '<div class="text-right w-full leading-tight">'
+          + '<div class="inline-flex items-center justify-end gap-1.5 text-xs flex-wrap">'
+          + '  <span class="text-white font-bold hover:text-cyan-300 transition">'+esc(g.player)+'</span>'
+          + '  <span class="text-cyan-400 font-mono font-bold text-[11px] bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-800/40">'+g.minute+'\'</span>'
+          + '  <span class="text-xs">⚽</span>'
+          + '</div>'
+          + assistText
+          + '</div>';
+      }).join('');
+
+      var aGoalsHtml = aGoals.map(function(g){
+        var assistText = g.assist ? '<div class="text-[10px] text-slate-400 mt-0.5">🎯 Assist: '+esc(g.assist)+'</div>' : '';
+        return '<div class="text-left w-full leading-tight">'
+          + '<div class="inline-flex items-center justify-start gap-1.5 text-xs flex-wrap">'
+          + '  <span class="text-xs">⚽</span>'
+          + '  <span class="text-cyan-400 font-mono font-bold text-[11px] bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-800/40">'+g.minute+'\'</span>'
+          + '  <span class="text-white font-bold hover:text-cyan-300 transition">'+esc(g.player)+'</span>'
+          + '</div>'
+          + assistText
+          + '</div>';
+      }).join('');
+
+      evHtml = '<div class="mt-3.5 pt-3 border-t border-slate-800/80">'
+        + '<div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider text-center mb-2">⚽ Pencetak Gol &amp; Assist</div>'
+        + '<div class="grid grid-cols-2 gap-3 sm:gap-6 relative">'
+        + '  <div class="flex flex-col items-end space-y-1.5 min-w-0 pr-1">' + (hGoalsHtml || '<div class="text-[11px] text-slate-600 text-right italic select-none">-</div>') + '</div>'
+        + '  <div class="flex flex-col items-start space-y-1.5 min-w-0 pl-1 border-l border-slate-800/60">' + (aGoalsHtml || '<div class="text-[11px] text-slate-600 text-left italic select-none">-</div>') + '</div>'
+        + '</div>'
+        + '</div>';
     }
   }
 
   var penInfoHtml='';
   if(hasPen){
     var winName=winner?winner.name:(m.hPen>m.aPen?m.hName:m.aName);
-    penInfoHtml='<div class="mt-2.5 text-center">'
-      +'<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm">'
-      +'🥅 Adu Penalti: <strong>'+m.hPen+' - '+m.aPen+'</strong> · Menang: <span class="text-white font-extrabold">'+esc(winName)+'</span>'
+    penInfoHtml='<div class="mt-2 text-center">'
+      +'<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-200 border border-amber-500/25 shadow-sm">'
+      +'<span>🏆 Menang Adu Penalti:</span> <strong class="text-amber-300 font-extrabold">'+esc(winName)+'</strong> <span class="font-mono text-amber-400 font-bold">('+m.hPen+' - '+m.aPen+')</span>'
       +'</span>'
       +'</div>';
   }
 
-  return '<div class="match-card"><div class="flex justify-between items-start mb-3 flex-wrap gap-2"><div class="text-xs text-slate-400">'+badge+' · Match #'+m.no+' · '+m.date+' · '+m.time+' · '+m.venue+'</div></div>'
-    +'<div class="flex items-center gap-2">'
-    +'<div class="flex-1 text-right font-bold text-sm'+(hW?' text-cyan-300 font-extrabold':'')+(hIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.hName)+'</div>'
-    +'<div class="flex items-center gap-1 flex-shrink-0"><div class="score-box">'+(fin?m.hScore:'-')+'</div><div style="color:#64748b;font-weight:800;">:</div><div class="score-box">'+(fin?m.aScore:'-')+'</div></div>'
-    +'<div class="flex-1 font-bold text-sm'+(aW?' text-cyan-300 font-extrabold':'')+(aIsPlace?' text-slate-500 italic font-normal':'')+'">'+esc(m.aName)+'</div>'
+  var scoreBoxHtml = '';
+  if(fin){
+    scoreBoxHtml = '<div class="flex flex-col items-center justify-center flex-shrink-0 mx-1 sm:mx-3">'
+      + '<div class="inline-flex items-center justify-center bg-slate-950/95 px-3.5 sm:px-4 py-1.5 rounded-xl border border-slate-700/80 shadow-[inset_0_2px_8px_rgba(0,0,0,0.6)]">'
+      + '  <span class="font-mono font-black text-xl sm:text-2xl md:text-3xl tracking-tight ' + (hW ? 'text-cyan-300 drop-shadow-[0_0_10px_rgba(0,240,255,0.6)]' : 'text-amber-400') + '">' + m.hScore + '</span>'
+      + '  <span class="text-slate-600 font-bold mx-2 text-sm sm:text-base select-none">:</span>'
+      + '  <span class="font-mono font-black text-xl sm:text-2xl md:text-3xl tracking-tight ' + (aW ? 'text-cyan-300 drop-shadow-[0_0_10px_rgba(0,240,255,0.6)]' : 'text-amber-400') + '">' + m.aScore + '</span>'
+      + '</div>'
+      + (hasPen ? '<div class="mt-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] sm:text-[11px] font-bold text-amber-300 whitespace-nowrap shadow-sm">🥅 Pen: <span class="font-mono font-black">' + m.hPen + ' - ' + m.aPen + '</span></div>' : '')
+      + '</div>';
+  } else {
+    scoreBoxHtml = '<div class="flex flex-col items-center justify-center flex-shrink-0 mx-1 sm:mx-3 px-3.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">'
+      + '<span class="text-xs sm:text-sm font-black text-cyan-400 tracking-wider">VS</span>'
+      + '</div>';
+  }
+
+  return '<div class="match-card p-4 sm:p-5">'
+    +'<div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800/80 flex-wrap gap-2">'
+    +'  <div class="flex items-center gap-2">'
+    +'    '+badge
+    +'    <span class="text-[11px] font-bold text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60">Match #'+m.no+' ('+stageName+')</span>'
+    +'  </div>'
+    +'  <div class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5 flex-wrap justify-end">'
+    +'    <span>⏰ '+esc(m.time)+'</span>'
+    +'    <span>· 📍 '+esc(m.venue||'Lap. Psikologi UMS')+'</span>'
+    +'  </div>'
+    +'</div>'
+    +'<div class="flex items-center justify-between gap-2 sm:gap-4 my-2">'
+    +'  <div class="flex-1 min-w-0 flex items-center justify-end gap-2 sm:gap-2.5 text-right">'
+    +'    <div class="min-w-0">'
+    +'      <div class="text-xs sm:text-sm md:text-base font-extrabold transition cursor-pointer hover:text-cyan-300 '+(hW?'text-cyan-300 drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]':(hIsPlace?'text-slate-500 italic font-normal':'text-white'))+'" onclick="goTo(\'teams\')" title="'+esc(m.hName)+'">'+esc(m.hName)+'</div>'
+    +'    </div>'
+    +'    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center flex-shrink-0 text-[11px] sm:text-xs font-black text-cyan-300 shadow-md select-none">'+getTeamInitials(m.hName)+'</div>'
+    +'  </div>'
+    +   scoreBoxHtml
+    +'  <div class="flex-1 min-w-0 flex items-center justify-start gap-2 sm:gap-2.5 text-left">'
+    +'    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center flex-shrink-0 text-[11px] sm:text-xs font-black text-amber-300 shadow-md select-none">'+getTeamInitials(m.aName)+'</div>'
+    +'    <div class="min-w-0">'
+    +'      <div class="text-xs sm:text-sm md:text-base font-extrabold transition cursor-pointer hover:text-cyan-300 '+(aW?'text-cyan-300 drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]':(aIsPlace?'text-slate-500 italic font-normal':'text-white'))+'" onclick="goTo(\'teams\')" title="'+esc(m.aName)+'">'+esc(m.aName)+'</div>'
+    +'    </div>'
+    +'  </div>'
     +'</div>'
     +penInfoHtml
-    +evHtml+'</div>';
+    +evHtml
+    +'</div>';
 }
 
 function renderStats(){
