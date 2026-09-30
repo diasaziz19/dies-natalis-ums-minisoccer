@@ -291,9 +291,91 @@
     </div>
     <div id="htabContent-matches" class="hidden"><div id="matchesList"></div></div>
     <div id="htabContent-stats" class="hidden">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="glass p-5"><h3 class="font-bold text-white mb-4">⚽ Top Scorer</h3><div id="topScorerList"></div></div>
-        <div class="glass p-5"><h3 class="font-bold text-white mb-4">🎯 Top Assist</h3><div id="topAssistList"></div></div>
+      <!-- HEADER & STATS SUMMARY / KPI BANNER -->
+      <div class="mb-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 mb-1">
+              ⭐ KONTRIBUSI INDIVIDU TURNAMEN
+            </div>
+            <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+              Statistik Lengkap Pencetak Gol &amp; Assist
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Daftar lengkap seluruh pencetak gol (Top Scorer) dan pengumpan gol (Top Assist) tanpa batasan peringkat</p>
+          </div>
+
+          <!-- View Mode Toggle Buttons (All, Goals Only, Assists Only) -->
+          <div class="inline-flex p-1 rounded-xl bg-slate-900/90 border border-slate-800 self-start sm:self-auto shadow-inner" id="statsViewToggleBtns">
+            <button type="button" id="btnStatsTabAll" onclick="setStatsViewMode('all')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+              <span>📊</span> <span>Semua</span>
+            </button>
+            <button type="button" id="btnStatsTabGoals" onclick="setStatsViewMode('goals')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white border border-transparent">
+              <span>⚽</span> <span>Top Scorer</span>
+            </button>
+            <button type="button" id="btnStatsTabAssists" onclick="setStatsViewMode('assists')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white border border-transparent">
+              <span>🎯</span> <span>Top Assist</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 KPI SUMMARY CARDS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="statsKpiCards">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- FILTER & SEARCH CONTROLS -->
+      <div class="glass p-3.5 sm:p-4 mb-5 border border-slate-800/80">
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+          <div class="sm:col-span-7 relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">🔍</span>
+            <input type="text" id="statsSearchInp" oninput="handleStatsSearch(this.value)" placeholder="Cari nama pemain atau nama tim..." class="form-inp pl-9 pr-8 py-2 text-xs sm:text-sm">
+            <button type="button" id="statsSearchClear" onclick="clearStatsSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+          </div>
+          <div class="sm:col-span-5 flex items-center gap-2">
+            <select id="statsTeamFilterSelect" onchange="handleStatsTeamFilter(this.value)" class="form-inp py-2 text-xs sm:text-sm flex-1">
+              <option value="ALL">🏢 Semua Tim Peserta</option>
+            </select>
+            <button type="button" onclick="resetStatsFilters()" class="btn-s py-2 px-3 text-xs flex-shrink-0" title="Reset Pencarian &amp; Filter">🧹 Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS LISTS (DUAL COLUMN OR TABBED) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start" id="statsListsGrid">
+        <!-- TOP SCORER COLUMN -->
+        <div id="statsColScorers" class="glass p-4 sm:p-5 flex flex-col justify-between border border-slate-800">
+          <div>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/10 border border-cyan-500/30 flex items-center justify-center text-lg shadow-sm">⚽</div>
+                <div>
+                  <h3 class="font-extrabold text-white text-sm sm:text-base leading-tight">Daftar Pencetak Gol (Top Scorer)</h3>
+                  <p class="text-[11px] text-slate-400">Peringkat kontribusi gol individu turnamen</p>
+                </div>
+              </div>
+              <span id="statsScorerCountBadge" class="badge-c">0 Pemain</span>
+            </div>
+            <div id="topScorerList" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <!-- TOP ASSIST COLUMN -->
+        <div id="statsColAssists" class="glass p-4 sm:p-5 flex flex-col justify-between border border-slate-800">
+          <div>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border border-amber-500/30 flex items-center justify-center text-lg shadow-sm">🎯</div>
+                <div>
+                  <h3 class="font-extrabold text-white text-sm sm:text-base leading-tight">Daftar Pengumpan Gol (Top Assist)</h3>
+                  <p class="text-[11px] text-slate-400">Peringkat pengumpan berbuah gol turnamen</p>
+                </div>
+              </div>
+              <span id="statsAssistCountBadge" class="badge-g">0 Pemain</span>
+            </div>
+            <div id="topAssistList" class="space-y-2.5"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1944,26 +2026,333 @@ function pubMatchCard(m){
     +'</div>';
 }
 
+var _statsSearchQuery = '';
+var _statsTeamFilter = 'ALL';
+var _statsViewMode = 'all'; // 'all', 'goals', 'assists'
+var _cachedScorers = [];
+var _cachedAssists = [];
+
+function setStatsViewMode(mode){
+  _statsViewMode = mode;
+  var btnAll = document.getElementById('btnStatsTabAll');
+  var btnGoals = document.getElementById('btnStatsTabGoals');
+  var btnAssists = document.getElementById('btnStatsTabAssists');
+  var colScorers = document.getElementById('statsColScorers');
+  var colAssists = document.getElementById('statsColAssists');
+  var grid = document.getElementById('statsListsGrid');
+
+  function setBtnStyle(btn, isActive){
+    if(!btn) return;
+    if(isActive){
+      btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm';
+    } else {
+      btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white border border-transparent';
+    }
+  }
+
+  setBtnStyle(btnAll, mode === 'all');
+  setBtnStyle(btnGoals, mode === 'goals');
+  setBtnStyle(btnAssists, mode === 'assists');
+
+  if(grid && colScorers && colAssists){
+    if(mode === 'goals'){
+      colScorers.classList.remove('hidden');
+      colAssists.classList.add('hidden');
+      grid.classList.remove('lg:grid-cols-2');
+      grid.classList.add('grid-cols-1');
+    } else if(mode === 'assists'){
+      colScorers.classList.add('hidden');
+      colAssists.classList.remove('hidden');
+      grid.classList.remove('lg:grid-cols-2');
+      grid.classList.add('grid-cols-1');
+    } else {
+      colScorers.classList.remove('hidden');
+      colAssists.classList.remove('hidden');
+      grid.classList.add('lg:grid-cols-2');
+      grid.classList.remove('grid-cols-1');
+    }
+  }
+}
+
+function handleStatsSearch(val){
+  _statsSearchQuery = (val || '').trim();
+  var clearBtn = document.getElementById('statsSearchClear');
+  if(clearBtn) clearBtn.classList.toggle('hidden', !_statsSearchQuery);
+  renderStatsListsOnly();
+}
+
+function clearStatsSearch(){
+  var inp = document.getElementById('statsSearchInp');
+  if(inp) inp.value = '';
+  _statsSearchQuery = '';
+  var clearBtn = document.getElementById('statsSearchClear');
+  if(clearBtn) clearBtn.classList.add('hidden');
+  renderStatsListsOnly();
+}
+
+function handleStatsTeamFilter(val){
+  _statsTeamFilter = val || 'ALL';
+  renderStatsListsOnly();
+}
+
+function resetStatsFilters(){
+  _statsSearchQuery = '';
+  _statsTeamFilter = 'ALL';
+  var inp = document.getElementById('statsSearchInp');
+  if(inp) inp.value = '';
+  var clearBtn = document.getElementById('statsSearchClear');
+  if(clearBtn) clearBtn.classList.add('hidden');
+  var sel = document.getElementById('statsTeamFilterSelect');
+  if(sel) sel.value = 'ALL';
+  renderStatsListsOnly();
+}
+
 function renderStats(){
-  var scorers={},assists={};
-  matches.filter(function(m){return m.status==='F';}).forEach(function(m){
-    (m.events||[]).filter(function(e){return e.type==='goal';}).forEach(function(g){
-      var k=g.player+'|'+g.teamName;
-      scorers[k]=(scorers[k]||0)+1;
-      if(g.assist){var ak=g.assist+'|'+g.teamName;assists[ak]=(assists[ak]||0)+1;}
+  // Populate Team Select dropdown if not yet populated
+  var teamSel = document.getElementById('statsTeamFilterSelect');
+  if(teamSel && teamSel.options.length <= 1 && typeof TEAMS !== 'undefined' && TEAMS.length > 0){
+    TEAMS.slice().sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); }).forEach(function(t){
+      var opt = document.createElement('option');
+      opt.value = t.name;
+      opt.textContent = t.name;
+      teamSel.appendChild(opt);
+    });
+  }
+
+  var scorersMap = {}, assistsMap = {};
+  var totalGoalsCount = 0;
+  var totalAssistsCount = 0;
+
+  (matches || []).filter(function(m){ return m.status === 'F'; }).forEach(function(m){
+    (m.events || []).filter(function(e){ return e.type === 'goal'; }).forEach(function(g){
+      totalGoalsCount++;
+
+      // Resolve teamName
+      var tName = g.teamName;
+      if(!tName){
+        if(g.team === 'home') tName = m.hName;
+        else if(g.team === 'away') tName = m.aName;
+      }
+      if(!tName){
+        var foundP = (players||[]).find(function(p){ return p.name.toLowerCase() === (g.player||'').toLowerCase(); });
+        if(foundP){
+          var foundT = (TEAMS||[]).find(function(t){ return t.id === foundP.teamId; });
+          if(foundT) tName = foundT.name;
+        }
+      }
+      tName = tName || 'Tim Peserta';
+
+      var sk = (g.player || 'Pemain') + '|' + tName;
+      if(!scorersMap[sk]){
+        scorersMap[sk] = {
+          name: g.player || 'Pemain',
+          team: tName,
+          v: 0,
+          minutes: [],
+          matchNos: []
+        };
+      }
+      scorersMap[sk].v += 1;
+      if(g.minute) scorersMap[sk].minutes.push(g.minute);
+      if(m.no && scorersMap[sk].matchNos.indexOf(m.no) === -1) scorersMap[sk].matchNos.push(m.no);
+
+      // Assists
+      if(g.assist && g.assist.trim()){
+        totalAssistsCount++;
+        var aPlayer = g.assist.trim();
+        var aTeam = tName;
+        var ak = aPlayer + '|' + aTeam;
+        if(!assistsMap[ak]){
+          assistsMap[ak] = {
+            name: aPlayer,
+            team: aTeam,
+            v: 0,
+            matchNos: []
+          };
+        }
+        assistsMap[ak].v += 1;
+        if(m.no && assistsMap[ak].matchNos.indexOf(m.no) === -1) assistsMap[ak].matchNos.push(m.no);
+      }
     });
   });
-  function renderList(obj,cid){
-    var el=document.getElementById(cid);if(!el)return;
-    var sorted=Object.keys(obj).map(function(k){return{k:k,v:obj[k]};}).sort(function(a,b){return b.v-a.v;});
-    if(!sorted.length){el.innerHTML='<p class="text-slate-500 text-sm">Belum ada data.</p>';return;}
-    el.innerHTML=sorted.slice(0,10).map(function(item,i){
-      var parts=item.k.split('|'),name=parts[0],team=parts[1]||'';
-      var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
-      return '<div class="scorer-row"><div style="min-width:24px;font-size:13px;font-weight:800;color:#ffd700;">'+medal+'</div><div style="flex:1"><div class="font-bold text-sm text-white">'+esc(name)+'</div><div class="text-xs text-slate-400">'+esc(team)+'</div></div><div class="font-extrabold text-xl text-cyan-400">'+item.v+'</div></div>';
+
+  // Sort and assign standard competition ranks
+  function buildRankedList(mapObj){
+    var list = Object.keys(mapObj).map(function(k){ return mapObj[k]; });
+    list.sort(function(a,b){
+      if(b.v !== a.v) return b.v - a.v;
+      return a.name.localeCompare(b.name);
+    });
+    var currentRank = 1;
+    for(var i = 0; i < list.length; i++){
+      if(i > 0 && list[i].v < list[i - 1].v){
+        currentRank = i + 1;
+      }
+      list[i].rank = currentRank;
+    }
+    return list;
+  }
+
+  _cachedScorers = buildRankedList(scorersMap);
+  _cachedAssists = buildRankedList(assistsMap);
+
+  // Render KPI Summary Cards
+  var kpiCon = document.getElementById('statsKpiCards');
+  if(kpiCon){
+    var topScorerLeader = _cachedScorers.length > 0 ? (_cachedScorers[0].name + ' (' + _cachedScorers[0].v + ' Gol)') : '-';
+    var topAssistLeader = _cachedAssists.length > 0 ? (_cachedAssists[0].name + ' (' + _cachedAssists[0].v + ' Ast)') : '-';
+
+    kpiCon.innerHTML = ''
+      + '<div class="glass p-3 sm:p-4 rounded-xl border border-slate-800 flex items-center gap-3">'
+      + '  <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-xl flex-shrink-0">⚽</div>'
+      + '  <div class="min-w-0 flex-1">'
+      + '    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">Total Gol</div>'
+      + '    <div class="text-xl sm:text-2xl font-black font-mono text-cyan-300 leading-tight">' + totalGoalsCount + ' <span class="text-xs font-normal text-slate-400 font-sans">Gol</span></div>'
+      + '    <div class="text-[10px] text-slate-500 truncate mt-0.5">' + _cachedScorers.length + ' pemain tercatat</div>'
+      + '  </div>'
+      + '</div>'
+      + '<div class="glass p-3 sm:p-4 rounded-xl border border-slate-800 flex items-center gap-3">'
+      + '  <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl flex-shrink-0">🎯</div>'
+      + '  <div class="min-w-0 flex-1">'
+      + '    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">Total Assist</div>'
+      + '    <div class="text-xl sm:text-2xl font-black font-mono text-amber-300 leading-tight">' + totalAssistsCount + ' <span class="text-xs font-normal text-slate-400 font-sans">Assist</span></div>'
+      + '    <div class="text-[10px] text-slate-500 truncate mt-0.5">' + _cachedAssists.length + ' pengumpan tercatat</div>'
+      + '  </div>'
+      + '</div>'
+      + '<div class="glass p-3 sm:p-4 rounded-xl border border-slate-800 flex items-center gap-3">'
+      + '  <div class="w-10 h-10 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-xl flex-shrink-0">👑</div>'
+      + '  <div class="min-w-0 flex-1">'
+      + '    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">Pemuncak Gol</div>'
+      + '    <div class="text-xs sm:text-sm font-black text-white truncate leading-tight hover:text-cyan-300" title="' + esc(topScorerLeader) + '">' + esc(topScorerLeader) + '</div>'
+      + '    <div class="text-[10px] text-yellow-400/80 truncate mt-0.5">' + (_cachedScorers.length > 0 ? esc(_cachedScorers[0].team) : '-') + '</div>'
+      + '  </div>'
+      + '</div>'
+      + '<div class="glass p-3 sm:p-4 rounded-xl border border-slate-800 flex items-center gap-3">'
+      + '  <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xl flex-shrink-0">🎩</div>'
+      + '  <div class="min-w-0 flex-1">'
+      + '    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">Pemuncak Assist</div>'
+      + '    <div class="text-xs sm:text-sm font-black text-white truncate leading-tight hover:text-amber-300" title="' + esc(topAssistLeader) + '">' + esc(topAssistLeader) + '</div>'
+      + '    <div class="text-[10px] text-emerald-400/80 truncate mt-0.5">' + (_cachedAssists.length > 0 ? esc(_cachedAssists[0].team) : '-') + '</div>'
+      + '  </div>'
+      + '</div>';
+  }
+
+  renderStatsListsOnly();
+}
+
+function renderStatsListsOnly(){
+  var query = (_statsSearchQuery || '').toLowerCase().trim();
+  var teamFilter = _statsTeamFilter || 'ALL';
+
+  function filterItems(list){
+    return list.filter(function(item){
+      var matchQ = true;
+      if(query){
+        matchQ = (item.name.toLowerCase().indexOf(query) !== -1) || (item.team.toLowerCase().indexOf(query) !== -1);
+      }
+      var matchT = true;
+      if(teamFilter !== 'ALL'){
+        matchT = item.team === teamFilter;
+      }
+      return matchQ && matchT;
+    });
+  }
+
+  var filteredScorers = filterItems(_cachedScorers);
+  var filteredAssists = filterItems(_cachedAssists);
+
+  // Update badges with live counts
+  var scBadge = document.getElementById('statsScorerCountBadge');
+  if(scBadge){
+    scBadge.textContent = (_statsSearchQuery || _statsTeamFilter !== 'ALL')
+      ? (filteredScorers.length + ' / ' + _cachedScorers.length + ' Pemain')
+      : (_cachedScorers.length + ' Pemain');
+  }
+  var asBadge = document.getElementById('statsAssistCountBadge');
+  if(asBadge){
+    asBadge.textContent = (_statsSearchQuery || _statsTeamFilter !== 'ALL')
+      ? (filteredAssists.length + ' / ' + _cachedAssists.length + ' Pemain')
+      : (_cachedAssists.length + ' Pemain');
+  }
+
+  // Render function for cards (entire list rendered, never limited to 10)
+  function renderPlayerListHtml(items, type, maxGlobalVal){
+    if(!items || items.length === 0){
+      return '<div class="glass p-6 text-center text-slate-500 text-xs border border-slate-800/60 rounded-xl">'
+        + '<div class="text-2xl mb-1">' + (type === 'goals' ? '⚽' : '🎯') + '</div>'
+        + '<div class="font-bold text-slate-400">Tidak ada pemain yang sesuai</div>'
+        + '<p class="text-[11px] text-slate-500 mt-1">Coba sesuaikan kata kunci pencarian atau filter tim.</p>'
+        + '</div>';
+    }
+
+    return items.map(function(item){
+      var rankBadge = '';
+      var rowBorderClass = 'border-slate-800/90 bg-slate-900/50 hover:bg-slate-800/70 hover:border-slate-700';
+
+      if(item.rank === 1){
+        rankBadge = '<span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/30 to-yellow-500/10 border border-amber-500/60 text-amber-300 font-black text-xs shadow-[0_0_12px_rgba(245,158,11,0.25)] select-none">🥇 1</span>';
+        rowBorderClass = 'border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-slate-900/70 to-slate-900/50 hover:border-amber-500/70';
+      } else if(item.rank === 2){
+        rankBadge = '<span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-slate-300/30 to-slate-400/10 border border-slate-300/60 text-slate-200 font-black text-xs select-none">🥈 2</span>';
+        rowBorderClass = 'border-slate-400/35 bg-gradient-to-r from-slate-400/10 via-slate-900/70 to-slate-900/50 hover:border-slate-400/60';
+      } else if(item.rank === 3){
+        rankBadge = '<span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-amber-700/30 to-amber-800/10 border border-amber-600/60 text-amber-400 font-black text-xs select-none">🥉 3</span>';
+        rowBorderClass = 'border-amber-700/35 bg-gradient-to-r from-amber-700/10 via-slate-900/70 to-slate-900/50 hover:border-amber-700/60';
+      } else {
+        rankBadge = '<span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 font-mono font-bold text-xs select-none">#' + item.rank + '</span>';
+      }
+
+      var teamObj = (typeof TEAMS !== 'undefined' ? TEAMS : []).find(function(t){ return t.name === item.team; });
+      var teamAction = teamObj ? 'showSquadModal(\'' + teamObj.id + '\')' : 'goTo(\'teams\')';
+      var teamInitials = getTeamInitials(item.team);
+
+      var pct = Math.max(10, Math.min(100, Math.round((item.v / (maxGlobalVal || 1)) * 100)));
+      var barGradient = type === 'goals' ? 'from-cyan-500 to-blue-500' : 'from-amber-500 to-yellow-400';
+      var numColor = type === 'goals' ? 'text-cyan-300' : 'text-amber-300';
+      var numLabel = type === 'goals' ? 'Gol' : 'Ast';
+
+      var subDetails = [];
+      if(item.matchNos && item.matchNos.length > 0){
+        subDetails.push('Match #' + item.matchNos.join(', #'));
+      }
+      if(item.minutes && item.minutes.length > 0){
+        subDetails.push(item.minutes.map(function(m){ return m + '\''; }).join(', '));
+      }
+      var subDetailText = subDetails.length > 0 ? ('<span class="text-[10px] text-slate-500 truncate">· ' + esc(subDetails.join(' | ')) + '</span>') : '';
+
+      return '<div class="p-3 rounded-xl border ' + rowBorderClass + ' transition-all duration-200">'
+        + '<div class="flex items-center gap-2.5 sm:gap-3">'
+        + '  <div class="flex-shrink-0">' + rankBadge + '</div>'
+        + '  <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center flex-shrink-0 text-[11px] font-black ' + (type === 'goals' ? 'text-cyan-300' : 'text-amber-300') + ' shadow cursor-pointer" onclick="' + teamAction + '" title="Lihat Skuad ' + esc(item.team) + '">' + teamInitials + '</div>'
+        + '  <div class="min-w-0 flex-1">'
+        + '    <div class="flex items-center gap-1.5 flex-wrap">'
+        + '      <span class="font-extrabold text-white text-xs sm:text-sm hover:text-cyan-300 transition truncate cursor-pointer" onclick="' + teamAction + '">' + esc(item.name) + '</span>'
+        + '    </div>'
+        + '    <div class="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5 flex-wrap">'
+        + '      <span class="hover:text-cyan-300 transition cursor-pointer truncate max-w-[140px] sm:max-w-[200px]" onclick="' + teamAction + '" title="' + esc(item.team) + '">' + esc(item.team) + '</span>'
+        + subDetailText
+        + '    </div>'
+        + '    <div class="w-full bg-slate-950/80 rounded-full h-1.5 mt-2 overflow-hidden border border-slate-800/80">'
+        + '      <div class="h-full rounded-full bg-gradient-to-r ' + barGradient + '" style="width:' + pct + '%;"></div>'
+        + '    </div>'
+        + '  </div>'
+        + '  <div class="text-right flex-shrink-0 min-w-[56px] sm:min-w-[68px] pl-1">'
+        + '    <div class="font-mono font-black text-lg sm:text-xl ' + numColor + ' leading-none">' + item.v + '</div>'
+        + '    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">' + numLabel + '</div>'
+        + '  </div>'
+        + '</div>'
+        + '</div>';
     }).join('');
   }
-  renderList(scorers,'topScorerList');renderList(assists,'topAssistList');
+
+  var maxScorerVal = _cachedScorers.length > 0 ? _cachedScorers[0].v : 1;
+  var maxAssistVal = _cachedAssists.length > 0 ? _cachedAssists[0].v : 1;
+
+  var elScorer = document.getElementById('topScorerList');
+  if(elScorer) elScorer.innerHTML = renderPlayerListHtml(filteredScorers, 'goals', maxScorerVal);
+
+  var elAssist = document.getElementById('topAssistList');
+  if(elAssist) elAssist.innerHTML = renderPlayerListHtml(filteredAssists, 'assists', maxAssistVal);
 }
 
 // ==================== TEAMS VIEW ====================
