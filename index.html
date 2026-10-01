@@ -1930,7 +1930,15 @@ function pubMatchCard(m){
     if(goals.length>0){
       var hGoals=[], aGoals=[];
       goals.forEach(function(g){
-        var isH=(g.team==='home')||(m.hName&&g.teamName===m.hName);
+        var isH = (g.team==='home') || (m.hName && g.teamName && g.teamName.toLowerCase().trim() === m.hName.toLowerCase().trim());
+        var isA = (g.team==='away') || (m.aName && g.teamName && g.teamName.toLowerCase().trim() === m.aName.toLowerCase().trim());
+        if(!isH && !isA && g.player){
+          var pFound = (players||[]).find(function(p){ return (p.fullName||p.name||'').toLowerCase().trim() === g.player.toLowerCase().trim(); });
+          if(pFound){
+            if(m.hId && pFound.teamId === m.hId) isH = true;
+            else if(m.aId && pFound.teamId === m.aId) isA = true;
+          }
+        }
         if(isH) hGoals.push(g);
         else aGoals.push(g);
       });
@@ -3600,10 +3608,21 @@ function checkPenaltyVisibility(){
 }
 
 function goalRowHtml(idx,ev,allOpts){
+  var evSide = '';
+  if(ev){
+    evSide = ev.team || '';
+    if(!evSide && ev.teamName){
+      var gH = document.getElementById('goalHName') ? document.getElementById('goalHName').textContent : '';
+      var gA = document.getElementById('goalAName') ? document.getElementById('goalAName').textContent : '';
+      if(gH && ev.teamName.toLowerCase().trim() === gH.toLowerCase().trim()) evSide = 'home';
+      else if(gA && ev.teamName.toLowerCase().trim() === gA.toLowerCase().trim()) evSide = 'away';
+    }
+  }
+  var evOpt = ev ? '<option value="'+esc(ev.player)+'" '+(evSide?'data-side="'+evSide+'"':'')+' selected>'+esc(ev.player)+'</option>' : '';
   return '<div class="event-row" id="evRow'+idx+'">'
     +'<div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-cyan-400">Gol #'+(idx+1)+'</span><button type="button" onclick="removeGoalRow('+idx+')" style="color:#f87171;background:none;border:none;cursor:pointer;font-size:18px;line-height:1;">✕</button></div>'
     +'<div class="grid grid-cols-3 gap-2 mb-2">'
-    +'<div class="col-span-2"><label class="form-lbl">Pencetak Gol</label><select class="form-inp ev-player">'+(ev?'<option value="'+esc(ev.player)+'" selected>'+esc(ev.player)+'</option>':'')+allOpts+'</select></div>'
+    +'<div class="col-span-2"><label class="form-lbl">Pencetak Gol</label><select class="form-inp ev-player">'+evOpt+allOpts+'</select></div>'
     +'<div><label class="form-lbl">Menit</label><input type="number" class="form-inp ev-minute" min="1" max="90" placeholder="1-90" value="'+(ev?ev.minute:'')+'"></div>'
     +'</div>'
     +'<div><label class="form-lbl">Assist (Opsional)</label><select class="form-inp ev-assist"><option value="">— Tidak ada —</option>'+(ev&&ev.assist?'<option value="'+esc(ev.assist)+'" selected>'+esc(ev.assist)+'</option>':'')+allOpts+'</select></div>'
@@ -3666,7 +3685,15 @@ function saveScore(matchId){
     var aSel=row.querySelector('.ev-assist');
     if(!pSel||!pSel.value)return;
     var selOpt=pSel.options[pSel.selectedIndex];
-    var side=selOpt?selOpt.getAttribute('data-side'):'home';
+    var side=selOpt?selOpt.getAttribute('data-side'):null;
+    if(!side){
+      var pObj=(players||[]).find(function(p){return (p.fullName||p.name||'').toLowerCase().trim()===pSel.value.toLowerCase().trim();});
+      if(pObj){
+        if(m.hId && pObj.teamId===m.hId) side='home';
+        else if(m.aId && pObj.teamId===m.aId) side='away';
+      }
+    }
+    if(!side) side='home';
     m.events.push({type:'goal',player:pSel.value,minute:parseInt(minEl?minEl.value:0)||0,assist:aSel?aSel.value:'',team:side,teamName:side==='home'?m.hName:m.aName});
   });
   applyProgression();
@@ -4767,16 +4794,42 @@ function renderManager(){
     var myS=fin?(isH?m.hScore:m.aScore):'-',opS=fin?(isH?m.aScore:m.hScore):'-';
     var opp=isH?m.aName:m.hName;
     var res=fin?(myS>opS?'<span class="text-emerald-400 font-bold">✅ Menang</span>':myS<opS?'<span class="text-red-400 font-bold">❌ Kalah</span>':'<span class="text-amber-400 font-bold">🤝 Seri</span>'):'<span class="text-slate-400">⏳ Terjadwal</span>';
-    // Goal events for this team
-    var myGoals=(m.events||[]).filter(function(e){return e.type==='goal'&&e.team===(isH?'home':'away');});
-    var goalsHtml=myGoals.length>0?'<div class="mt-1.5 pl-1">'+myGoals.map(function(g){return '<span class="text-xs text-slate-400">⚽ '+esc(g.player)+' ('+g.minute+'\')'+(g.assist?' 🎯'+esc(g.assist):'')+' </span>';}).join('')+'</div>':'';
+    
+    // Goal events for this team (matching by teamName, side, or player roster)
+    var myGoals=(m.events||[]).filter(function(e){
+      if(e.type!=='goal') return false;
+      // 1. Match by teamName
+      if(e.teamName){
+        if(t && e.teamName.toLowerCase().trim()===t.name.toLowerCase().trim()) return true;
+        if(isH && m.hName && e.teamName.toLowerCase().trim()===m.hName.toLowerCase().trim()) return true;
+        if(!isH && m.aName && e.teamName.toLowerCase().trim()===m.aName.toLowerCase().trim()) return true;
+      }
+      // 2. Match by home/away side
+      if(e.team && e.team===(isH?'home':'away')) return true;
+      // 3. Fallback: match by player roster
+      if(e.player && ps.some(function(p){ return (p.fullName||p.name||'').toLowerCase().trim()===e.player.toLowerCase().trim(); })) return true;
+      return false;
+    });
+
+    var goalsHtml=myGoals.length>0
+      ? '<div class="mt-2 flex flex-wrap gap-1.5 pt-1.5 border-t border-slate-800/40">'
+        + myGoals.map(function(g){
+            return '<span class="inline-flex items-center gap-1 bg-slate-900/90 px-2 py-0.5 rounded-md border border-slate-700/60 text-xs text-slate-200">'
+              + '<span>⚽</span> <strong class="text-white">'+esc(g.player)+'</strong>'
+              + (g.minute?'<span class="text-cyan-400 font-mono text-[11px] font-bold">('+g.minute+'\')</span>':'')
+              + (g.assist?'<span class="text-slate-400 text-[11px] ml-0.5">🎯 '+esc(g.assist)+'</span>':'')
+              + '</span>';
+          }).join('')
+        + '</div>'
+      : '';
+
     return '<div class="py-3 border-b border-slate-800/50">'
       +'<div class="text-xs text-slate-500 mb-1">Match #'+m.no+' · '+m.date+' · '+m.time+'</div>'
       +'<div class="flex items-center gap-2 text-sm">'
       +'<div class="text-xl font-extrabold text-amber-400" style="min-width:40px;text-align:center;">'+myS+'</div>'
       +'<div class="text-slate-500 font-bold">vs</div>'
       +'<div class="text-xl font-extrabold text-amber-400" style="min-width:40px;text-align:center;">'+opS+'</div>'
-      +'<div class="flex-1 min-w-0"><div class="text-xs text-slate-300 truncate">'+esc(opp)+'</div>'+res+'</div>'
+      +'<div class="flex-1 min-w-0"><div class="text-xs text-slate-300 truncate font-semibold">'+esc(opp)+'</div>'+res+'</div>'
       +'</div>'+goalsHtml+'</div>';
   }).join('');
 
